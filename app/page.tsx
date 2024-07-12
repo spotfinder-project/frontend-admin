@@ -2,16 +2,19 @@
 import { FormControl, Input, Button } from "@mui/base";
 import Head from "next/head";
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     console.log("Username:", username);
     console.log("Password:", password);
+    router.push("/main/users");
   };
   return (
     <div>
