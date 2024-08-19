@@ -14,7 +14,7 @@ export default function LoginPage() {
 
     console.log("Username:", username);
     console.log("Password:", password);
-    router.push("/main/users");
+    router.push("/main");
   };
   return (
     <div>

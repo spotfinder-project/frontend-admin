@@ -26,6 +26,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         <nav className="fixed top-16 left-0 w-64 bg-gray-800 text-white h-full">
           <ul className="space-y-4 p-4">
             <li>
+              <Link href="/main" passHref>
+                <Button className="block w-full text-left p-2 hover:bg-gray-700 rounded">
+                  홈
+                </Button>
+              </Link>
+            </li>
+            <li>
               <Link href="/main/users" passHref>
                 <Button className="block w-full text-left p-2 hover:bg-gray-700 rounded">
                   사용자 관리
