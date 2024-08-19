@@ -69,7 +69,9 @@ const UserManagementPage: React.FC = () => {
     setSearchQuery(event.target.value);
   };
 
-  const handleChangeRowsPerPage = (event: SelectChangeEvent<number>) => {
+  const handleChangeRowsPerPage = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setRowsPerPage(parseInt(event.target.value as string, 10));
     setPage(0);
   };
@@ -87,7 +89,7 @@ const UserManagementPage: React.FC = () => {
     setSelectedUsers([]);
   };
 
-  const handleClick = (event: MouseEvent<unknown>, id: number) => {
+  const handleClick = (event: ChangeEvent<HTMLInputElement>, id: number) => {
     const selectedIndex = selectedUsers.indexOf(id);
     let newSelected: number[] = [];
 
@@ -172,11 +174,11 @@ const UserManagementPage: React.FC = () => {
                     role="checkbox"
                     aria-checked={selectedUsers.indexOf(user.id) !== -1}
                     selected={selectedUsers.indexOf(user.id) !== -1}
-                    onClick={(event) => handleClick(event, user.id)}
                   >
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={selectedUsers.indexOf(user.id) !== -1}
+                        onChange={(event) => handleClick(event, user.id)}
                       />
                     </TableCell>
                     {columns.map((column) => (
@@ -194,7 +196,7 @@ const UserManagementPage: React.FC = () => {
             <InputLabel>Rows per page</InputLabel>
             <Select
               value={rowsPerPage}
-              onChange={handleChangeRowsPerPage}
+              onChange={(e) => handleChangeRowsPerPage(e as any)}
               label="Rows per page"
             >
               <MenuItem value={10}>10</MenuItem>
