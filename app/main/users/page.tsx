@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, ChangeEvent, MouseEvent } from "react";
 import UserQueryForm from "@/components/users/UserQueryForm";
+import Pagination from "@/components/ui/Pagination";
 
 type User = {
   id: number;
@@ -28,6 +29,22 @@ const initialUsers: User[] = [
     socialLogin: "Facebook",
     createdDate: "2019-03-22",
   },
+  {
+    id: 3,
+    name: "Jane Smith 2",
+    gender: "Female",
+    birthDate: "1985-05-15",
+    socialLogin: "Facebook",
+    createdDate: "2019-03-22",
+  },
+  {
+    id: 4,
+    name: "Jane Smith 3",
+    gender: "Female",
+    birthDate: "1985-05-15",
+    socialLogin: "Facebook",
+    createdDate: "2019-03-22",
+  },
   // Add more sample users as needed
 ];
 
@@ -38,6 +55,14 @@ const columns = [
   { id: "birthDate", label: "Birth Date" },
   { id: "socialLogin", label: "Social Login" },
   { id: "createdDate", label: "Created Date" },
+  { id: "edit", label: "Edit" },
+];
+
+const rowsPerPageOptions = [
+  { value: 10, label: 10 },
+  { value: 25, label: 25 },
+  { value: 50, label: 50 },
+  { value: 100, label: 100 },
 ];
 
 const UserManagementPage: React.FC = () => {
@@ -57,7 +82,7 @@ const UserManagementPage: React.FC = () => {
   };
 
   const handleChangePage = (newPage: number) => {
-    setPage(newPage);
+    setPage(newPage - 1);
   };
 
   const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
@@ -94,6 +119,14 @@ const UserManagementPage: React.FC = () => {
     setSelectedUsers([]);
   };
 
+  const handleClickUser = (user: User) => {
+    console.log("click user", user);
+  };
+
+  const handleClickEdit = (user: User) => {
+    console.log("click edit", user);
+  };
+
   const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -102,6 +135,8 @@ const UserManagementPage: React.FC = () => {
       user.socialLogin.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.createdDate.includes(searchQuery)
   );
+
+  const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-4">
@@ -115,13 +150,36 @@ const UserManagementPage: React.FC = () => {
             onChange={handleSearchChange}
             className="input input-bordered w-1/3"
           />
-          <button
-            className="btn btn-error mt-4"
-            onClick={handleDelete}
-            disabled={selectedUsers.length === 0}
-          >
-            Delete
-          </button>
+          <div className="flex items-end">
+            <button
+              className="btn btn-sm  btn-error mt-4"
+              onClick={handleDelete}
+              disabled={selectedUsers.length === 0}
+            >
+              Delete
+            </button>
+
+            <div className="form-control ml-4">
+              <div className="label pb-0">
+                <span className="label-text">페이지 당 개수</span>
+              </div>
+              <select
+                className="select select-bordered select-sm"
+                value={rowsPerPage}
+                onChange={handleChangeRowsPerPage}
+              >
+                {rowsPerPageOptions.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                    disabled={option.value === 0}
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="table table-zebra w-full">
@@ -164,48 +222,36 @@ const UserManagementPage: React.FC = () => {
                         onChange={(event) => handleClick(event, user.id)}
                       />
                     </td>
-                    {columns.map((column) => (
-                      <td key={column.id}>{(user as any)[column.id]}</td>
-                    ))}
+                    {columns.map((column) =>
+                      column.id !== "edit" ? (
+                        <td
+                          key={column.id}
+                          onClick={() => handleClickUser(user)}
+                        >
+                          {(user as any)[column.id]}
+                        </td>
+                      ) : (
+                        <td key="edit">
+                          <button
+                            className="btn btn-neutral"
+                            onClick={() => handleClickEdit(user)}
+                          >
+                            Edit
+                          </button>
+                        </td>
+                      )
+                    )}
                   </tr>
                 ))}
             </tbody>
           </table>
         </div>
-        <div className="flex justify-between items-center p-4">
-          <div className="form-control w-1/4">
-            <label className="label">
-              <span className="label-text">Rows per page</span>
-            </label>
-            <select
-              className="select select-bordered"
-              value={rowsPerPage}
-              onChange={handleChangeRowsPerPage}
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
-          </div>
-          <div>
-            <button
-              className="btn"
-              onClick={() => handleChangePage(page - 1)}
-              disabled={page === 0}
-            >
-              Previous
-            </button>
-            <button
-              className="btn ml-2"
-              onClick={() => handleChangePage(page + 1)}
-              disabled={
-                page >= Math.ceil(filteredUsers.length / rowsPerPage) - 1
-              }
-            >
-              Next
-            </button>
-          </div>
+        <div className="flex justify-center items-center p-4">
+          <Pagination
+            currentPage={page + 1} // Adjusting for one-based index
+            totalPages={totalPages}
+            onPageChange={handleChangePage}
+          />
         </div>
       </div>
     </div>
