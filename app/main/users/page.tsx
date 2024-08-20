@@ -1,24 +1,6 @@
 "use client";
 import React, { useState, ChangeEvent, MouseEvent } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Checkbox,
-  TablePagination,
-  Button,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Toolbar,
-  SelectChangeEvent,
-} from "@mui/material";
+// import UserQueryForm from "@/components/users/UserQueryForm";
 
 type User = {
   id: number;
@@ -69,14 +51,12 @@ const UserManagementPage: React.FC = () => {
     setSearchQuery(event.target.value);
   };
 
-  const handleChangeRowsPerPage = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value as string, 10));
+  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLSelectElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (newPage: number) => {
     setPage(newPage);
   };
 
@@ -125,97 +105,109 @@ const UserManagementPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <Paper>
-        <Toolbar className="flex justify-between">
-          <TextField
-            label="Search"
-            variant="outlined"
+      {/* <UserQueryForm /> */}
+      <div className="mt-4 bg-base-100 shadow-lg rounded-lg">
+        <div className="flex justify-between items-center p-4">
+          <input
+            type="text"
+            placeholder="Search"
             value={searchQuery}
             onChange={handleSearchChange}
-            className="w-1/3"
+            className="input input-bordered w-1/3"
           />
-          <Button
-            variant="contained"
-            color="secondary"
+          <button
+            className="btn btn-error mt-4"
             onClick={handleDelete}
             disabled={selectedUsers.length === 0}
           >
             Delete
-          </Button>
-        </Toolbar>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    indeterminate={
-                      selectedUsers.length > 0 &&
-                      selectedUsers.length < users.length
-                    }
+          </button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="table table-zebra w-full">
+            <thead>
+              <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    className="checkbox"
                     checked={
                       users.length > 0 && selectedUsers.length === users.length
                     }
+                    // indeterminate={
+                    //   selectedUsers.length > 0 &&
+                    //   selectedUsers.length < users.length
+                    // }
                     onChange={handleSelectAllClick}
                   />
-                </TableCell>
+                </th>
                 {columns.map((column) => (
-                  <TableCell key={column.id}>{column.label}</TableCell>
+                  <th key={column.id}>{column.label}</th>
                 ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
+              </tr>
+            </thead>
+            <tbody>
               {filteredUsers
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((user) => (
-                  <TableRow
+                  <tr
                     key={user.id}
-                    hover
-                    role="checkbox"
-                    aria-checked={selectedUsers.indexOf(user.id) !== -1}
-                    selected={selectedUsers.indexOf(user.id) !== -1}
+                    className={`hover ${
+                      selectedUsers.indexOf(user.id) !== -1 ? "active" : ""
+                    }`}
                   >
-                    <TableCell padding="checkbox">
-                      <Checkbox
+                    <td>
+                      <input
+                        type="checkbox"
+                        className="checkbox"
                         checked={selectedUsers.indexOf(user.id) !== -1}
                         onChange={(event) => handleClick(event, user.id)}
                       />
-                    </TableCell>
+                    </td>
                     {columns.map((column) => (
-                      <TableCell key={column.id}>
-                        {(user as any)[column.id]}
-                      </TableCell>
+                      <td key={column.id}>{(user as any)[column.id]}</td>
                     ))}
-                  </TableRow>
+                  </tr>
                 ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <div className="flex justify-between items-center p-4">
-          <FormControl variant="outlined" className="w-1/4">
-            <InputLabel>Rows per page</InputLabel>
-            <Select
-              value={rowsPerPage}
-              onChange={(e) => handleChangeRowsPerPage(e as any)}
-              label="Rows per page"
-            >
-              <MenuItem value={10}>10</MenuItem>
-              <MenuItem value={25}>25</MenuItem>
-              <MenuItem value={50}>50</MenuItem>
-              <MenuItem value={100}>100</MenuItem>
-            </Select>
-          </FormControl>
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 50, 100]}
-            component="div"
-            count={filteredUsers.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+            </tbody>
+          </table>
         </div>
-      </Paper>
+        <div className="flex justify-between items-center p-4">
+          <div className="form-control w-1/4">
+            <label className="label">
+              <span className="label-text">Rows per page</span>
+            </label>
+            <select
+              className="select select-bordered"
+              value={rowsPerPage}
+              onChange={handleChangeRowsPerPage}
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+          <div>
+            <button
+              className="btn"
+              onClick={() => handleChangePage(page - 1)}
+              disabled={page === 0}
+            >
+              Previous
+            </button>
+            <button
+              className="btn ml-2"
+              onClick={() => handleChangePage(page + 1)}
+              disabled={
+                page >= Math.ceil(filteredUsers.length / rowsPerPage) - 1
+              }
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
