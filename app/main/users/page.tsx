@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, ChangeEvent, MouseEvent } from "react";
-// import UserQueryForm from "@/components/users/UserQueryForm";
+import UserQueryForm from "@/components/users/UserQueryForm";
 
 type User = {
   id: number;
@@ -105,7 +105,7 @@ const UserManagementPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-4">
-      {/* <UserQueryForm /> */}
+      <UserQueryForm />
       <div className="mt-4 bg-base-100 shadow-lg rounded-lg">
         <div className="flex justify-between items-center p-4">
           <input
