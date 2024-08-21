@@ -11,7 +11,6 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const getActiveMenu = (url: string) => {
-    console.log(pathname);
     return pathname === url ? "font-semibold underline" : "";
   };
 

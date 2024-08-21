@@ -2,14 +2,11 @@
 import React, { useState, ChangeEvent, MouseEvent } from "react";
 import UserQueryForm from "@/components/users/UserQueryForm";
 import Pagination from "@/components/ui/Pagination";
+import CustomTable from "@/components/ui/CusomTable";
 
 type User = {
   id: number;
-  name: string;
-  gender: string;
-  birthDate: string;
-  socialLogin: string;
-  createdDate: string;
+  [key: string]: any;
 };
 
 const initialUsers: User[] = [
@@ -181,71 +178,19 @@ const UserManagementPage: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="table table-zebra w-full">
-            <thead>
-              <tr>
-                <th>
-                  <input
-                    type="checkbox"
-                    className="checkbox"
-                    checked={
-                      users.length > 0 && selectedUsers.length === users.length
-                    }
-                    // indeterminate={
-                    //   selectedUsers.length > 0 &&
-                    //   selectedUsers.length < users.length
-                    // }
-                    onChange={handleSelectAllClick}
-                  />
-                </th>
-                {columns.map((column) => (
-                  <th key={column.id}>{column.label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((user) => (
-                  <tr
-                    key={user.id}
-                    className={`hover ${
-                      selectedUsers.indexOf(user.id) !== -1 ? "active" : ""
-                    }`}
-                  >
-                    <td>
-                      <input
-                        type="checkbox"
-                        className="checkbox"
-                        checked={selectedUsers.indexOf(user.id) !== -1}
-                        onChange={(event) => handleClick(event, user.id)}
-                      />
-                    </td>
-                    {columns.map((column) =>
-                      column.id !== "edit" ? (
-                        <td
-                          key={column.id}
-                          onClick={() => handleClickUser(user)}
-                        >
-                          {(user as any)[column.id]}
-                        </td>
-                      ) : (
-                        <td key="edit">
-                          <button
-                            className="btn btn-neutral"
-                            onClick={() => handleClickEdit(user)}
-                          >
-                            Edit
-                          </button>
-                        </td>
-                      )
-                    )}
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
+
+        <CustomTable
+          columns={columns}
+          data={filteredUsers}
+          selectedRows={selectedUsers}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onSelectAll={handleSelectAllClick}
+          onSelectRow={handleClick}
+          onEdit={handleClickEdit}
+          onUserClick={handleClickUser}
+        />
+
         <div className="flex justify-center items-center p-4">
           <Pagination
             currentPage={page + 1} // Adjusting for one-based index
