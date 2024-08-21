@@ -2,96 +2,92 @@
 import React, { useState } from "react";
 
 const UserQueryForm: React.FC = () => {
-  const [name, setName] = useState("");
-  const [sex, setSex] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-  const [socialLogin, setSocialLogin] = useState("");
+  const [facilityId, setFacilityId] = useState("");
+  const [facilityType, setFacilityType] = useState("");
+  const [address, setAddress] = useState("");
+  const [approved, setApproved] = useState("");
   const [createdDate, setCreatedDate] = useState("");
 
   const handleSearch = () => {
     // Implement search functionality here
-    console.log({ name, sex, birthDate, socialLogin, createdDate });
+    console.log({ facilityId, facilityType, address, approved, createdDate });
   };
 
   const handleReset = () => {
-    setName("");
-    setSex("");
-    setBirthDate("");
-    setSocialLogin("");
+    setFacilityId("");
+    setFacilityType("");
+    setApproved("Y");
+    setAddress("");
     setCreatedDate("");
   };
 
   return (
     <>
       <div>
-        <h2 className="text-2xl font-semibold">사용자 검색</h2>
+        <h2 className="text-2xl font-semibold">시설물 검색</h2>
       </div>
       <form className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-        {/* Name */}
         <div className="form-control">
-          <label className="label" htmlFor="name">
-            <span className="label-text">Name</span>
+          <label className="label" htmlFor="facilityId">
+            <span className="label-text">시설물 ID</span>
           </label>
           <input
             type="text"
-            id="name"
+            id="facilityId"
             className="input input-bordered"
-            placeholder="Enter name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={facilityId}
+            onChange={(e) => setFacilityId(e.target.value)}
           />
         </div>
 
-        {/* Sex */}
         <div className="form-control">
-          <label className="label" htmlFor="sex">
-            <span className="label-text">Sex</span>
+          <label className="label" htmlFor="facilityType">
+            <span className="label-text">시설물 구분</span>
           </label>
           <select
-            id="sex"
+            id="facilityType"
             className="select select-bordered"
-            value={sex}
-            onChange={(e) => setSex(e.target.value)}
+            value={facilityType}
+            onChange={(e) => setFacilityType(e.target.value)}
           >
             <option value="" disabled>
-              Select sex
+              시설물 구분
             </option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
+            <option value="garbage">쓰레기통</option>
+            <option value="toilet">화장실</option>
+            <option value="smoking">흡연구역</option>
           </select>
         </div>
 
-        {/* Birth Date */}
         <div className="form-control">
-          <label className="label" htmlFor="birthDate">
-            <span className="label-text">Birth Date</span>
+          <label className="label" htmlFor="address">
+            <span className="label-text">주소</span>
           </label>
           <input
-            type="date"
-            id="birthDate"
+            type="text"
+            id="address"
             className="input input-bordered"
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
           />
         </div>
 
         {/* Social Login */}
         <div className="form-control">
-          <label className="label" htmlFor="socialLogin">
+          <label className="label" htmlFor="approved">
             <span className="label-text">Social Login</span>
           </label>
           <select
-            id="socialLogin"
+            id="approved"
             className="select select-bordered"
-            value={socialLogin}
-            onChange={(e) => setSocialLogin(e.target.value)}
+            value={approved}
+            onChange={(e) => setApproved(e.target.value)}
           >
             <option value="" disabled>
-              Select social login
+              승인 여부
             </option>
-            <option value="Naver">Naver</option>
-            <option value="KakaoTalk">KakaoTalk</option>
-            <option value="Google">Google</option>
+            <option value="N">미승인</option>
+            <option value="Y">승인</option>
           </select>
         </div>
 

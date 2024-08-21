@@ -3,6 +3,7 @@ import React, { useState, ChangeEvent, MouseEvent } from "react";
 import UserQueryForm from "@/components/users/UserQueryForm";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CusomTable";
+import FacilityQueryForm from "@/components/facilities/FacilityQueryForm";
 
 type Facility = {
   id: number;
@@ -17,7 +18,7 @@ const initialFacilities: Facility[] = [
     detailedLocation: "테헤란로",
     note: "Google",
     admin: "fdas",
-    approved: false,
+    approved: "N",
     createdDate: "2020-01-01",
     createdBy: "fda",
   },
@@ -28,7 +29,7 @@ const initialFacilities: Facility[] = [
     detailedLocation: "테헤란로",
     note: "Google",
     admin: "fdas",
-    approved: false,
+    approved: "N",
     createdDate: "2020-01-01",
     createdBy: "fda",
   },
@@ -39,7 +40,7 @@ const initialFacilities: Facility[] = [
     detailedLocation: "테헤란로",
     note: "Google",
     admin: "fdas",
-    approved: false,
+    approved: "N",
     createdDate: "2020-01-01",
     createdBy: "fda",
   },
@@ -50,7 +51,7 @@ const initialFacilities: Facility[] = [
     detailedLocation: "테헤란로",
     note: "Google",
     admin: "fdas",
-    approved: false,
+    approved: "N",
     createdDate: "2020-01-01",
     createdBy: "fda",
   },
@@ -141,23 +142,17 @@ const FacilitiesPage: React.FC = () => {
     console.log("click edit", item);
   };
 
-  const filteredFacilitiies = facilities.filter(
-    (item) =>
-      Object.entries(item).some((value) =>
-        value[0].toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    // item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    // item.gender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    // item.birthDate.includes(searchQuery) ||
-    // item.socialLogin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    // item.createdDate.includes(searchQuery)
+  const filteredFacilitiies = facilities.filter((item) =>
+    Object.entries(item).some((value) =>
+      value[0].toLowerCase().includes(searchQuery.toLowerCase())
+    )
   );
 
   const totalPages = Math.ceil(filteredFacilitiies.length / rowsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <UserQueryForm />
+      <FacilityQueryForm />
       <div className="mt-4 bg-base-100 shadow-lg rounded-lg">
         <div className="flex justify-between items-center p-4">
           <input
