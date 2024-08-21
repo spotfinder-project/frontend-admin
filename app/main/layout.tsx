@@ -39,11 +39,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <i className="ri-menu-line text-black h-4 w-4"></i>
           </label>
         </div>
-        <div className="flex-1 ml-4">
+        <div className="flex justify-between ml-4 w-full">
           <h1 className="text-2xl font-bold">
             Spot Finder Admin
             <span>{` > ${menu[pathname as keyof typeof menu]}`} </span>
           </h1>
+
+          <button className="btn btn-neutral">로그아웃</button>
         </div>
       </div>
 
