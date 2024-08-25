@@ -3,6 +3,7 @@ import React, { useState, ChangeEvent, MouseEvent } from "react";
 import UserQueryForm from "@/components/users/UserQueryForm";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CusomTable";
+import { useRouter } from "next/navigation";
 
 type User = {
   id: number;
@@ -63,6 +64,7 @@ const rowsPerPageOptions = [
 ];
 
 const UserManagementPage: React.FC = () => {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -122,6 +124,7 @@ const UserManagementPage: React.FC = () => {
 
   const handleClickEdit = (user: User) => {
     console.log("click edit", user);
+    router.push(`/main/users/${user.id}`);
   };
 
   const filteredUsers = users.filter(
