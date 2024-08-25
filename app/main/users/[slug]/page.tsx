@@ -2,6 +2,9 @@
 import React, { cache, useEffect, useState } from "react";
 import { getUserBySlug } from "@/service/userService";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import UserDetail from "@/components/users/UserDetail";
+import { User, Review } from "@/types/types";
+import UserReviewModal from "@/components/users/UserReviewModal";
 
 interface Props {
   params: {
@@ -18,7 +21,7 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
   //   getCacheUserBySlug(slug);
   // }, []);
 
-  const userData = {
+  const userData: User = {
     userId: "userId",
     name: "name",
     nickname: "abcd",
@@ -29,6 +32,7 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
     createdDate: "2024-08-01",
     facilities: [
       {
+        facilityType: "쓰레기통",
         id: "1",
         name: "Facility 1",
         address: "123 Main St",
@@ -55,65 +59,53 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
   };
 
   const { facilities, reviews } = userData;
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedReview, setSelectedReview] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
 
   const handleDeleteReview = (id: string) => {
-    setIsModalOpen(true);
-    setSelectedReview(id);
+    setIsDeleteModalOpen(true);
+    setSelectedReviewId(id);
   };
 
   const handleConfirmDelete = (id: string) => {
     // request delete review
 
-    setIsModalOpen(false);
+    handleCloseDelete();
   };
 
-  const handleCancelDelete = () => {
-    setIsModalOpen(false);
+  const handleCloseDelete = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedReviewId(null);
+  };
+
+  const handleEditReview = (review: Review) => {
+    setIsEditModalOpen(true);
+    setSelectedReview(review);
+  };
+
+  const handleCloseEdit = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedReview(null);
+  };
+  const handleSaveEdit = (updatedContent: string) => {
+    console.log("save edit", updatedContent);
+    // request update review
   };
   return (
     <div className="container mx-auto p-6">
       {/* User Details */}
-      <div className="bg-white shadow rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">사용자 상세 정보</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <span className="font-medium">User ID:</span> {userData.userId}
-          </div>
-          <div>
-            <span className="font-medium">Name:</span> {userData.name}
-          </div>
-          <div>
-            <span className="font-medium">Nickname:</span> {userData.nickname}
-          </div>
-          <div>
-            <span className="font-medium">Birthdate:</span> {userData.birthdate}
-          </div>
-          <div>
-            <span className="font-medium">Sex:</span> {userData.sex}
-          </div>
-          <div>
-            <span className="font-medium">Email:</span> {userData.email}
-          </div>
-          <div>
-            <span className="font-medium">Social Login:</span>
-            {userData.socialLoginType}
-          </div>
-          <div>
-            <span className="font-medium">Created Date:</span>
-            {userData.createdDate}
-          </div>
-        </div>
-      </div>
+      <UserDetail user={userData} />
 
       {/* Facilities Table */}
       <div className="bg-white shadow rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Registered Facilities</h2>
+        <h2 className="text-xl font-semibold mb-4">등록한 시설물</h2>
         <div className="overflow-x-auto">
           <table className="table w-full">
             <thead>
               <tr>
+                <th>구분</th>
                 <th>시설물 ID</th>
                 <th>시설물명</th>
                 <th>주소</th>
@@ -127,6 +119,7 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
             <tbody>
               {facilities.map((facility) => (
                 <tr key={facility.id}>
+                  <td>{facility.facilityType}</td>
                   <td>{facility.id}</td>
                   <td>{facility.name}</td>
                   <td>{facility.address}</td>
@@ -144,7 +137,7 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
 
       {/* Reviews Table */}
       <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">User Reviews</h2>
+        <h2 className="text-xl font-semibold mb-4">등록한 리뷰</h2>
         <div className="overflow-x-auto">
           <table className="table w-full">
             <thead>
@@ -169,7 +162,12 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
                   <td>{review.address}</td>
                   <td>{review.createdDate}</td>
                   <td>
-                    <button className="btn btn-sm btn-primary">Edit</button>
+                    <button
+                      className="btn btn-sm btn-primary"
+                      onClick={() => handleEditReview(review)}
+                    >
+                      Edit
+                    </button>
                   </td>
                   <td>
                     <button
@@ -183,13 +181,22 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
               ))}
             </tbody>
           </table>
-          {isModalOpen && selectedReview && (
+          {isDeleteModalOpen && selectedReviewId && (
             <ConfirmationModal
-              itemId={selectedReview}
-              isOpen={isModalOpen}
+              itemId={selectedReviewId}
+              isOpen={isDeleteModalOpen}
               onConfirm={handleConfirmDelete}
-              onCancel={handleCancelDelete}
+              onCancel={handleCloseDelete}
               message="정말 삭제하시겠습니까?"
+            />
+          )}
+
+          {isEditModalOpen && selectedReview && (
+            <UserReviewModal
+              isOpen={isEditModalOpen}
+              review={selectedReview}
+              onClose={handleCloseEdit}
+              onSave={handleSaveEdit}
             />
           )}
         </div>
