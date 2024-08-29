@@ -14,6 +14,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     return pathname === url ? "font-semibold underline" : "";
   };
 
+  const getBreadcrumbs = (path: string) => {
+    const pathArray = path.split("/").slice(2);
+    let breadcrumbs = "";
+    pathArray.forEach((word) => {
+      breadcrumbs += ` > ${word}`;
+    });
+
+    return breadcrumbs;
+  };
+
   const menu = {
     "/main": "Home",
     "/main/users": "Users",
@@ -42,7 +52,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         <div className="flex justify-between ml-4 w-full">
           <h1 className="text-2xl font-bold">
             Spot Finder Admin
-            <span>{` > ${menu[pathname as keyof typeof menu]}`} </span>
+            <span>{`${getBreadcrumbs(pathname)}`} </span>
           </h1>
 
           <button className="btn btn-neutral">로그아웃</button>
