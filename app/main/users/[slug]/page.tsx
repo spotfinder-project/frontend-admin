@@ -3,8 +3,9 @@ import React, { cache, useEffect, useState } from "react";
 import { getUserBySlug } from "@/service/userService";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import UserDetail from "@/components/users/UserDetail";
-import { User, Review } from "@/types/types";
+import { User, Review, Facility } from "@/types/types";
 import UserReviewModal from "@/components/users/UserReviewModal";
+import CustomTable from "@/components/ui/CusomTable";
 
 interface Props {
   params: {
@@ -20,6 +21,30 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
   // useEffect(() => {
   //   getCacheUserBySlug(slug);
   // }, []);
+
+  const facilityColumns = [
+    { id: "id", label: "시설물 ID" },
+    { id: "name", label: "시설물명" },
+    { id: "address", label: "주소" },
+    { id: "detailedLocation", label: "상세위치" },
+    { id: "note", label: "추가 설명" },
+    { id: "admin", label: "관리부서" },
+    { id: "approved", label: "승인상태" },
+    { id: "createdDate", label: "생성일" },
+    { id: "createdBy", label: "사용자 ID" },
+    { id: "view", label: "View" },
+  ];
+
+  const reviewColumns = [
+    { id: "content", label: "내용" },
+    { id: "facilityType", label: "시설물 구분" },
+    { id: "facilityName", label: "시설물명" },
+    { id: "facilityId", label: "시설명 ID" },
+    { id: "address", label: "주소" },
+    { id: "createdDate", label: "생성일" },
+    { id: "edit", label: "Edit" },
+    { id: "delete", label: "Delete" },
+  ];
 
   const userData: User = {
     userId: "userId",
@@ -93,6 +118,10 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
     console.log("save edit", updatedContent);
     // request update review
   };
+
+  const handleViewFacility = (item: Facility) => {
+    console.log(item);
+  };
   return (
     <div className="container mx-auto p-6">
       {/* User Details */}
@@ -105,15 +134,9 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
           <table className="table w-full">
             <thead>
               <tr>
-                <th>구분</th>
-                <th>시설물 ID</th>
-                <th>시설물명</th>
-                <th>주소</th>
-                <th>상세위치</th>
-                <th>추가 설명</th>
-                <th>관리부서</th>
-                <th>승인상태</th>
-                <th>승인일자</th>
+                {facilityColumns.map((column) => (
+                  <th>{column.label}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -128,8 +151,17 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
                   <td>{facility.admin}</td>
                   <td>{facility.approved}</td>
                   <td>{facility.approvedDate}</td>
+                  <td>
+                    <button
+                      className="btn btn-sm btn-primary"
+                      onClick={() => handleViewFacility(facility)}
+                    >
+                      View
+                    </button>
+                  </td>
                 </tr>
               ))}
+              <td></td>
             </tbody>
           </table>
         </div>
@@ -142,14 +174,9 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
           <table className="table w-full">
             <thead>
               <tr>
-                <th>Review Content</th>
-                <th>Facility Type</th>
-                <th>Facility ID</th>
-                <th>Facility Name</th>
-                <th>Address</th>
-                <th>Created Date</th>
-                <th>Edit</th>
-                <th>Delete</th>
+                {reviewColumns.map((column) => (
+                  <th>{column.label}</th>
+                ))}
               </tr>
             </thead>
             <tbody>

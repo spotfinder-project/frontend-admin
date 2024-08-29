@@ -7,21 +7,21 @@ interface Column {
   label: string;
 }
 
-interface User {
-  id: number;
+interface TableData {
+  id: string;
   [key: string]: any;
 }
 
 interface CustomTableProps {
   columns: Column[];
-  data: User[];
-  selectedRows: number[];
+  data: TableData[];
+  selectedRows: string[];
   rowsPerPage: number;
   page: number;
   onSelectAll: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onSelectRow: (event: React.ChangeEvent<HTMLInputElement>, id: number) => void;
-  onEdit: (user: User) => void;
-  onUserClick: (user: User) => void;
+  onSelectRow: (event: React.ChangeEvent<HTMLInputElement>, id: string) => void;
+  onEdit: (item: TableData) => void;
+  onItemClick: (item: TableData) => void;
 }
 
 const CustomTable: React.FC<CustomTableProps> = ({
@@ -33,7 +33,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   onSelectAll,
   onSelectRow,
   onEdit,
-  onUserClick,
+  onItemClick,
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -57,31 +57,31 @@ const CustomTable: React.FC<CustomTableProps> = ({
         <tbody>
           {data
             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((user) => (
+            .map((item) => (
               <tr
-                key={user.id}
+                key={item.id}
                 className={`hover ${
-                  selectedRows.indexOf(user.id) !== -1 ? "active" : ""
+                  selectedRows.indexOf(item.id) !== -1 ? "active" : ""
                 }`}
               >
                 <td>
                   <input
                     type="checkbox"
                     className="checkbox"
-                    checked={selectedRows.indexOf(user.id) !== -1}
-                    onChange={(event) => onSelectRow(event, user.id)}
+                    checked={selectedRows.indexOf(item.id) !== -1}
+                    onChange={(event) => onSelectRow(event, item.id)}
                   />
                 </td>
                 {columns.map((column) =>
                   column.id !== "edit" ? (
-                    <td key={column.id} onClick={() => onUserClick(user)}>
-                      {(user as any)[column.id]}
+                    <td key={column.id} onClick={() => onItemClick(item)}>
+                      {(item as any)[column.id]}
                     </td>
                   ) : (
                     <td key="edit">
                       <button
                         className="btn btn-neutral"
-                        onClick={() => onEdit(user)}
+                        onClick={() => onEdit(item)}
                       >
                         Edit
                       </button>

@@ -6,13 +6,13 @@ import CustomTable from "@/components/ui/CusomTable";
 import { useRouter } from "next/navigation";
 
 type User = {
-  id: number;
+  id: string;
   [key: string]: any;
 };
 
 const initialUsers: User[] = [
   {
-    id: 1,
+    id: "1",
     name: "John Doe",
     gender: "Male",
     birthDate: "1990-01-01",
@@ -20,7 +20,7 @@ const initialUsers: User[] = [
     createdDate: "2020-01-01",
   },
   {
-    id: 2,
+    id: "2",
     name: "Jane Smith",
     gender: "Female",
     birthDate: "1985-05-15",
@@ -28,7 +28,7 @@ const initialUsers: User[] = [
     createdDate: "2019-03-22",
   },
   {
-    id: 3,
+    id: "3",
     name: "Jane Smith 2",
     gender: "Female",
     birthDate: "1985-05-15",
@@ -36,7 +36,7 @@ const initialUsers: User[] = [
     createdDate: "2019-03-22",
   },
   {
-    id: 4,
+    id: "4",
     name: "Jane Smith 3",
     gender: "Female",
     birthDate: "1985-05-15",
@@ -69,7 +69,7 @@ const UserManagementPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -93,9 +93,9 @@ const UserManagementPage: React.FC = () => {
     setSelectedUsers([]);
   };
 
-  const handleClick = (event: ChangeEvent<HTMLInputElement>, id: number) => {
+  const handleClick = (event: ChangeEvent<HTMLInputElement>, id: string) => {
     const selectedIndex = selectedUsers.indexOf(id);
-    let newSelected: number[] = [];
+    let newSelected: string[] = [];
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selectedUsers, id);
@@ -191,7 +191,7 @@ const UserManagementPage: React.FC = () => {
           onSelectAll={handleSelectAllClick}
           onSelectRow={handleClick}
           onEdit={handleClickEdit}
-          onUserClick={handleClickUser}
+          onItemClick={handleClickUser}
         />
 
         <div className="flex justify-center items-center p-4">
