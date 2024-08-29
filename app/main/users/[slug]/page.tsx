@@ -6,6 +6,7 @@ import UserDetail from "@/components/users/UserDetail";
 import { User, Review, Facility } from "@/types/types";
 import UserReviewModal from "@/components/users/UserReviewModal";
 import CustomTable from "@/components/ui/CusomTable";
+import Link from "next/link";
 
 interface Props {
   params: {
@@ -152,16 +153,12 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
                   <td>{facility.approved}</td>
                   <td>{facility.approvedDate}</td>
                   <td>
-                    <button
-                      className="btn btn-sm btn-primary"
-                      onClick={() => handleViewFacility(facility)}
-                    >
-                      View
-                    </button>
+                    <Link href={`/main/facilities/${facility.id}`}>
+                      <button className="btn btn-sm btn-primary">View</button>
+                    </Link>
                   </td>
                 </tr>
               ))}
-              <td></td>
             </tbody>
           </table>
         </div>
