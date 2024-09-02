@@ -136,7 +136,7 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
             <thead>
               <tr>
                 {facilityColumns.map((column) => (
-                  <th>{column.label}</th>
+                  <th key={column.id}>{column.label}</th>
                 ))}
               </tr>
             </thead>
@@ -172,7 +172,7 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
             <thead>
               <tr>
                 {reviewColumns.map((column) => (
-                  <th>{column.label}</th>
+                  <th key={column.id}>{column.label}</th>
                 ))}
               </tr>
             </thead>

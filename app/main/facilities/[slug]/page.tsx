@@ -1,10 +1,38 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 
-export default function FacilityDetail() {
+interface Props {
+  params: {
+    slug: string;
+  };
+}
+
+export default function FacilityDetail({ params: { slug } }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [facilityType, setFacilityType] = useState("");
+  const [images, setImages] = useState([
+    "/sample-image1.jpg",
+    "/sample-image2.jpg",
+  ]);
+
+  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (reader.result) {
+          setImages((prevImages) => [...prevImages, reader.result as string]);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageRemove = (index: number) => {
+    const newImages = images.filter((_, i) => i !== index);
+    setImages(newImages);
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -124,37 +152,35 @@ export default function FacilityDetail() {
 
         <h2 className="text-2xl font-bold mt-8 mb-4">이미지</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="relative">
-            <Image
-              src="/sample-image1.jpg"
-              alt="Sample Image 1"
-              className="w-full h-auto"
-              width={300}
-              height={300}
-            />
-            {isEditing && (
-              <button className="btn btn-sm btn-error absolute top-2 right-2">
-                X
-              </button>
-            )}
-          </div>
-          <div className="relative">
-            <Image
-              src="/sample-image2.jpg"
-              alt="Sample Image 2"
-              className="w-full h-auto"
-              width={300}
-              height={300}
-            />
-            {isEditing && (
-              <button className="btn btn-sm btn-error absolute top-2 right-2">
-                X
-              </button>
-            )}
-          </div>
+          {images.map((image, index) => (
+            <div className="relative" key={index}>
+              <Image
+                src={image}
+                alt={`Facility Image ${index + 1}`}
+                width={300}
+                height={300}
+                className="w-full h-auto"
+              />
+              {isEditing && (
+                <button
+                  className="btn btn-sm btn-error absolute top-2 right-2"
+                  onClick={() => handleImageRemove(index)}
+                >
+                  X
+                </button>
+              )}
+            </div>
+          ))}
           {isEditing && (
-            <div className="flex items-center justify-center border-2 border-dashed border-gray-400">
-              <button className="btn btn-sm btn-primary">+</button>
+            <div className="flex items-center justify-center border-2 border-dashed border-gray-400 w-[300px] h-[300px]">
+              <label className="cursor-pointer">
+                <span className="btn btn-sm btn-primary">+</span>
+                <input
+                  type="file"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+              </label>
             </div>
           )}
         </div>
@@ -194,7 +220,8 @@ export default function FacilityDetail() {
           >
             {isEditing ? "완료" : "수정하기"}
           </button>
-          <button className="btn btn-error">시설물 삭제</button>
+          {isEditing && <button className="btn btn-error">취소</button>}
+          {!isEditing && <button className="btn btn-error">시설물 삭제</button>}
         </div>
       </div>
     </div>

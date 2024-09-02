@@ -4,6 +4,7 @@ import UserQueryForm from "@/components/users/UserQueryForm";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CusomTable";
 import FacilityQueryForm from "@/components/facilities/FacilityQueryForm";
+import { useRouter } from "next/navigation";
 
 type Facility = {
   id: string;
@@ -79,6 +80,7 @@ const rowsPerPageOptions = [
 ];
 
 const FacilitiesPage: React.FC = () => {
+  const router = useRouter();
   const [facilities, setFacilities] = useState<Facility[]>(initialFacilities);
   const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -140,6 +142,7 @@ const FacilitiesPage: React.FC = () => {
 
   const handleClickEdit = (item: Facility) => {
     console.log("click edit", item);
+    router.push(`/main/facilities/${item.id}`);
   };
 
   const filteredFacilitiies = facilities.filter((item) =>
