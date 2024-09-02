@@ -26,6 +26,10 @@ const facilityReviewColumns = [
     label: "생성일",
     value: "createdDate",
   },
+  {
+    label: "삭제",
+    value: "delete",
+  },
 ];
 
 export default function FacilityDetail({ params: { slug } }: Props) {
@@ -67,6 +71,11 @@ export default function FacilityDetail({ params: { slug } }: Props) {
   const handleImageRemove = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
+  };
+
+  const handleDeleteReview = (item: any) => {
+    //delete review 추후 수정
+    console.log("delete review", item);
   };
 
   return (
@@ -228,9 +237,20 @@ export default function FacilityDetail({ params: { slug } }: Props) {
             <tbody>
               {facilityReviews.map((data, index) => (
                 <tr key={index}>
-                  {facilityReviewColumns.map((column) => (
-                    <td key={column.value}>{(data as any)[column.value]}</td>
-                  ))}
+                  {facilityReviewColumns.map((column) =>
+                    column.value !== "delete" ? (
+                      <td key={column.value}>{(data as any)[column.value]}</td>
+                    ) : (
+                      <td key="delete">
+                        <button
+                          className="btn btn-neutral"
+                          onClick={() => handleDeleteReview(data)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    )
+                  )}
                 </tr>
               ))}
             </tbody>
