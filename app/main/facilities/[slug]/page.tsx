@@ -9,6 +9,25 @@ interface Props {
   };
 }
 
+const facilityReviewColumns = [
+  {
+    label: "사용자 ID",
+    value: "userId",
+  },
+  {
+    label: "리뷰 내용",
+    value: "content",
+  },
+  {
+    label: "닉네임",
+    value: "nickname",
+  },
+  {
+    label: "생성일",
+    value: "createdDate",
+  },
+];
+
 export default function FacilityDetail({ params: { slug } }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [facilityType, setFacilityType] = useState("");
@@ -16,6 +35,21 @@ export default function FacilityDetail({ params: { slug } }: Props) {
     "/sample-image1.jpg",
     "/sample-image2.jpg",
   ]);
+
+  const facilityReviews = [
+    {
+      userId: "user123",
+      content: "Great facility!",
+      nickname: "nickname1",
+      createdDate: "2023-08-28",
+    },
+    {
+      userId: "user12345",
+      content: "Needs improvement!",
+      nickname: "nickname1",
+      createdDate: "2023-08-28",
+    },
+  ];
 
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -186,25 +220,19 @@ export default function FacilityDetail({ params: { slug } }: Props) {
           <table className="table table-zebra w-full">
             <thead>
               <tr>
-                <th>사용자 ID</th>
-                <th>리뷰 내용</th>
-                <th>닉네임</th>
-                <th>생성일</th>
+                {facilityReviewColumns.map((column) => (
+                  <th key={column.value}>{column.label}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>user123</td>
-                <td>Great facility!</td>
-                <td>nickname1</td>
-                <td>2023-08-28</td>
-              </tr>
-              <tr>
-                <td>user456</td>
-                <td>Needs improvement.</td>
-                <td>nickname2</td>
-                <td>2023-08-29</td>
-              </tr>
+              {facilityReviews.map((data, index) => (
+                <tr key={index}>
+                  {facilityReviewColumns.map((column) => (
+                    <td key={column.value}>{(data as any)[column.value]}</td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
