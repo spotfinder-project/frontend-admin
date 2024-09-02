@@ -1,4 +1,5 @@
 "use client";
+import AddressSearch from "@/components/facilities/AddressSearch";
 import Image from "next/image";
 import { ChangeEvent, useState } from "react";
 
@@ -76,15 +77,10 @@ export default function FacilityDetail({ params: { slug } }: Props) {
               value="Sample Facility"
             />
           </div>
-          <div className="form-control">
-            <label className="label">주소</label>
-            <input
-              type="text"
-              className="input input-bordered"
-              disabled={!isEditing}
-              value="Sample Address"
-            />
-          </div>
+          <AddressSearch
+            facilityAddress={"sample address"}
+            isEditing={isEditing}
+          />
           <div className="form-control">
             <label className="label">상세 주소</label>
             <input
