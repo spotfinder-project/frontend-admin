@@ -1,5 +1,6 @@
 "use client";
 import AddressSearch from "@/components/facilities/AddressSearch";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Image from "next/image";
 import { ChangeEvent, useState } from "react";
 
@@ -34,6 +35,8 @@ const facilityReviewColumns = [
 
 export default function FacilityDetail({ params: { slug } }: Props) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [facilityType, setFacilityType] = useState("");
   const [images, setImages] = useState([
     "/sample-image1.jpg",
@@ -42,12 +45,14 @@ export default function FacilityDetail({ params: { slug } }: Props) {
 
   const facilityReviews = [
     {
+      id: "terw",
       userId: "user123",
       content: "Great facility!",
       nickname: "nickname1",
       createdDate: "2023-08-28",
     },
     {
+      id: "terw",
       userId: "user12345",
       content: "Needs improvement!",
       nickname: "nickname1",
@@ -76,6 +81,14 @@ export default function FacilityDetail({ params: { slug } }: Props) {
   const handleDeleteReview = (item: any) => {
     //delete review 추후 수정
     console.log("delete review", item);
+    setSelectedReviewId(item.id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {};
+
+  const handleCloseDelete = () => {
+    setIsDeleteModalOpen(false);
   };
 
   return (
@@ -267,6 +280,16 @@ export default function FacilityDetail({ params: { slug } }: Props) {
           {isEditing && <button className="btn btn-error">취소</button>}
           {!isEditing && <button className="btn btn-error">시설물 삭제</button>}
         </div>
+
+        {isDeleteModalOpen && selectedReviewId && (
+          <ConfirmationModal
+            itemId={selectedReviewId}
+            isOpen={isDeleteModalOpen}
+            onConfirm={handleConfirmDelete}
+            onCancel={handleCloseDelete}
+            message="정말 삭제하시겠습니까?"
+          />
+        )}
       </div>
     </div>
   );
