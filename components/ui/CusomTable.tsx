@@ -72,22 +72,28 @@ const CustomTable: React.FC<CustomTableProps> = ({
                     onChange={(event) => onSelectRow(event, item.id)}
                   />
                 </td>
-                {columns.map((column) =>
-                  column.id !== "edit" ? (
-                    <td key={column.id} onClick={() => onItemClick(item)}>
-                      {(item as any)[column.id]}
-                    </td>
-                  ) : (
-                    <td key="edit">
-                      <button
-                        className="btn btn-neutral"
-                        onClick={() => onEdit(item)}
-                      >
-                        Edit
-                      </button>
-                    </td>
-                  )
-                )}
+                {columns.map((column) => {
+                  if (column.id === "edit") {
+                    return (
+                      <td key="edit">
+                        <button
+                          className="btn btn-neutral"
+                          onClick={() => onEdit(item)}
+                        >
+                          Edit
+                        </button>
+                      </td>
+                    );
+                  } else if (column.id === "resolved") {
+                    return;
+                  } else {
+                    return (
+                      <td key={column.id} onClick={() => onItemClick(item)}>
+                        {(item as any)[column.id]}
+                      </td>
+                    );
+                  }
+                })}
               </tr>
             ))}
         </tbody>

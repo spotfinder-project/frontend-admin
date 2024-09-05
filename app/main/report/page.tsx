@@ -2,73 +2,31 @@
 import React, { useState, ChangeEvent, MouseEvent } from "react";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CusomTable";
-import FacilityQueryForm from "@/components/facilities/FacilityQueryForm";
 import { useRouter } from "next/navigation";
+import ReportQueryForm from "@/components/report/ReportQueryForm";
 
-type Facility = {
+type Report = {
   id: string;
   [key: string]: any;
 };
 
-const initialFacilities: Facility[] = [
+const initialReports: Report[] = [
   {
     id: "1",
-    name: "강남역",
-    address: "강남구 역삼동",
-    detailedLocation: "테헤란로",
-    note: "Google",
-    admin: "fdas",
-    approved: "N",
-    createdDate: "2020-01-01",
-    createdBy: "fda",
+    userId: "userId",
+    reportContent: "위치가 틀립니다",
+    facilityId: "fdafd",
+    resolved: "N",
+    createdDate: "2024-01-01",
   },
-  {
-    id: "2",
-    name: "강남역",
-    address: "강남구 역삼동",
-    detailedLocation: "테헤란로",
-    note: "Google",
-    admin: "fdas",
-    approved: "N",
-    createdDate: "2020-01-01",
-    createdBy: "fda",
-  },
-  {
-    id: "3",
-    name: "강남역",
-    address: "강남구 역삼동",
-    detailedLocation: "테헤란로",
-    note: "Google",
-    admin: "fdas",
-    approved: "N",
-    createdDate: "2020-01-01",
-    createdBy: "fda",
-  },
-  {
-    id: "4",
-    name: "강남역",
-    address: "강남구 역삼동",
-    detailedLocation: "테헤란로",
-    note: "Google",
-    admin: "fdas",
-    approved: "N",
-    createdDate: "2020-01-01",
-    createdBy: "fda",
-  },
-  // Add more sample users as needed
 ];
 
 const columns = [
-  { id: "id", label: "시설물 ID" },
-  { id: "name", label: "시설물명" },
-  { id: "address", label: "주소" },
-  { id: "detailedLocation", label: "상세위치" },
-  { id: "note", label: "추가 설명" },
-  { id: "admin", label: "관리부서" },
-  { id: "approved", label: "승인상태" },
+  { id: "userId", label: "신고자 ID" },
+  { id: "reportContent", label: "신고 내용" },
+  { id: "facilityId", label: "시설물 ID" },
+  { id: "resolved", label: "상태" },
   { id: "createdDate", label: "생성일" },
-  { id: "createdBy", label: "사용자 ID" },
-  { id: "edit", label: "Edit" },
 ];
 
 const rowsPerPageOptions = [
@@ -78,13 +36,13 @@ const rowsPerPageOptions = [
   { value: 100, label: 100 },
 ];
 
-const FacilitiesPage: React.FC = () => {
+const ReportPage: React.FC = () => {
   const router = useRouter();
-  const [facilities, setFacilities] = useState<Facility[]>(initialFacilities);
+  const [reports, setReports] = useState<Report[]>(initialReports);
   const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
-  const [selectedFacilities, setSelectedFacilities] = useState<string[]>([]);
+  const [selectedReports, setSelectedReports] = useState<string[]>([]);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -101,60 +59,58 @@ const FacilitiesPage: React.FC = () => {
 
   const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelected = facilities.map((item) => item.id);
-      setSelectedFacilities(newSelected);
+      const newSelected = reports.map((item) => item.id);
+      setSelectedReports(newSelected);
       return;
     }
-    setSelectedFacilities([]);
+    setSelectedReports([]);
   };
 
   const handleClick = (event: ChangeEvent<HTMLInputElement>, id: string) => {
-    const selectedIndex = selectedFacilities.indexOf(id);
+    const selectedIndex = selectedReports.indexOf(id);
     let newSelected: string[] = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selectedFacilities, id);
+      newSelected = newSelected.concat(selectedReports, id);
     } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selectedFacilities.slice(1));
-    } else if (selectedIndex === selectedFacilities.length - 1) {
-      newSelected = newSelected.concat(selectedFacilities.slice(0, -1));
+      newSelected = newSelected.concat(selectedReports.slice(1));
+    } else if (selectedIndex === selectedReports.length - 1) {
+      newSelected = newSelected.concat(selectedReports.slice(0, -1));
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
-        selectedFacilities.slice(0, selectedIndex),
-        selectedFacilities.slice(selectedIndex + 1)
+        selectedReports.slice(0, selectedIndex),
+        selectedReports.slice(selectedIndex + 1)
       );
     }
 
-    setSelectedFacilities(newSelected);
+    setSelectedReports(newSelected);
   };
 
   const handleDelete = () => {
-    setFacilities(
-      facilities.filter((item) => !selectedFacilities.includes(item.id))
-    );
-    setSelectedFacilities([]);
+    setReports(reports.filter((item) => !selectedReports.includes(item.id)));
+    setSelectedReports([]);
   };
 
-  const handleClickFacility = (item: Facility) => {
+  const handleClickFacility = (item: Report) => {
     console.log("click ", item);
   };
 
-  const handleClickEdit = (item: Facility) => {
+  const handleClickEdit = (item: Report) => {
     console.log("click edit", item);
-    router.push(`/main/facilities/${item.id}`);
+    router.push(`/main/reports/${item.id}`);
   };
 
-  const filteredFacilitiies = facilities.filter((item) =>
+  const filteredReports = reports.filter((item) =>
     Object.entries(item).some((value) =>
       value[0].toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
 
-  const totalPages = Math.ceil(filteredFacilitiies.length / rowsPerPage);
+  const totalPages = Math.ceil(filteredReports.length / rowsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <FacilityQueryForm />
+      <ReportQueryForm />
       <div className="mt-4 bg-base-100 shadow-lg rounded-lg">
         <div className="flex justify-between items-center p-4">
           <input
@@ -168,7 +124,7 @@ const FacilitiesPage: React.FC = () => {
             <button
               className="btn btn-sm  btn-error mt-4"
               onClick={handleDelete}
-              disabled={selectedFacilities.length === 0}
+              disabled={selectedReports.length === 0}
             >
               Delete
             </button>
@@ -198,8 +154,8 @@ const FacilitiesPage: React.FC = () => {
 
         <CustomTable
           columns={columns}
-          data={filteredFacilitiies}
-          selectedRows={selectedFacilities}
+          data={filteredReports}
+          selectedRows={selectedReports}
           rowsPerPage={rowsPerPage}
           page={page}
           onSelectAll={handleSelectAllClick}
@@ -220,4 +176,4 @@ const FacilitiesPage: React.FC = () => {
   );
 };
 
-export default FacilitiesPage;
+export default ReportPage;

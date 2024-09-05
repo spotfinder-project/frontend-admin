@@ -11,7 +11,7 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const getActiveMenu = (url: string) => {
-    return pathname === url ? "font-semibold underline" : "";
+    return pathname.includes(url) ? "font-semibold underline" : "";
   };
 
   const getBreadcrumbs = (path: string) => {
@@ -80,6 +80,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </li>
             <li className={getActiveMenu("/main/facilities")}>
               <Link href="/main/facilities">시설물 관리</Link>
+            </li>
+            <li className={getActiveMenu("/main/notices")}>
+              <Link href="/main/notices">공지사항 관리</Link>
+            </li>
+            <li className={getActiveMenu("/main/report")}>
+              <Link href="/main/report">신고/제보 관리</Link>
             </li>
             <li className={getActiveMenu("/main/administrators")}>
               <Link href="/main/administrators">관리자 관리</Link>
