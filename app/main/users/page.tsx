@@ -2,7 +2,7 @@
 import React, { useState, ChangeEvent, MouseEvent } from "react";
 import UserQueryForm from "@/components/users/UserQueryForm";
 import Pagination from "@/components/ui/Pagination";
-import CustomTable from "@/components/ui/CusomTable";
+import CustomTable from "@/components/ui/CustomTable";
 import { useRouter } from "next/navigation";
 
 type User = {

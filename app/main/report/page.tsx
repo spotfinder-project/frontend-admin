@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, ChangeEvent, MouseEvent } from "react";
 import Pagination from "@/components/ui/Pagination";
-import CustomTable from "@/components/ui/CusomTable";
+import CustomTable from "@/components/ui/CustomTable";
 import { useRouter } from "next/navigation";
 import ReportQueryForm from "@/components/report/ReportQueryForm";
 
@@ -27,6 +27,7 @@ const columns = [
   { id: "facilityId", label: "시설물 ID" },
   { id: "resolved", label: "상태" },
   { id: "createdDate", label: "생성일" },
+  { id: "edit", label: "Edit" },
 ];
 
 const rowsPerPageOptions = [
@@ -43,6 +44,12 @@ const ReportPage: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [selectedReports, setSelectedReports] = useState<string[]>([]);
+
+  const handleChangeResolvedType = (event: ChangeEvent<HTMLSelectElement>) => {
+    console.log(event.target.value);
+
+    // setResolvedType(event.target.value);
+  };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -162,6 +169,7 @@ const ReportPage: React.FC = () => {
           onSelectRow={handleClick}
           onEdit={handleClickEdit}
           onItemClick={handleClickFacility}
+          handleChangeResolvedType={handleChangeResolvedType}
         />
 
         <div className="flex justify-center items-center p-4">

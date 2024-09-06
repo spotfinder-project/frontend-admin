@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, ChangeEvent, MouseEvent } from "react";
 import Pagination from "@/components/ui/Pagination";
-import CustomTable from "@/components/ui/CusomTable";
+import CustomTable from "@/components/ui/CustomTable";
 import FacilityQueryForm from "@/components/facilities/FacilityQueryForm";
 import { useRouter } from "next/navigation";
 

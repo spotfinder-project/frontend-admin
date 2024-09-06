@@ -18,6 +18,10 @@ interface CustomTableProps {
   selectedRows: string[];
   rowsPerPage: number;
   page: number;
+  resolvedType?: string;
+  handleChangeResolvedType?: (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => void;
   onSelectAll: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSelectRow: (event: React.ChangeEvent<HTMLInputElement>, id: string) => void;
   onEdit: (item: TableData) => void;
@@ -30,10 +34,12 @@ const CustomTable: React.FC<CustomTableProps> = ({
   selectedRows,
   rowsPerPage,
   page,
+  resolvedType,
   onSelectAll,
   onSelectRow,
   onEdit,
   onItemClick,
+  handleChangeResolvedType,
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -84,8 +90,26 @@ const CustomTable: React.FC<CustomTableProps> = ({
                         </button>
                       </td>
                     );
-                  } else if (column.id === "resolved") {
-                    return;
+                  } else if (
+                    column.id === "resolved" &&
+                    handleChangeResolvedType
+                  ) {
+                    return (
+                      <td key="resolved">
+                        <select
+                          id="resolvedType"
+                          className="select select-bordered"
+                          value={item.resolved}
+                          onChange={(e) => handleChangeResolvedType(e)}
+                        >
+                          <option value="" disabled>
+                            상태
+                          </option>
+                          <option value="N">해결 요청</option>
+                          <option value="Y">해결 완료</option>
+                        </select>
+                      </td>
+                    );
                   } else {
                     return (
                       <td key={column.id} onClick={() => onItemClick(item)}>

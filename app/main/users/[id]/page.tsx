@@ -5,7 +5,7 @@ import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import UserDetail from "@/components/users/UserDetail";
 import { User, Review, Facility } from "@/types/types";
 import UserReviewModal from "@/components/users/UserReviewModal";
-import CustomTable from "@/components/ui/CusomTable";
+import CustomTable from "@/components/ui/CustomTable";
 import Link from "next/link";
 
 interface Props {
