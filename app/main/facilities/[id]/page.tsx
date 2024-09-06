@@ -6,7 +6,7 @@ import { ChangeEvent, useState } from "react";
 
 interface Props {
   params: {
-    slug: string;
+    id: string;
   };
 }
 
@@ -33,7 +33,7 @@ const facilityReviewColumns = [
   },
 ];
 
-export default function FacilityDetail({ params: { slug } }: Props) {
+export default function FacilityDetail({ params: { id } }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);

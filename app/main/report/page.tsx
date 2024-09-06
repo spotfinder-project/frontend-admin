@@ -104,7 +104,7 @@ const ReportPage: React.FC = () => {
 
   const handleClickEdit = (item: Report) => {
     console.log("click edit", item);
-    router.push(`/main/reports/${item.id}`);
+    router.push(`/main/report/${item.id}`);
   };
 
   const filteredReports = reports.filter((item) =>
