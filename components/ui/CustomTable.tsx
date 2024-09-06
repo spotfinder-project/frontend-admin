@@ -26,6 +26,7 @@ interface CustomTableProps {
   onSelectRow: (event: React.ChangeEvent<HTMLInputElement>, id: string) => void;
   onEdit: (item: TableData) => void;
   onItemClick: (item: TableData) => void;
+  onDelete?: (item: TableData) => void;
 }
 
 const CustomTable: React.FC<CustomTableProps> = ({
@@ -39,6 +40,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   onSelectRow,
   onEdit,
   onItemClick,
+  onDelete,
   handleChangeResolvedType,
 }) => {
   return (
@@ -108,6 +110,17 @@ const CustomTable: React.FC<CustomTableProps> = ({
                           <option value="N">해결 요청</option>
                           <option value="Y">해결 완료</option>
                         </select>
+                      </td>
+                    );
+                  } else if (column.id === "delete" && onDelete) {
+                    return (
+                      <td key="delete">
+                        <button
+                          className="btn btn-neutral"
+                          onClick={() => onDelete(item)}
+                        >
+                          Delete
+                        </button>
                       </td>
                     );
                   } else {
