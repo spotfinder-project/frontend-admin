@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ConfirmationModal from "../ui/ConfirmationModal";
 
 interface Props {
   isOpen: boolean;
@@ -9,9 +10,15 @@ const NoticeAddModal = ({ isOpen, handleCloseModal }: Props) => {
   const [activeStatus, setActiveStatus] = useState("");
   const [noticeContent, setNoticeContent] = useState("");
   const [noticeTitle, setNoticeTitle] = useState("");
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const handleAddNotice = () => {
     console.log(noticeContent);
     console.log(noticeTitle);
+    setIsConfirmationModalOpen(true);
+  };
+
+  const handleConfirmAddNotice = (itemId: string) => {
+    console.log(noticeContent);
   };
 
   return (
@@ -61,7 +68,11 @@ const NoticeAddModal = ({ isOpen, handleCloseModal }: Props) => {
 
             {/* Modal Footer with Action Buttons */}
             <div className="modal-action">
-              <button className="btn btn-primary" onClick={handleAddNotice}>
+              <button
+                className="btn btn-primary"
+                onClick={handleAddNotice}
+                disabled={!noticeContent || !noticeTitle}
+              >
                 추가
               </button>
               <button className="btn" onClick={handleCloseModal}>
@@ -69,6 +80,15 @@ const NoticeAddModal = ({ isOpen, handleCloseModal }: Props) => {
               </button>
             </div>
           </div>
+          {isConfirmationModalOpen && (
+            <ConfirmationModal
+              itemId={noticeTitle}
+              isOpen={isConfirmationModalOpen}
+              onConfirm={handleConfirmAddNotice}
+              onCancel={() => setIsConfirmationModalOpen(false)}
+              message="추가하시겠습니까?"
+            />
+          )}
         </div>
       )}
     </div>
