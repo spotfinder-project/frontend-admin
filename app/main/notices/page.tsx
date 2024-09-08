@@ -4,6 +4,7 @@ import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
 import { useRouter } from "next/navigation";
 import NoticeQueryForm from "@/components/notice/NoticeQueryForm";
+import NoticeAddModal from "@/components/notice/NoticeAddModal";
 
 type Notice = {
   id: string;
@@ -43,7 +44,7 @@ const ReportPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [selectedReports, setSelectedReports] = useState<string[]>([]);
-
+  const [isAddNoticeModalOpen, setIsAddNoticeModalOpen] = useState(false);
   const handleChangeResolvedType = (event: ChangeEvent<HTMLSelectElement>) => {
     console.log(event.target.value);
 
@@ -132,11 +133,17 @@ const ReportPage = () => {
           />
           <div className="flex items-end">
             <button
-              className="btn btn-sm  btn-error mt-4"
+              className="btn btn-sm  btn-info mt-4"
+              onClick={() => setIsAddNoticeModalOpen(true)}
+            >
+              추가
+            </button>
+            <button
+              className="btn btn-sm  btn-error mt-4 ml-2"
               onClick={handleDelete}
               disabled={selectedReports.length === 0}
             >
-              Delete
+              삭제
             </button>
 
             <div className="form-control ml-4">
@@ -183,6 +190,13 @@ const ReportPage = () => {
             onPageChange={handleChangePage}
           />
         </div>
+
+        {isAddNoticeModalOpen && (
+          <NoticeAddModal
+            isOpen={isAddNoticeModalOpen}
+            handleCloseModal={() => setIsAddNoticeModalOpen(false)}
+          />
+        )}
       </div>
     </div>
   );
