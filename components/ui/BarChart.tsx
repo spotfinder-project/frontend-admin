@@ -23,13 +23,17 @@ const mockData = {
   labels: ["Jan", "Feb", "Mar", "Apr", "May", "June"],
   datasets: [
     {
-      label: "users",
+      label: "사용자 수",
       data: [10, 20, 30, 100, 30, 50],
+      backgroundColor: "rgba(54, 162, 235, 0.5)",
+      borderColor: "rgba(54, 162, 235, 1)",
     },
   ],
 };
 
 export const BarChart = () => {
-  const options = {};
+  const options = {
+    responsive: true,
+  };
   return <Bar options={options} data={mockData} />;
 };

@@ -2,7 +2,7 @@ import { BarChart } from "@/components/ui/BarChart";
 
 const MainPage = () => {
   return (
-    <div>
+    <div className="flex justify-center">
       <BarChart />
     </div>
   );
