@@ -1,16 +1,16 @@
-import { User } from "@/types/types";
+import { UserDetail } from "@/types/types";
 
 interface Props {
-  user: User;
+  user: UserDetail;
 }
 
-const UserDetail = ({ user }: Props) => {
+const UserDetailForm = ({ user }: Props) => {
   return (
     <div className="bg-white shadow rounded-lg p-6 mb-6">
       <h2 className="text-xl font-semibold mb-4">사용자 상세 정보</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <span className="font-medium">User ID:</span> {user.userId}
+          <span className="font-medium">User ID:</span> {user.email}
         </div>
         <div>
           <span className="font-medium">Name:</span> {user.name}
@@ -19,17 +19,17 @@ const UserDetail = ({ user }: Props) => {
           <span className="font-medium">Nickname:</span> {user.nickname}
         </div>
         <div>
-          <span className="font-medium">Birthdate:</span> {user.birthdate}
+          <span className="font-medium">Birthdate:</span> {user.birthday}
         </div>
         <div>
-          <span className="font-medium">Sex:</span> {user.sex}
+          <span className="font-medium">Sex:</span> {user.gender}
         </div>
         <div>
           <span className="font-medium">Email:</span> {user.email}
         </div>
         <div>
           <span className="font-medium">Social Login:</span>
-          {user.socialLoginType}
+          {user.socialType}
         </div>
         <div>
           <span className="font-medium">Created Date:</span>
@@ -40,4 +40,4 @@ const UserDetail = ({ user }: Props) => {
   );
 };
 
-export default UserDetail;
+export default UserDetailForm;

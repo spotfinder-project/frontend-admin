@@ -17,7 +17,7 @@ const NoticeAddModal = ({ isOpen, handleCloseModal }: Props) => {
     setIsConfirmationModalOpen(true);
   };
 
-  const handleConfirmAddNotice = (itemId: string) => {
+  const handleConfirmAddNotice = (itemId: string | undefined) => {
     console.log(noticeContent);
   };
 
@@ -82,7 +82,6 @@ const NoticeAddModal = ({ isOpen, handleCloseModal }: Props) => {
           </div>
           {isConfirmationModalOpen && (
             <ConfirmationModal
-              itemId={noticeTitle}
               isOpen={isConfirmationModalOpen}
               onConfirm={handleConfirmAddNotice}
               onCancel={() => setIsConfirmationModalOpen(false)}

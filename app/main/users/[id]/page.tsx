@@ -2,8 +2,8 @@
 import React, { cache, useEffect, useState } from "react";
 import { getUserBySlug } from "@/service/userService";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
-import UserDetail from "@/components/users/UserDetail";
-import { User, Review, Facility } from "@/types/types";
+import UserDetailForm from "@/components/users/UserDetail";
+import { UserDetail, Review, Facility } from "@/types/types";
 import UserReviewModal from "@/components/users/UserReviewModal";
 import CustomTable from "@/components/ui/CustomTable";
 import Link from "next/link";
@@ -47,57 +47,60 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
     { id: "delete", label: "Delete" },
   ];
 
-  const userData: User = {
-    userId: "userId",
+  const userData: UserDetail = {
+    memberId: 4,
     name: "name",
     nickname: "abcd",
-    birthdate: "1991-08-08",
-    sex: "F",
+    birthday: "1991-08-08",
+    gender: "F",
     email: "abcd@naver.com",
-    socialLoginType: "Naver",
+    socialType: "Naver",
     createdDate: "2024-08-01",
-    facilities: [
-      {
-        facilityType: "쓰레기통",
-        id: "1",
-        name: "Facility 1",
-        address: "123 Main St",
-        detailedLocation: "Room 101",
-        note: "Near the entrance",
-        admin: "Maintenance",
-        approved: "Yes",
-        approvedDate: "2023-02-01",
-      },
-      // Add more facility data as needed
-    ],
-    reviews: [
-      {
-        id: "1",
-        content: "Great place!",
-        facilityType: "Gym",
-        facilityId: "1",
-        facilityName: "Gym 1",
-        address: "123 Main St",
-        createdDate: "2023-03-01",
-      },
-      // Add more review data as needed
-    ],
+    // facilities: [
+    //   {
+    //     facilityType: "쓰레기통",
+    //     id: "1",
+    //     name: "Facility 1",
+    //     address: "123 Main St",
+    //     detailedLocation: "Room 101",
+    //     note: "Near the entrance",
+    //     admin: "Maintenance",
+    //     approved: "Yes",
+    //     approvedDate: "2023-02-01",
+    //   },
+    //   // Add more facility data as needed
+    // ],
+    // reviews: [
+    //   {
+    //     id: "1",
+    //     content: "Great place!",
+    //     facilityType: "Gym",
+    //     facilityId: "1",
+    //     facilityName: "Gym 1",
+    //     address: "123 Main St",
+    //     createdDate: "2023-03-01",
+    //   },
+    //   // Add more review data as needed
+    // ],
   };
 
-  const { facilities, reviews } = userData;
+  // const { facilities, reviews } = userData;
+
+  const facilities: any[] = [];
+  const reviews: any[] = [];
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
-  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
+  const [selectedReviewId, setSelectedReviewId] = useState<number | null>(null);
 
-  const handleDeleteReview = (id: string) => {
+  const handleDeleteReview = (id: number) => {
     setIsDeleteModalOpen(true);
     setSelectedReviewId(id);
   };
 
-  const handleConfirmDelete = (id: string) => {
+  const handleConfirmDelete = () => {
     // request delete review
-
+    console.log(selectedReviewId);
     handleCloseDelete();
   };
 
@@ -126,7 +129,7 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
   return (
     <div className="container mx-auto p-6">
       {/* User Details */}
-      <UserDetail user={userData} />
+      <UserDetailForm user={userData} />
 
       {/* Facilities Table */}
       <div className="bg-white shadow rounded-lg p-6 mb-6">
@@ -207,7 +210,6 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
           </table>
           {isDeleteModalOpen && selectedReviewId && (
             <ConfirmationModal
-              itemId={selectedReviewId}
               isOpen={isDeleteModalOpen}
               onConfirm={handleConfirmDelete}
               onCancel={handleCloseDelete}

@@ -1,13 +1,38 @@
 export interface Facility {
-  facilityType: string;
-  id: string;
+  facilityId: number;
+  type: "R" | "S" | "T";
   name: string;
-  address: string;
-  detailedLocation: string;
-  note: string;
-  admin: string;
-  approved: string;
-  approvedDate: string;
+  location: string;
+  detailLocation: string;
+  information: string;
+  department: string;
+  departmentPhoneNumber: string;
+  approvalStatus: string;
+  memberId: string;
+  createdDate: string;
+}
+
+export interface FacilityDetail {
+  facilityId: number;
+  type: "R" | "S" | "T";
+  name: string;
+  location: string;
+  detailLocation: string;
+  information: string;
+  department: string;
+  departmentPhoneNumber: string;
+  approvalStatus: string;
+  memberId: string;
+  createdDate: string;
+  images: string[];
+}
+
+export interface FacilityReview {
+  reviewId: number;
+  content: string;
+  createdDate: string;
+  memberId: string;
+  nickname: string;
 }
 
 export interface Review {
@@ -21,14 +46,54 @@ export interface Review {
 }
 
 export interface User {
-  userId: string;
+  memberId: number;
   name: string;
   nickname: string;
-  birthdate: string;
-  sex: "M" | "F"; // Assuming sex is either 'M' (Male) or 'F' (Female)
-  email: string;
-  socialLoginType: string;
+  birthday: string;
+  gender: "M" | "F";
+  socialType: string;
   createdDate: string;
-  facilities: Facility[];
-  reviews: Review[];
+}
+
+export interface UserDetail {
+  memberId: number;
+  name: string;
+  nickname: string;
+  birthday: string;
+  gender: "M" | "F";
+  email: string;
+  socialType: string;
+  createdDate: string;
+  // facilities: Facility[];
+  // reviews: Review[];
+}
+
+export interface UserFacility {
+  facilityId: number;
+  type: "R" | "S" | "T";
+  name: string;
+  location: string;
+  detailLocation: string;
+  information: string;
+  approvalStatus: string;
+  approvalDate: string;
+}
+
+export interface UserReview {
+  reviewId: number;
+  content: string;
+  createdDate: string;
+  facility: {
+    facilityId: 1;
+    type: string;
+    name: string;
+    location: string;
+    detailLocation: string;
+    information: string;
+    department: string;
+    departmentPhoneNumber: string;
+    approvalStatus: string;
+    createdDate: string;
+    images: string[];
+  };
 }

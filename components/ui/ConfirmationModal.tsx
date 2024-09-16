@@ -1,20 +1,23 @@
 import React from "react";
 
 interface ConfirmationModalProps {
-  itemId: string;
   isOpen: boolean;
-  onConfirm: (id: string) => void;
+  onConfirm: (arg?: string) => void;
   onCancel: () => void;
   message: string;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
-  itemId,
   isOpen,
   onConfirm,
   onCancel,
   message,
 }) => {
+  const handleClickConfirm = () => {
+    if (onConfirm) {
+      onConfirm();
+    }
+  };
   if (!isOpen) return null;
 
   return (
@@ -26,7 +29,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           <button className="btn btn-outline btn-secondary" onClick={onCancel}>
             취소
           </button>
-          <button className="btn btn-primary" onClick={() => onConfirm(itemId)}>
+          <button className="btn btn-primary" onClick={handleClickConfirm}>
             확인
           </button>
         </div>
