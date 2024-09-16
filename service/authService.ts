@@ -12,6 +12,7 @@ interface LoginResponse {
 
 const baseUrl = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  withCredentials: true,
 });
 
 export const login = async (
@@ -23,29 +24,21 @@ export const login = async (
     password,
   });
 
-  const { accessToken, refreshToken, accessExpiration, refreshExpiration } =
-    response.data;
+  // const { accessToken, refreshToken, accessExpiration, refreshExpiration } =
+  //   response.data;
 
-  // Save tokens in cookies
-  setCookie("userId", id, {
-    maxAge: accessExpiration,
-  });
-  setCookie("accessToken", accessToken, {
-    maxAge: accessExpiration,
-  });
-  setCookie("refreshToken", refreshToken, {
-    maxAge: refreshExpiration,
-  });
+  // // Save tokens in cookies
+  // setCookie("userId", id, {
+  //   maxAge: accessExpiration,
+  // });
+  // setCookie("accessToken", accessToken, {
+  //   maxAge: accessExpiration,
+  // });
+  // setCookie("refreshToken", refreshToken, {
+  //   maxAge: refreshExpiration,
+  // });
 
-  return {
-    id: "byung0216",
-    accessToken:
-      "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJieXVuZzAyMTYiLCJpYXQiOjE3MjMzNjQzNDcsImV4cCI6MTcyMzQ1MDc0N30.-ePjnEl_m6jZX1wj1SsMwASOeunsyi3knHt-zEENA3jXFWGGkeFCcIcuPMxyFDKHUplqhkXZr3sGZdG7MMq_0Q",
-    accessExpiration: 86400000,
-    refreshToken:
-      "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJieXVuZzAyMTYiLCJpYXQiOjE3MjMzNjQzNDcsImV4cCI6MTcyMzk2OTE0N30.aTOh3hpNuhnJF2YxdKHQQEpYZatoVflebko4QuWfM3LfcNPmRIqhVF41aL3x5geKZCBuClPfaQ0wTohm2xerTg",
-    refreshExpiration: 604800000,
-  };
+  return response.data;
 };
 
 export const refreshToken = async (): Promise<LoginResponse> => {
@@ -74,8 +67,8 @@ export const logout = async (): Promise<void> => {
     await baseUrl.post("/admin/logout"); // Replace with the appropriate logout endpoint if needed
 
     // Remove cookies
-    deleteCookie("accessToken");
-    deleteCookie("refreshToken");
+    // deleteCookie("accessToken");
+    // deleteCookie("refreshToken");
   } catch (error) {
     console.error("Error during logout:", error);
     throw error;

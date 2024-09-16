@@ -5,6 +5,7 @@ import { refreshToken, logout } from "@/service/authService";
 // Create an Axios instance
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // Replace with your external API's base URL
+  withCredentials: true,
 });
 
 // Request interceptor to add accessToken to headers
