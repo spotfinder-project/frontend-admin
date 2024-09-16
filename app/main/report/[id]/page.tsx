@@ -1,15 +1,41 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
+import { ReportDetail } from "@/types/types";
 
 const ReportDetailPage = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [approvalStatus, setApprovalStatus] = useState<"Y" | "N">("N");
-  const [processingContent, setProcessingContent] = useState("");
-  const [images, setImages] = useState([
-    "/sample-image1.jpg",
-    "/sample-image2.jpg",
-  ]);
+
+  const selectedReport: ReportDetail = {
+    reportId: 1,
+    content: "현재는 해당 시설물이 존재하지 않습니다.",
+    answer: "처리 완료했습니다!",
+    status: "Y",
+    createdDate: "2024-09-01",
+    memberId: 1,
+    nickname: "Kim",
+    facility: {
+      facilityId: 1,
+      type: "R",
+      name: "쌍문역 내 화장실",
+      location: "쌍문역",
+      detailLocation: "지하 1층",
+      information: "개찰구 내에 존재합니다.",
+      department: "서울시설공단",
+      departmentPhoneNumber: "02-2290-7111",
+      approvalStatus: "A",
+      createdDate: "2024-09-01",
+      images: [],
+    },
+  };
+
+  const [approvalStatus, setApprovalStatus] = useState<"Y" | "N">(
+    selectedReport.status
+  );
+  const [answer, setAnswer] = useState(selectedReport.answer);
+
+  const [images, setImages] = useState(selectedReport.facility.images);
+  const { facility } = selectedReport;
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -18,7 +44,7 @@ const ReportDetailPage = () => {
   const handleCancelClick = () => {
     setIsEditing(false);
     setApprovalStatus("N"); // Resetting approval status
-    setProcessingContent(""); // Resetting processing content
+    setAnswer(""); // Resetting processing content
   };
 
   const handleSaveClick = () => {
@@ -36,7 +62,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered"
-            value="123"
+            value={selectedReport.memberId}
             disabled
           />
         </div>
@@ -46,7 +72,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered"
-            value="123"
+            value={selectedReport.nickname}
             disabled
           />
         </div>
@@ -67,7 +93,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered"
-            value="2024-09-01"
+            value={selectedReport.createdDate}
             disabled
           />
         </div>
@@ -76,7 +102,7 @@ const ReportDetailPage = () => {
           <textarea
             className="textarea textarea-bordered w-full"
             disabled
-            value="위치가 틀립니다"
+            value={selectedReport.content}
           ></textarea>
         </div>
 
@@ -85,8 +111,8 @@ const ReportDetailPage = () => {
           <textarea
             className="textarea textarea-bordered w-full"
             disabled={!isEditing}
-            value={processingContent}
-            onChange={(e) => setProcessingContent(e.target.value)}
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
           ></textarea>
         </div>
       </div>
@@ -96,37 +122,71 @@ const ReportDetailPage = () => {
       <div className="grid grid-cols-2 gap-4">
         <div className="form-control">
           <label className="label">시설물 ID</label>
-          <input type="text" className="input input-bordered w-full" disabled />
+          <input
+            type="text"
+            className="input input-bordered w-full"
+            value={facility.facilityId}
+            disabled
+          />
         </div>
 
         <div className="form-control">
           <label className="label">시설물 명</label>
-          <input type="text" className="input input-bordered w-full" disabled />
+          <input
+            type="text"
+            className="input input-bordered w-full"
+            value={facility.name}
+            disabled
+          />
         </div>
 
         <div className="form-control">
           <label className="label">주소</label>
-          <input type="text" className="input input-bordered w-full" disabled />
+          <input
+            type="text"
+            className="input input-bordered w-full"
+            value={facility.location}
+            disabled
+          />
         </div>
 
         <div className="form-control">
           <label className="label">상세 위치</label>
-          <input type="text" className="input input-bordered w-full" disabled />
+          <input
+            type="text"
+            className="input input-bordered w-full"
+            value={facility.detailLocation}
+            disabled
+          />
         </div>
 
         <div className="form-control">
           <label className="label">관리 부서</label>
-          <input type="text" className="input input-bordered w-full" disabled />
+          <input
+            type="text"
+            className="input input-bordered w-full"
+            value={facility.department}
+            disabled
+          />
         </div>
 
         <div className="form-control">
           <label className="label">관리부서 번호</label>
-          <input type="text" className="input input-bordered w-full" disabled />
+          <input
+            type="text"
+            className="input input-bordered w-full"
+            value={facility.departmentPhoneNumber}
+            disabled
+          />
         </div>
 
         <div className="form-control">
           <label className="label">승인 상태</label>
-          <select className="select select-bordered w-full" disabled>
+          <select
+            className="select select-bordered w-full"
+            disabled
+            value={facility.approvalStatus}
+          >
             <option value="Y">Y</option>
             <option value="N">N</option>
           </select>
@@ -137,7 +197,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered"
-            value="2024-09-01"
+            value={facility.createdDate}
             disabled
           />
         </div>

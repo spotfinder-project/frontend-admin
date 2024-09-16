@@ -35,16 +35,6 @@ export interface FacilityReview {
   nickname: string;
 }
 
-export interface Review {
-  id: string;
-  content: string;
-  facilityType: string;
-  facilityId: string;
-  facilityName: string;
-  address: string;
-  createdDate: string;
-}
-
 export interface User {
   memberId: number;
   name: string;
@@ -86,6 +76,37 @@ export interface UserReview {
   facility: {
     facilityId: 1;
     type: string;
+    name: string;
+    location: string;
+    detailLocation: string;
+    information: string;
+    department: string;
+    departmentPhoneNumber: string;
+    approvalStatus: string;
+    createdDate: string;
+    images: string[];
+  };
+}
+
+export interface Notice {
+  noticeId: number;
+  title: string;
+  content: string;
+  valid: "Y" | "N";
+  createdAt: string;
+}
+
+export interface ReportDetail {
+  reportId: number;
+  content: string;
+  answer: string;
+  status: "Y" | "N";
+  createdDate: string;
+  memberId: number;
+  nickname: string;
+  facility: {
+    facilityId: number;
+    type: "R" | "S" | "T";
     name: string;
     location: string;
     detailLocation: string;

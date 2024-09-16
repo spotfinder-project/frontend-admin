@@ -1,9 +1,23 @@
 "use client";
+import { Notice } from "@/types/types";
 import { useState } from "react";
 
 const NoticeDetailPage = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [activeStatus, setActiveStatus] = useState<"Y" | "N">("N");
+
+  const selectedReview: Notice = {
+    noticeId: 1,
+    title: "시설물 사용에 대한 공지사항입니다.",
+    content: "청결하게 사용해주세요!",
+    valid: "Y",
+    createdAt: "2024-09-01 10:30:00",
+  };
+
+  const [activeStatus, setActiveStatus] = useState<"Y" | "N">(
+    selectedReview.valid
+  );
+  const [noticeTitle, setNoticeTitle] = useState(selectedReview.title);
+  const [noticeContent, setNoticeContent] = useState(selectedReview.content);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -41,8 +55,8 @@ const NoticeDetailPage = () => {
           <input
             type="text"
             className="input input-bordered"
-            value="123"
-            disabled
+            value={noticeTitle}
+            disabled={!isEditing}
           />
         </div>
 
@@ -51,7 +65,7 @@ const NoticeDetailPage = () => {
           <textarea
             className="textarea textarea-bordered w-full"
             disabled={!isEditing}
-            value="공지 내용"
+            value={noticeContent}
           ></textarea>
         </div>
 
@@ -60,7 +74,7 @@ const NoticeDetailPage = () => {
           <input
             type="text"
             className="input input-bordered"
-            value="2024-09-01"
+            value={selectedReview.createdAt}
             disabled
           />
         </div>

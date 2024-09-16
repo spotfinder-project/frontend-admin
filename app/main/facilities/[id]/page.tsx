@@ -105,7 +105,9 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     setIsDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {};
+  const handleConfirmDelete = () => {
+    console.log(selectedReviewId);
+  };
 
   const handleCloseDelete = () => {
     setIsDeleteModalOpen(false);
