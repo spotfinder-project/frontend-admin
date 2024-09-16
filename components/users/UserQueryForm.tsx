@@ -1,16 +1,23 @@
 "use client";
 import React, { useState } from "react";
+import DateRangePicker from "../ui/DateRangePicker";
+import { addMonths } from "date-fns";
 
 const UserQueryForm: React.FC = () => {
   const [name, setName] = useState("");
   const [sex, setSex] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [socialLogin, setSocialLogin] = useState("");
-  const [createdDate, setCreatedDate] = useState("");
+  const today = new Date();
+  const oneMonthFromNow = addMonths(today, 1);
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
+    oneMonthFromNow,
+    today,
+  ]);
 
   const handleSearch = () => {
     // Implement search functionality here
-    console.log({ name, sex, birthDate, socialLogin, createdDate });
+    console.log({ name, sex, birthDate, socialLogin });
   };
 
   const handleReset = () => {
@@ -18,7 +25,7 @@ const UserQueryForm: React.FC = () => {
     setSex("");
     setBirthDate("");
     setSocialLogin("");
-    setCreatedDate("");
+    setDateRange([oneMonthFromNow, today]);
   };
 
   return (
@@ -100,12 +107,17 @@ const UserQueryForm: React.FC = () => {
           <label className="label" htmlFor="createdDate">
             <span className="label-text">Created Date</span>
           </label>
-          <input
+          {/* <input
             type="date"
             id="createdDate"
             className="input input-bordered"
             value={createdDate}
             onChange={(e) => setCreatedDate(e.target.value)}
+          /> */}
+          <DateRangePicker
+            startDate={today}
+            endDate={oneMonthFromNow}
+            setDateRange={setDateRange}
           />
         </div>
 

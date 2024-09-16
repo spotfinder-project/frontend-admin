@@ -2,17 +2,25 @@
 import Head from "next/head";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { login } from "@/service/authService";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      await login(username, password);
+      // Handle successful login (e.g., redirect or update UI)
+    } catch (error) {
+      // Handle login error
+      console.error("Login failed:", error);
+    }
 
-    console.log("Username:", username);
-    console.log("Password:", password);
     router.push("/main");
   };
 

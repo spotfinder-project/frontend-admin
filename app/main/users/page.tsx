@@ -4,6 +4,7 @@ import UserQueryForm from "@/components/users/UserQueryForm";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
 import { useRouter } from "next/navigation";
+import { getUsers } from "@/service/userService";
 
 type User = {
   id: string;
