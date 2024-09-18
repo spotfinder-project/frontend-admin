@@ -4,10 +4,10 @@ import { getCookie, setCookie, deleteCookie } from "cookies-next";
 // Types for your API responses
 interface LoginResponse {
   id: string;
-  accessToken: string;
-  refreshToken: string;
-  accessExpiration: number;
-  refreshExpiration: number;
+  // accessToken: string;
+  // refreshToken: string;
+  // accessExpiration: number;
+  // refreshExpiration: number;
 }
 
 const baseUrl = axios.create({
@@ -41,25 +41,25 @@ export const login = async (
   return response.data;
 };
 
-export const refreshToken = async (): Promise<LoginResponse> => {
-  const userId = getCookie("userId"); // You would need to retrieve it from cookies
+// export const refreshToken = async (): Promise<LoginResponse> => {
+//   const userId = getCookie("userId"); // You would need to retrieve it from cookies
 
-  const response = await baseUrl.post<LoginResponse>("/admin/reissue", {
-    id: userId,
-  });
+//   const response = await baseUrl.post<LoginResponse>("/admin/reissue", {
+//     id: userId,
+//   });
 
-  const { accessToken, accessExpiration } = response.data;
+//   const { accessToken, accessExpiration } = response.data;
 
-  // Update tokens in cookies
-  setCookie("accessToken", accessToken, {
-    maxAge: accessExpiration,
-  });
-  // setCookie("refreshToken", newRefreshToken, {
-  //   maxAge: parseInt(refreshTokenExpiration),
-  // });
+//   // Update tokens in cookies
+//   setCookie("accessToken", accessToken, {
+//     maxAge: accessExpiration,
+//   });
+//   // setCookie("refreshToken", newRefreshToken, {
+//   //   maxAge: parseInt(refreshTokenExpiration),
+//   // });
 
-  return response.data;
-};
+//   return response.data;
+// };
 
 export const logout = async (): Promise<void> => {
   try {

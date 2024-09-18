@@ -3,22 +3,27 @@ import Head from "next/head";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/service/authService";
+import useSWR from "swr";
+import { loginFetcher } from "@/utils/apiUtil";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
+  const [id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     try {
-      await login(username, password);
-      // Handle successful login (e.g., redirect or update UI)
+      const result = await loginFetcher("/api/auth/login", id, password);
+      console.log(result);
+
+      if (result.error) {
+        console.error("Login failed:", result.error);
+      } else {
+        console.log("Login successful:", result);
+      }
     } catch (error) {
-      // Handle login error
-      console.error("Login failed:", error);
+      console.error("An error occurred during mutation:", error);
     }
 
     router.push("/main");
@@ -36,7 +41,7 @@ export default function LoginPage() {
         <div className="max-w-md w-full space-y-8">
           <div className="bg-white p-8 rounded-lg shadow-lg">
             <h2 className="text-center text-2xl font-bold mb-8">Login</h2>
-            <form className="space-y-4" onSubmit={(e) => handleSubmit(e)}>
+            <div className="space-y-4">
               <div className="form-control w-full">
                 <input
                   className="input input-bordered w-full"
@@ -44,8 +49,8 @@ export default function LoginPage() {
                   id="username"
                   type="text"
                   required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={id}
+                  onChange={(e) => setId(e.target.value)}
                 />
               </div>
               <div className="form-control w-full">
@@ -62,10 +67,11 @@ export default function LoginPage() {
               <button
                 className="btn btn-block bg-black text-white py-2 rounded mt-4"
                 type="submit"
+                onClick={handleLogin}
               >
                 Login
               </button>
-            </form>
+            </div>
           </div>
         </div>
       </div>

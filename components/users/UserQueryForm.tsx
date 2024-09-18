@@ -2,10 +2,17 @@
 import React, { useState } from "react";
 import DateRangePicker from "../ui/DateRangePicker";
 import { addMonths } from "date-fns";
+import { User } from "@/types/types";
+import { userParams } from "@/service/userService";
 
-const UserQueryForm: React.FC = () => {
+type Props = {
+  userList: any[];
+  clickQueryUsers: (searchParams: userParams) => Promise<void>;
+};
+
+const UserQueryForm = ({ userList, clickQueryUsers }: Props) => {
   const [name, setName] = useState("");
-  const [sex, setSex] = useState("");
+  const [gender, setGender] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [socialLogin, setSocialLogin] = useState("");
   const today = new Date();
@@ -17,12 +24,13 @@ const UserQueryForm: React.FC = () => {
 
   const handleSearch = () => {
     // Implement search functionality here
-    console.log({ name, sex, birthDate, socialLogin });
+    console.log({ name, gender, birthDate, socialLogin });
+    clickQueryUsers({});
   };
 
   const handleReset = () => {
     setName("");
-    setSex("");
+    setGender("");
     setBirthDate("");
     setSocialLogin("");
     setDateRange([oneMonthFromNow, today]);
@@ -49,19 +57,19 @@ const UserQueryForm: React.FC = () => {
           />
         </div>
 
-        {/* Sex */}
+        {/* gender */}
         <div className="form-control">
-          <label className="label" htmlFor="sex">
-            <span className="label-text">Sex</span>
+          <label className="label" htmlFor="gender">
+            <span className="label-text">Gender</span>
           </label>
           <select
-            id="sex"
+            id="gender"
             className="select select-bordered"
-            value={sex}
-            onChange={(e) => setSex(e.target.value)}
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
           >
             <option value="" disabled>
-              Select sex
+              Select gender
             </option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>

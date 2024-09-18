@@ -1,15 +1,18 @@
 "use client";
-import React, { useState, ChangeEvent, MouseEvent } from "react";
+import React, { useState, ChangeEvent, MouseEvent, useEffect } from "react";
 import UserQueryForm from "@/components/users/UserQueryForm";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
 import { useRouter } from "next/navigation";
-import { getUsers } from "@/service/userService";
+import { getUsers, userParams } from "@/service/userService";
+import useSWR from "swr";
 
 type User = {
   id: string;
   [key: string]: any;
 };
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const initialUsers: User[] = [
   {
@@ -66,11 +69,38 @@ const rowsPerPageOptions = [
 
 const UserManagementPage: React.FC = () => {
   const router = useRouter();
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  // const userList = await getUsers({});
+
+  const { data, error, mutate } = useSWR(
+    `/api/users?${new URLSearchParams({}).toString()}`,
+    fetcher
+  );
+
+  const userList: User[] = data;
+  const [users, setUsers] = useState(userList);
   const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
+
+  useEffect(() => {
+    console.log(users);
+    if (data) {
+      // Update filteredUsers when data is fetched
+      setUsers(data);
+      setFilteredUsers(filterUsers(data));
+    }
+  }, [data]);
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+
+  const handleQueryUsers = async (searchParams: userParams) => {
+    const userList = await mutate();
+    setUsers(userList);
+  };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -128,20 +158,24 @@ const UserManagementPage: React.FC = () => {
     router.push(`/main/users/${user.id}`);
   };
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.gender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.birthDate.includes(searchQuery) ||
-      user.socialLogin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.createdDate.includes(searchQuery)
-  );
+  const filterUsers = (users: User[]) => {
+    return users.filter(
+      (user) =>
+        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.gender.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.birthDate.includes(searchQuery) ||
+        user.socialLogin.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.createdDate.includes(searchQuery)
+    );
+  };
+
+  console.log(filteredUsers);
 
   const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <UserQueryForm />
+      <UserQueryForm userList={userList} clickQueryUsers={handleQueryUsers} />
       <div className="mt-4 bg-base-100 shadow-lg rounded-lg">
         <div className="flex justify-between items-center p-4">
           <input
