@@ -32,59 +32,40 @@ export async function GET(request: Request) {
       endDate: query.get("endDate") || undefined,
     };
 
-    // // Build query string from params
-    // const queryString = new URLSearchParams(
-    //   params as Record<string, string>
-    // ).toString();
+    // Build query string from params
+    const queryString = new URLSearchParams(
+      Object.entries(params).filter(([_, value]) => value !== undefined) // Filter out undefined values
+    ).toString();
 
-    // // Make the actual call to the external API
-    // const response = await fetch(`${API_BASE_URL}/users?${queryString}`, {
-    //   method: "GET",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   credentials: "include",
-    // });
+    const apiUrl = `${API_BASE_URL}/users${
+      queryString ? `?${queryString}` : ""
+    }`;
 
-    // if (!response.ok) {
-    //   return NextResponse.json(
-    //     { error: "Failed to fetch users" },
-    //     { status: response.status }
-    //   );
-    // }
+    console.log(apiUrl);
 
-    // const data = await response.json();
-    // return NextResponse.json(data);
-
-    const mockUsers = [
-      {
-        memberId: 1,
-        name: "김회원",
-        nickname: "Kim",
-        birthday: "1990-01-01",
-        gender: "M",
-        socialType: "K",
-        createdDate: "2024-09-01",
+    // Make the actual call to the external API
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
       },
-      {
-        memberId: 2,
-        name: "김회원",
-        nickname: "Kim",
-        birthday: "1990-01-01",
-        gender: "M",
-        socialType: "K",
-        createdDate: "2024-09-01",
-      },
-    ];
-
-    const filtered = mockUsers.map((user) => {
-      return {
-        ...user,
-        id: user.memberId,
-      };
+      credentials: "include", // Include cookies
     });
-    return NextResponse.json(filtered);
+
+    console.log("Request Headers:", request.headers.get("cookie"));
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: "Failed to fetch users" },
+        { status: response.status }
+      );
+    }
+
+    const data = await response.json();
+
+    return NextResponse.json(data);
   } catch (error) {
+    console.error(error); // Log the error for debugging
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }
