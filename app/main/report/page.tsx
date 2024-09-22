@@ -4,6 +4,7 @@ import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
 import { useRouter } from "next/navigation";
 import ReportQueryForm from "@/components/report/ReportQueryForm";
+import useSWR from "swr";
 
 type Report = {
   id: string;
@@ -44,6 +45,15 @@ const ReportPage: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [selectedReports, setSelectedReports] = useState<string[]>([]);
+  const { data, error, mutate } = useSWR(`/api/reports`, {
+    onError: (error, key) => {
+      if (error.code === 401) {
+        console.log(error);
+        // router.push("/");
+      }
+    },
+  });
+  console.log(data);
 
   const handleChangeResolvedType = (event: ChangeEvent<HTMLSelectElement>) => {
     console.log(event.target.value);

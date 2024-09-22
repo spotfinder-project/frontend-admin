@@ -3,7 +3,7 @@ import React, { useState, ChangeEvent, MouseEvent, useEffect } from "react";
 import UserQueryForm from "@/components/users/UserQueryForm";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { getUsers, userParams } from "@/service/userService";
 import useSWR from "swr";
 
@@ -11,8 +11,6 @@ type User = {
   id: string;
   [key: string]: any;
 };
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const initialUsers: User[] = [
   {
@@ -67,13 +65,40 @@ const rowsPerPageOptions = [
   { value: 100, label: 100 },
 ];
 
+const fetchUsers = async (url: string) => {
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include", // Ensure cookies are included in the request
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch users");
+  }
+
+  console.log("users response:", response);
+
+  const data = await response.json();
+  return data;
+};
+
 const UserManagementPage: React.FC = () => {
   const router = useRouter();
   // const userList = await getUsers({});
 
   const { data, error, mutate } = useSWR(
     `/api/users?${new URLSearchParams({}).toString()}`,
-    fetcher
+    fetchUsers,
+    {
+      onError: (error, key) => {
+        if (error.code === 401) {
+          console.log(error);
+          // router.push("/");
+        }
+      },
+    }
   );
 
   const userList: User[] = data;
@@ -89,13 +114,13 @@ const UserManagementPage: React.FC = () => {
     if (data) {
       // Update filteredUsers when data is fetched
       setUsers(data);
-      setFilteredUsers(filterUsers(data));
+      // setFilteredUsers(filterUsers(data));
     }
   }, [data]);
 
-  if (!data) {
-    return <div>Loading...</div>;
-  }
+  // if (!data) {
+  //   return <div>Loading...</div>;
+  // }
 
   const handleQueryUsers = async (searchParams: userParams) => {
     const userList = await mutate();
@@ -159,7 +184,7 @@ const UserManagementPage: React.FC = () => {
   };
 
   const filterUsers = (users: User[]) => {
-    return users.filter(
+    return users?.filter(
       (user) =>
         user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.gender.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -168,6 +193,8 @@ const UserManagementPage: React.FC = () => {
         user.createdDate.includes(searchQuery)
     );
   };
+
+  // const filteredUsers: any[] = [];
 
   console.log(filteredUsers);
 

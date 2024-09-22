@@ -5,6 +5,7 @@ import CustomTable from "@/components/ui/CustomTable";
 import { useRouter } from "next/navigation";
 import NoticeQueryForm from "@/components/notice/NoticeQueryForm";
 import NoticeAddModal from "@/components/notice/NoticeAddModal";
+import useSWR from "swr";
 
 type Notice = {
   id: string;
@@ -45,6 +46,9 @@ const ReportPage = () => {
   const [page, setPage] = useState(0);
   const [selectedReports, setSelectedReports] = useState<string[]>([]);
   const [isAddNoticeModalOpen, setIsAddNoticeModalOpen] = useState(false);
+  const { data, error } = useSWR("/api/notices");
+  console.log(data);
+
   const handleChangeResolvedType = (event: ChangeEvent<HTMLSelectElement>) => {
     console.log(event.target.value);
 
