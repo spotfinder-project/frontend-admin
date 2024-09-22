@@ -4,6 +4,7 @@ import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { FacilityDetail, FacilityReview } from "@/types/types";
 import Image from "next/image";
 import { ChangeEvent, useState } from "react";
+import { getCoordinatesFromAddress } from "@/service/geoService";
 
 interface Props {
   params: {
@@ -63,6 +64,8 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
   const [selectedFacility, setSelectedFacility] =
     useState<FacilityDetail | null>(facilityDetail);
 
+  const [selectedAddress, setSelectedAddress] = useState("");
+
   const facilityReviews: FacilityReview[] = [
     {
       reviewId: 1,
@@ -113,6 +116,22 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     setIsDeleteModalOpen(false);
   };
 
+  const updateAddress = (address: string) => {
+    setSelectedAddress(address);
+  };
+
+  const handleClickEditOrConfirm = async (isEditing: boolean) => {
+    setIsEditing(!isEditing);
+    console.log(isEditing);
+
+    if (isEditing) {
+      console.log(selectedAddress);
+
+      const geoData = await getCoordinatesFromAddress(selectedAddress);
+      console.log(geoData);
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="card bg-base-100 shadow-xl p-6">
@@ -156,7 +175,8 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
             />
           </div>
           <AddressSearch
-            facilityAddress={selectedFacility?.location as string}
+            updateAddress={updateAddress}
+            facilityAddress={selectedAddress}
             isEditing={isEditing}
           />
           <div className="form-control">
@@ -295,7 +315,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
         <div className="flex justify-end mt-8">
           <button
             className="btn btn-warning mr-2"
-            onClick={() => setIsEditing(!isEditing)}
+            onClick={() => handleClickEditOrConfirm(isEditing)}
           >
             {isEditing ? "완료" : "수정하기"}
           </button>

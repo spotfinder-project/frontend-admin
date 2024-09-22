@@ -3,9 +3,14 @@ import { useState, useEffect } from "react";
 interface Props {
   facilityAddress: string;
   isEditing: boolean;
+  updateAddress: (address: string) => void;
 }
 
-export default function AddressSearch({ facilityAddress, isEditing }: Props) {
+export default function AddressSearch({
+  facilityAddress,
+  isEditing,
+  updateAddress,
+}: Props) {
   const [address, setAddress] = useState<string>(facilityAddress);
   const [isPostcodeOpen, setIsPostcodeOpen] = useState<boolean>(false);
 
@@ -14,6 +19,7 @@ export default function AddressSearch({ facilityAddress, isEditing }: Props) {
       new (window as any).daum.Postcode({
         oncomplete: (data: any) => {
           setAddress(data.address);
+          updateAddress(data.address);
           setIsPostcodeOpen(false); // Close the postcode layer
         },
         width: "100%",
