@@ -4,7 +4,8 @@ import UserQueryForm from "@/components/users/UserQueryForm";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
 import { redirect, useRouter } from "next/navigation";
-import { getUsers, userParams } from "@/service/userService";
+import { getUsers } from "@/service/userService";
+import { UserParams } from "@/types/types";
 import useSWR from "swr";
 
 type User = {
@@ -88,8 +89,11 @@ const UserManagementPage: React.FC = () => {
   const router = useRouter();
   // const userList = await getUsers({});
 
+  const [userSearchParams, setUserSearchParams] = useState<UserParams>({});
   const { data, error, mutate } = useSWR(
-    `/api/users?${new URLSearchParams({}).toString()}`,
+    `/api/users?${new URLSearchParams(
+      userSearchParams as Record<string, string>
+    ).toString()}`,
     fetchUsers,
     {
       onError: (error, key) => {
@@ -100,7 +104,6 @@ const UserManagementPage: React.FC = () => {
       },
     }
   );
-
   const userList: User[] = data;
   const [users, setUsers] = useState(userList);
   const [searchQuery, setSearchQuery] = useState("");
@@ -122,7 +125,8 @@ const UserManagementPage: React.FC = () => {
   //   return <div>Loading...</div>;
   // }
 
-  const handleQueryUsers = async (searchParams: userParams) => {
+  const handleQueryUsers = async (searchParams: UserParams) => {
+    setUserSearchParams(searchParams);
     const userList = await mutate();
     setUsers(userList);
   };

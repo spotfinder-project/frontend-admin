@@ -1,39 +1,50 @@
 "use client";
 import React, { useState } from "react";
 import DateRangePicker from "../ui/DateRangePicker";
-import { addMonths } from "date-fns";
-import { User } from "@/types/types";
-import { userParams } from "@/service/userService";
+import { addMonths, format } from "date-fns";
+import { User, UserParams } from "@/types/types";
 
 type Props = {
   userList: any[];
-  clickQueryUsers: (searchParams: userParams) => Promise<void>;
+  clickQueryUsers: (searchParams: UserParams) => Promise<void>;
 };
 
 const UserQueryForm = ({ userList, clickQueryUsers }: Props) => {
-  const [name, setName] = useState("");
+  const [memberId, setMemberId] = useState("");
+  const [nickname, setNickname] = useState("");
   const [gender, setGender] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-  const [socialLogin, setSocialLogin] = useState("");
+  // const [birthDate, setBirthDate] = useState("");
+  const [socialType, setSocialType] = useState("");
   const today = new Date();
   const oneMonthFromNow = addMonths(today, 1);
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-    oneMonthFromNow,
     today,
+    oneMonthFromNow,
   ]);
+  const [startDate, endDate] = dateRange;
 
   const handleSearch = () => {
-    // Implement search functionality here
-    console.log({ name, gender, birthDate, socialLogin });
-    clickQueryUsers({});
+    clickQueryUsers({
+      memberId,
+      nickname,
+      gender,
+      startDate: dateRange[0] ? format(dateRange[0], "yyyy-MM-dd") : undefined,
+      endDate: dateRange[1] ? format(dateRange[1], "yyyy-MM-dd") : undefined,
+      socialType,
+    });
+  };
+
+  const updateDateRange = (update: [Date | null, Date | null]) => {
+    console.log(update);
+    setDateRange(update);
   };
 
   const handleReset = () => {
-    setName("");
+    setMemberId("");
+    setNickname("");
     setGender("");
-    setBirthDate("");
-    setSocialLogin("");
-    setDateRange([oneMonthFromNow, today]);
+    setSocialType("");
+    setDateRange([today, oneMonthFromNow]);
   };
 
   return (
@@ -42,25 +53,36 @@ const UserQueryForm = ({ userList, clickQueryUsers }: Props) => {
         <h2 className="text-2xl font-semibold">사용자 검색</h2>
       </div>
       <form className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-        {/* Name */}
         <div className="form-control">
-          <label className="label" htmlFor="name">
-            <span className="label-text">Name</span>
+          <label className="label" htmlFor="memberId">
+            <span className="label-text">Member Id</span>
           </label>
           <input
             type="text"
-            id="name"
+            id="memberId"
             className="input input-bordered"
-            placeholder="Enter name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={memberId}
+            onChange={(e) => setMemberId(e.target.value)}
+          />
+        </div>
+        {/* Name */}
+        <div className="form-control">
+          <label className="label" htmlFor="nickname">
+            <span className="label-text">닉네임</span>
+          </label>
+          <input
+            type="text"
+            id="nickname"
+            className="input input-bordered"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
           />
         </div>
 
         {/* gender */}
         <div className="form-control">
           <label className="label" htmlFor="gender">
-            <span className="label-text">Gender</span>
+            <span className="label-text">성별</span>
           </label>
           <select
             id="gender"
@@ -71,15 +93,15 @@ const UserQueryForm = ({ userList, clickQueryUsers }: Props) => {
             <option value="" disabled>
               Select gender
             </option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
+            <option value="M">M</option>
+            <option value="F">F</option>
           </select>
         </div>
 
         {/* Birth Date */}
-        <div className="form-control">
+        {/* <div className="form-control">
           <label className="label" htmlFor="birthDate">
-            <span className="label-text">Birth Date</span>
+            <span className="label-text">생년월일</span>
           </label>
           <input
             type="date"
@@ -88,32 +110,31 @@ const UserQueryForm = ({ userList, clickQueryUsers }: Props) => {
             value={birthDate}
             onChange={(e) => setBirthDate(e.target.value)}
           />
-        </div>
+        </div> */}
 
         {/* Social Login */}
         <div className="form-control">
-          <label className="label" htmlFor="socialLogin">
+          <label className="label" htmlFor="socialType">
             <span className="label-text">Social Login</span>
           </label>
           <select
-            id="socialLogin"
+            id="socialType"
             className="select select-bordered"
-            value={socialLogin}
-            onChange={(e) => setSocialLogin(e.target.value)}
+            value={socialType}
+            onChange={(e) => setSocialType(e.target.value)}
           >
             <option value="" disabled>
               Select social login
             </option>
-            <option value="Naver">Naver</option>
-            <option value="KakaoTalk">KakaoTalk</option>
-            <option value="Google">Google</option>
+            <option value="N">네이버</option>
+            <option value="K">카카오톡</option>
           </select>
         </div>
 
         {/* Created Date */}
         <div className="form-control">
           <label className="label" htmlFor="createdDate">
-            <span className="label-text">Created Date</span>
+            <span className="label-text">회원 생성일</span>
           </label>
           {/* <input
             type="date"
@@ -123,9 +144,9 @@ const UserQueryForm = ({ userList, clickQueryUsers }: Props) => {
             onChange={(e) => setCreatedDate(e.target.value)}
           /> */}
           <DateRangePicker
-            startDate={today}
-            endDate={oneMonthFromNow}
-            setDateRange={setDateRange}
+            startDate={startDate}
+            endDate={endDate}
+            setDateRange={updateDateRange}
           />
         </div>
 
