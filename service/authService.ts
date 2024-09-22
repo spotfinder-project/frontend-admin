@@ -19,47 +19,13 @@ export const login = async (
   id: string,
   password: string
 ): Promise<LoginResponse> => {
-  const response = await baseUrl.post<LoginResponse>("/admin/login", {
+  const response = await baseUrl.post<LoginResponse>("/admins/login", {
     id,
     password,
   });
 
-  // const { accessToken, refreshToken, accessExpiration, refreshExpiration } =
-  //   response.data;
-
-  // // Save tokens in cookies
-  // setCookie("userId", id, {
-  //   maxAge: accessExpiration,
-  // });
-  // setCookie("accessToken", accessToken, {
-  //   maxAge: accessExpiration,
-  // });
-  // setCookie("refreshToken", refreshToken, {
-  //   maxAge: refreshExpiration,
-  // });
-
   return response.data;
 };
-
-// export const refreshToken = async (): Promise<LoginResponse> => {
-//   const userId = getCookie("userId"); // You would need to retrieve it from cookies
-
-//   const response = await baseUrl.post<LoginResponse>("/admin/reissue", {
-//     id: userId,
-//   });
-
-//   const { accessToken, accessExpiration } = response.data;
-
-//   // Update tokens in cookies
-//   setCookie("accessToken", accessToken, {
-//     maxAge: accessExpiration,
-//   });
-//   // setCookie("refreshToken", newRefreshToken, {
-//   //   maxAge: parseInt(refreshTokenExpiration),
-//   // });
-
-//   return response.data;
-// };
 
 export const logout = async (): Promise<void> => {
   try {
