@@ -1,14 +1,3 @@
-export const fetchData = async (url: string, options: RequestInit = {}) => {
-  const res = await fetch(url, options);
-
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Request failed");
-  }
-
-  return res.json();
-};
-
 export const createOptions = (method: string, body?: any): RequestInit => ({
   method,
   headers: {
@@ -17,11 +6,27 @@ export const createOptions = (method: string, body?: any): RequestInit => ({
   body: body ? JSON.stringify(body) : undefined,
 });
 
-export const loginFetcher = (url: string, id: string, password: string) =>
-  fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id, password }),
-  }).then((res) => res.json());
+export const loginFetcher = async (
+  url: string,
+  id: string,
+  password: string
+) => {
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id, password }),
+    });
+
+    const loginResponse = await response.json();
+
+    if (!loginResponse?.data)
+      throw Error(loginResponse.code ?? loginResponse.error);
+
+    return loginResponse;
+  } catch (error) {
+    console.log(error);
+  }
+};

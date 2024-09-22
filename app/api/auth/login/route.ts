@@ -5,7 +5,6 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 export async function POST(request: Request) {
   try {
     const { id, password } = await request.json();
-    console.log(id);
 
     if (!id || !password) {
       return NextResponse.json(
@@ -15,7 +14,7 @@ export async function POST(request: Request) {
     }
 
     // Make the actual call to the external API
-    const response = await fetch(`${API_BASE_URL}/admin/login`, {
+    const response = await fetch(`${API_BASE_URL}/admins/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -24,19 +23,13 @@ export async function POST(request: Request) {
       credentials: "include",
     });
 
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: response.status }
-      );
-    }
-
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error) {
+  } catch (error: any) {
+    console.log(error);
     return NextResponse.json(
       { error: "Something went wrong" },
-      { status: 500 }
+      { status: error.status }
     );
   }
 }

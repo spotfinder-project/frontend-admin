@@ -15,18 +15,10 @@ export default function LoginPage() {
   const handleLogin = async () => {
     try {
       const result = await loginFetcher("/api/auth/login", id, password);
-      console.log(result);
-
-      if (result.error) {
-        console.error("Login failed:", result.error);
-      } else {
-        console.log("Login successful:", result);
-      }
+      if (result) router.push("/main");
     } catch (error) {
       console.error("An error occurred during mutation:", error);
     }
-
-    router.push("/main");
   };
 
   return (

@@ -1,7 +1,8 @@
 "use client";
 
 import { SWRConfig } from "swr";
-import { fetchData } from "@/utils/apiUtil";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function GlobalSWRConfig({
   children,
@@ -11,8 +12,7 @@ export default function GlobalSWRConfig({
   return (
     <SWRConfig
       value={{
-        fetcher: (url: string, options?: RequestInit) =>
-          fetchData(url, options),
+        fetcher,
         revalidateOnFocus: false, // Disable revalidation on focus globally
         shouldRetryOnError: false, // Disable retry on error globally
       }}
