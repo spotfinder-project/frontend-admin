@@ -1,16 +1,6 @@
 // app/api/users/route.ts
 import { NextResponse } from "next/server";
-
-interface UserParams {
-  memberSeq?: number;
-  name?: string;
-  nickname?: string;
-  birthday?: string;
-  gender?: string;
-  socialType?: string;
-  startDate?: string;
-  endDate?: string;
-}
+import { UserParams } from "@/types/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -20,12 +10,9 @@ export async function GET(request: Request) {
     const query = url.searchParams;
 
     const params: UserParams = {
-      memberSeq: query.has("memberSeq")
-        ? Number(query.get("memberSeq"))
-        : undefined,
+      memberId: query.get("memberId") || undefined,
       name: query.get("name") || undefined,
       nickname: query.get("nickname") || undefined,
-      birthday: query.get("birthday") || undefined,
       gender: query.get("gender") || undefined,
       socialType: query.get("socialType") || undefined,
       startDate: query.get("startDate") || undefined,
@@ -52,6 +39,7 @@ export async function GET(request: Request) {
       credentials: "include", // Include cookies
     });
 
+    console.log(request.headers);
     console.log("Request Headers:", request.headers.get("cookie"));
 
     if (!response.ok) {

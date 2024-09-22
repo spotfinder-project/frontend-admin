@@ -1,6 +1,7 @@
 // import apiClient from "@/utils/apiClient";
 "use server";
 import axios from "axios";
+import { UserParams } from "@/types/types";
 
 const baseUrl = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -16,18 +17,8 @@ export async function getUserBySlug({ slug }: UserSlugProps) {
 }
 
 // Type for query parameters
-export interface userParams {
-  memberSeq?: number;
-  name?: string;
-  nickname?: string;
-  birthday?: string;
-  gender?: string;
-  socialType?: string;
-  startDate?: string;
-  endDate?: string;
-}
 
-export const getUsers = async (params: userParams) => {
+export const getUsers = async (params: UserParams) => {
   try {
     const queryString = new URLSearchParams(
       params as Record<string, string>

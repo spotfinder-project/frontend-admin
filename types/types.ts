@@ -35,6 +35,18 @@ export interface FacilityReview {
   nickname: string;
 }
 
+/** Member 관련 */
+
+export interface UserParams {
+  memberId?: string;
+  name?: string;
+  nickname?: string;
+  gender?: string;
+  socialType?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
 export interface User {
   memberId: number;
   name: string;
