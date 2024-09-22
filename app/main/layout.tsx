@@ -36,6 +36,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const handleOpenMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  const handleClickLogout = async () => {
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include", // Ensure cookies are included
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to logout");
+      }
+
+      const data = await response.json();
+      console.log(data.message); // You can show a success message or redirect the user
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* NavBar */}
@@ -55,7 +74,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <span>{`${getBreadcrumbs(pathname)}`} </span>
           </h1>
 
-          <button className="btn btn-neutral">로그아웃</button>
+          <button className="btn btn-neutral" onClick={handleClickLogout}>
+            로그아웃
+          </button>
         </div>
       </div>
 
