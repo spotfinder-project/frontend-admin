@@ -125,8 +125,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     console.log(isEditing);
 
     if (isEditing) {
-      console.log(selectedAddress);
-
+      //주소 위경도 변환
       const geoData = await getCoordinatesFromAddress(selectedAddress);
       console.log(geoData);
     }
