@@ -4,6 +4,7 @@ import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
 import FacilityQueryForm from "@/components/facilities/FacilityQueryForm";
 import { useRouter } from "next/navigation";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 type Facility = {
   id: string;
@@ -85,6 +86,7 @@ const FacilitiesPage: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -129,10 +131,10 @@ const FacilitiesPage: React.FC = () => {
   };
 
   const handleDelete = () => {
-    setFacilities(
-      facilities.filter((item) => !selectedFacilities.includes(item.id))
-    );
+    console.log(selectedFacilities);
+
     setSelectedFacilities([]);
+    setIsDeleteModalOpen(false);
   };
 
   const handleClickFacility = (item: Facility) => {
@@ -167,7 +169,7 @@ const FacilitiesPage: React.FC = () => {
           <div className="flex items-end">
             <button
               className="btn btn-sm  btn-error mt-4"
-              onClick={handleDelete}
+              onClick={() => setIsDeleteModalOpen(true)}
               disabled={selectedFacilities.length === 0}
             >
               Delete
@@ -216,6 +218,14 @@ const FacilitiesPage: React.FC = () => {
           />
         </div>
       </div>
+      {isDeleteModalOpen && (
+        <ConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onConfirm={handleDelete}
+          onCancel={() => setIsDeleteModalOpen(false)}
+          message="삭제하시겠습니까?"
+        />
+      )}
     </div>
   );
 };

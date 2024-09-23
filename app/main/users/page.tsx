@@ -7,6 +7,7 @@ import { redirect, useRouter } from "next/navigation";
 import { getUsers } from "@/service/userService";
 import { UserParams } from "@/types/types";
 import useSWR from "swr";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 type User = {
   id: string;
@@ -18,7 +19,6 @@ const initialUsers: User[] = [
     id: "1",
     name: "John Doe",
     gender: "Male",
-    birthDate: "1990-01-01",
     socialLogin: "Google",
     createdDate: "2020-01-01",
   },
@@ -26,7 +26,6 @@ const initialUsers: User[] = [
     id: "2",
     name: "Jane Smith",
     gender: "Female",
-    birthDate: "1985-05-15",
     socialLogin: "Facebook",
     createdDate: "2019-03-22",
   },
@@ -34,7 +33,6 @@ const initialUsers: User[] = [
     id: "3",
     name: "Jane Smith 2",
     gender: "Female",
-    birthDate: "1985-05-15",
     socialLogin: "Facebook",
     createdDate: "2019-03-22",
   },
@@ -42,7 +40,6 @@ const initialUsers: User[] = [
     id: "4",
     name: "Jane Smith 3",
     gender: "Female",
-    birthDate: "1985-05-15",
     socialLogin: "Facebook",
     createdDate: "2019-03-22",
   },
@@ -50,10 +47,9 @@ const initialUsers: User[] = [
 ];
 
 const columns = [
-  { id: "id", label: "User ID" },
+  { id: "id", label: "Member ID" },
   { id: "name", label: "Name" },
   { id: "gender", label: "Gender" },
-  { id: "birthDate", label: "Birth Date" },
   { id: "socialLogin", label: "Social Login" },
   { id: "createdDate", label: "Created Date" },
   { id: "edit", label: "Edit" },
@@ -104,6 +100,12 @@ const UserManagementPage: React.FC = () => {
       },
     }
   );
+  // const userData = data.map((member) => {
+  //   return {
+  //     ...member,
+  //     id: member.memberId,
+  //   };
+  // });
   const userList: User[] = data;
   const [users, setUsers] = useState(userList);
   const [searchQuery, setSearchQuery] = useState("");
@@ -111,6 +113,7 @@ const UserManagementPage: React.FC = () => {
   const [page, setPage] = useState(0);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     console.log(users);
@@ -127,8 +130,9 @@ const UserManagementPage: React.FC = () => {
 
   const handleQueryUsers = async (searchParams: UserParams) => {
     setUserSearchParams(searchParams);
-    const userList = await mutate();
-    setUsers(userList);
+    const userList = await getUsers();
+    console.log(userList);
+    // setUsers(userList);
   };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -174,7 +178,8 @@ const UserManagementPage: React.FC = () => {
   };
 
   const handleDelete = () => {
-    setUsers(users.filter((user) => !selectedUsers.includes(user.id)));
+    console.log(selectedUsers);
+    // setUsers(users.filter((user) => !selectedUsers.includes(user.id)));
     setSelectedUsers([]);
   };
 
@@ -268,6 +273,15 @@ const UserManagementPage: React.FC = () => {
           />
         </div>
       </div>
+
+      {isDeleteModalOpen && (
+        <ConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onConfirm={handleDelete}
+          onCancel={() => setIsDeleteModalOpen(false)}
+          message="삭제하시겠습니까?"
+        />
+      )}
     </div>
   );
 };
