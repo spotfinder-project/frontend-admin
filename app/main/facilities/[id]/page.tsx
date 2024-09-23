@@ -3,8 +3,10 @@ import AddressSearch from "@/components/facilities/AddressSearch";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { FacilityDetail, FacilityReview } from "@/types/types";
 import Image from "next/image";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useMemo, useState } from "react";
 import { getCoordinatesFromAddress } from "@/service/geoService";
+import CustomTable from "@/components/ui/CustomTable";
+import Pagination from "@/components/ui/Pagination";
 
 interface Props {
   params: {
@@ -12,33 +14,36 @@ interface Props {
   };
 }
 
+interface TableData {
+  id: string;
+  [key: string]: any;
+}
+
 const facilityReviewColumns = [
   {
     label: "사용자 ID",
-    value: "memberId",
+    id: "memberId",
   },
   {
     label: "리뷰 내용",
-    value: "content",
+    id: "content",
   },
   {
     label: "닉네임",
-    value: "nickname",
+    id: "nickname",
   },
   {
     label: "생성일",
-    value: "createdDate",
-  },
-  {
-    label: "삭제",
-    value: "delete",
+    id: "createdDate",
   },
 ];
 
 export default function FacilityDetailPage({ params: { id } }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedReviewId, setSelectedReviewId] = useState<number | null>(null);
+  const [selectedReviews, setSelectedReviews] = useState<string[]>([]);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0);
   const [facilityType, setFacilityType] = useState("");
   const [images, setImages] = useState([
     "/sample-image1.jpg",
@@ -83,6 +88,25 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     },
   ];
 
+  const facilityReviewData = [
+    {
+      id: "1",
+      reviewId: 1,
+      content: "시설물이 청결합니다~",
+      createdDate: "2024-09-01",
+      memberId: "1",
+      nickname: "SBS",
+    },
+    {
+      id: "3",
+      reviewId: 3,
+      content: "시설물이 청결합니다~",
+      createdDate: "2024-09-01",
+      memberId: "1",
+      nickname: "SBS",
+    },
+  ];
+
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -101,18 +125,12 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     setImages(newImages);
   };
 
-  const handleDeleteReview = (item: FacilityReview) => {
-    //delete review 추후 수정
-    console.log("delete review", item);
-    setSelectedReviewId(item.reviewId);
-    setIsDeleteModalOpen(true);
+  const handleConfirmDeleteFacility = () => {
+    console.log("here");
+    console.log(selectedFacility?.facilityId);
   };
 
-  const handleConfirmDelete = () => {
-    console.log(selectedReviewId);
-  };
-
-  const handleCloseDelete = () => {
+  const handleCloseConfirmModal = () => {
     setIsDeleteModalOpen(false);
   };
 
@@ -129,6 +147,53 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
       const geoData = await getCoordinatesFromAddress(selectedAddress);
       console.log(geoData);
     }
+  };
+
+  // 리뷰 테이블 관련
+
+  const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelected = facilityReviewData.map((review) => review.id);
+      setSelectedReviews(newSelected);
+      return;
+    }
+    setSelectedReviews([]);
+  };
+
+  const handleSelectReviews = (
+    event: ChangeEvent<HTMLInputElement>,
+    id: string
+  ) => {
+    const selectedIndex = selectedReviews.indexOf(id);
+    let newSelected: string[] = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selectedReviews, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selectedReviews.slice(1));
+    } else if (selectedIndex === selectedReviews.length - 1) {
+      newSelected = newSelected.concat(selectedReviews.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selectedReviews.slice(0, selectedIndex),
+        selectedReviews.slice(selectedIndex + 1)
+      );
+    }
+
+    setSelectedReviews(newSelected);
+  };
+
+  const handleChangePage = (newPage: number) => {
+    setPage(newPage - 1);
+  };
+
+  const totalPages = useMemo(
+    () => Math.ceil(facilityReviewData.length / rowsPerPage),
+    facilityReviewData
+  );
+
+  const handleDeleteReviews = () => {
+    console.log(selectedReviews);
   };
 
   return (
@@ -277,38 +342,35 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
             </div>
           )}
         </div>
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold mt-8 mb-4">리뷰</h2>
+          <button
+            className="btn btn-sm  btn-error mt-4"
+            onClick={handleDeleteReviews}
+            disabled={selectedReviews.length === 0}
+          >
+            Delete
+          </button>
+        </div>
 
-        <h2 className="text-2xl font-bold mt-8 mb-4">리뷰</h2>
         <div className="overflow-x-auto">
-          <table className="table table-zebra w-full">
-            <thead>
-              <tr>
-                {facilityReviewColumns.map((column) => (
-                  <th key={column.value}>{column.label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {facilityReviews.map((data, index) => (
-                <tr key={index}>
-                  {facilityReviewColumns.map((column) =>
-                    column.value !== "delete" ? (
-                      <td key={column.value}>{(data as any)[column.value]}</td>
-                    ) : (
-                      <td key="delete">
-                        <button
-                          className="btn btn-neutral"
-                          onClick={() => handleDeleteReview(data)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    )
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <CustomTable
+            columns={facilityReviewColumns}
+            data={facilityReviewData}
+            selectedRows={selectedReviews}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onSelectAll={handleSelectAllClick}
+            onSelectRow={handleSelectReviews}
+          />
+
+          <div className="flex justify-center items-center p-4">
+            <Pagination
+              currentPage={page + 1} // Adjusting for one-based index
+              totalPages={totalPages}
+              onPageChange={handleChangePage}
+            />
+          </div>
         </div>
 
         <div className="flex justify-end mt-8">
@@ -318,15 +380,38 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
           >
             {isEditing ? "완료" : "수정하기"}
           </button>
-          {isEditing && <button className="btn btn-error">취소</button>}
-          {!isEditing && <button className="btn btn-error">시설물 삭제</button>}
+          {isEditing && (
+            <button
+              className="btn btn-error"
+              onClick={() => setIsEditing(false)}
+            >
+              취소
+            </button>
+          )}
+          {!isEditing && (
+            <button
+              className="btn btn-error"
+              onClick={() => setIsDeleteModalOpen(true)}
+            >
+              시설물 삭제
+            </button>
+          )}
         </div>
 
-        {isDeleteModalOpen && selectedReviewId && (
+        {isDeleteModalOpen && selectedFacility && (
           <ConfirmationModal
             isOpen={isDeleteModalOpen}
-            onConfirm={handleConfirmDelete}
-            onCancel={handleCloseDelete}
+            onConfirm={handleConfirmDeleteFacility}
+            onCancel={handleCloseConfirmModal}
+            message="정말 삭제하시겠습니까?"
+          />
+        )}
+
+        {isDeleteModalOpen && selectedReviews.length > 0 && (
+          <ConfirmationModal
+            isOpen={isDeleteModalOpen}
+            onConfirm={handleDeleteReviews}
+            onCancel={handleCloseConfirmModal}
             message="정말 삭제하시겠습니까?"
           />
         )}
