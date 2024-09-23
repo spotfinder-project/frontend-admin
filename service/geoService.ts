@@ -31,6 +31,6 @@ export const getCoordinatesFromAddress = async (address: string) => {
       longitude: data.documents[0].x,
     };
   } else {
-    throw new Error("No results found");
+    return null;
   }
 };

@@ -69,7 +69,9 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
   const [selectedFacility, setSelectedFacility] =
     useState<FacilityDetail | null>(facilityDetail);
 
-  const [selectedAddress, setSelectedAddress] = useState("");
+  const [selectedAddress, setSelectedAddress] = useState(
+    facilityDetail.location
+  );
 
   const facilityReviews: FacilityReview[] = [
     {
@@ -346,7 +348,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
           <h2 className="text-2xl font-bold mt-8 mb-4">리뷰</h2>
           <button
             className="btn btn-sm  btn-error mt-4"
-            onClick={handleDeleteReviews}
+            onClick={() => setIsDeleteModalOpen(true)}
             disabled={selectedReviews.length === 0}
           >
             Delete
