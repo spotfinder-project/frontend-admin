@@ -5,6 +5,7 @@ import CustomTable from "@/components/ui/CustomTable";
 import { useRouter } from "next/navigation";
 import ReportQueryForm from "@/components/report/ReportQueryForm";
 import useSWR from "swr";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 type Report = {
   id: string;
@@ -41,10 +42,12 @@ const rowsPerPageOptions = [
 const ReportPage: React.FC = () => {
   const router = useRouter();
   const [reports, setReports] = useState<Report[]>(initialReports);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [selectedReports, setSelectedReports] = useState<string[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { data, error, mutate } = useSWR(`/api/reports`, {
     onError: (error, key) => {
       if (error.code === 401) {
@@ -55,11 +58,11 @@ const ReportPage: React.FC = () => {
   });
   console.log(data);
 
-  const handleChangeResolvedType = (event: ChangeEvent<HTMLSelectElement>) => {
-    console.log(event.target.value);
+  // const handleChangeResolvedType = (event: ChangeEvent<HTMLSelectElement>) => {
+  //   console.log(event.target.value);
 
-    // setResolvedType(event.target.value);
-  };
+  //   // setResolvedType(event.target.value);
+  // };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -104,8 +107,9 @@ const ReportPage: React.FC = () => {
   };
 
   const handleDelete = () => {
-    setReports(reports.filter((item) => !selectedReports.includes(item.id)));
-    setSelectedReports([]);
+    console.log(selectedReports);
+    // setReports(reports.filter((item) => !selectedReports.includes(item.id)));
+    // setSelectedReports([]);
   };
 
   const handleClickFacility = (item: Report) => {
@@ -140,7 +144,7 @@ const ReportPage: React.FC = () => {
           <div className="flex items-end">
             <button
               className="btn btn-sm  btn-error mt-4"
-              onClick={handleDelete}
+              onClick={() => setIsDeleteModalOpen(true)}
               disabled={selectedReports.length === 0}
             >
               Delete
@@ -179,7 +183,6 @@ const ReportPage: React.FC = () => {
           onSelectRow={handleClick}
           onEdit={handleClickEdit}
           onItemClick={handleClickFacility}
-          handleChangeResolvedType={handleChangeResolvedType}
         />
 
         <div className="flex justify-center items-center p-4">
@@ -190,6 +193,14 @@ const ReportPage: React.FC = () => {
           />
         </div>
       </div>
+      {isDeleteModalOpen && (
+        <ConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onConfirm={handleDelete}
+          onCancel={() => setIsDeleteModalOpen(false)}
+          message="삭제하시겠습니까?"
+        />
+      )}
     </div>
   );
 };

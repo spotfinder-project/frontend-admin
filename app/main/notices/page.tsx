@@ -6,13 +6,14 @@ import { useRouter } from "next/navigation";
 import NoticeQueryForm from "@/components/notice/NoticeQueryForm";
 import NoticeAddModal from "@/components/notice/NoticeAddModal";
 import useSWR from "swr";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 type Notice = {
   id: string;
   [key: string]: any;
 };
 
-const initialReports: Notice[] = [
+const initialNotices: Notice[] = [
   {
     id: "1",
     title: "title",
@@ -40,14 +41,14 @@ const rowsPerPageOptions = [
 
 const ReportPage = () => {
   const router = useRouter();
-  const [notices, setNotices] = useState<Notice[]>(initialReports);
+  const [notices, setNotices] = useState<Notice[]>(initialNotices);
   const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
-  const [selectedReports, setSelectedReports] = useState<string[]>([]);
+  const [selectedNotices, setSelectedNotices] = useState<string[]>([]);
   const [isAddNoticeModalOpen, setIsAddNoticeModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { data, error } = useSWR("/api/notices");
-  console.log(data);
 
   const handleChangeResolvedType = (event: ChangeEvent<HTMLSelectElement>) => {
     console.log(event.target.value);
@@ -71,35 +72,36 @@ const ReportPage = () => {
   const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = notices.map((item) => item.id);
-      setSelectedReports(newSelected);
+      setSelectedNotices(newSelected);
       return;
     }
-    setSelectedReports([]);
+    setSelectedNotices([]);
   };
 
   const handleClick = (event: ChangeEvent<HTMLInputElement>, id: string) => {
-    const selectedIndex = selectedReports.indexOf(id);
+    const selectedIndex = selectedNotices.indexOf(id);
     let newSelected: string[] = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selectedReports, id);
+      newSelected = newSelected.concat(selectedNotices, id);
     } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selectedReports.slice(1));
-    } else if (selectedIndex === selectedReports.length - 1) {
-      newSelected = newSelected.concat(selectedReports.slice(0, -1));
+      newSelected = newSelected.concat(selectedNotices.slice(1));
+    } else if (selectedIndex === selectedNotices.length - 1) {
+      newSelected = newSelected.concat(selectedNotices.slice(0, -1));
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
-        selectedReports.slice(0, selectedIndex),
-        selectedReports.slice(selectedIndex + 1)
+        selectedNotices.slice(0, selectedIndex),
+        selectedNotices.slice(selectedIndex + 1)
       );
     }
 
-    setSelectedReports(newSelected);
+    setSelectedNotices(newSelected);
   };
 
   const handleDelete = () => {
-    setNotices(notices.filter((item) => !selectedReports.includes(item.id)));
-    setSelectedReports([]);
+    console.log(selectedNotices);
+    // setNotices(notices.filter((item) => !selectedNotices.includes(item.id)));
+    // setSelectedNotices([]);
   };
 
   const handleClickNotice = (item: Notice) => {
@@ -113,6 +115,7 @@ const ReportPage = () => {
 
   const handleClickItemDelete = (item: Notice) => {
     console.log("delete notice item");
+    setIsDeleteModalOpen(true);
   };
 
   const filteredReports = notices.filter((item) =>
@@ -144,8 +147,8 @@ const ReportPage = () => {
             </button>
             <button
               className="btn btn-sm  btn-error mt-4 ml-2"
-              onClick={handleDelete}
-              disabled={selectedReports.length === 0}
+              onClick={() => setIsDeleteModalOpen(true)}
+              disabled={selectedNotices.length === 0}
             >
               삭제
             </button>
@@ -176,7 +179,7 @@ const ReportPage = () => {
         <CustomTable
           columns={columns}
           data={filteredReports}
-          selectedRows={selectedReports}
+          selectedRows={selectedNotices}
           rowsPerPage={rowsPerPage}
           page={page}
           onSelectAll={handleSelectAllClick}
@@ -199,6 +202,15 @@ const ReportPage = () => {
           <NoticeAddModal
             isOpen={isAddNoticeModalOpen}
             handleCloseModal={() => setIsAddNoticeModalOpen(false)}
+          />
+        )}
+
+        {isDeleteModalOpen && (
+          <ConfirmationModal
+            isOpen={isDeleteModalOpen}
+            onConfirm={handleDelete}
+            onCancel={() => setIsDeleteModalOpen(false)}
+            message="삭제하시겠습니까?"
           />
         )}
       </div>
