@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 interface Props {
   facilityAddress: string;
-  isEditing: boolean;
+  isEditing?: boolean;
   updateAddress: (address: string) => void;
 }
 
