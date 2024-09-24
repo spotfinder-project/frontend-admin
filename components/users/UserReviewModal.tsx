@@ -1,10 +1,10 @@
 import React from "react";
-import { Review } from "@/types/types";
+import { UserReview } from "@/types/types";
 
 interface UserReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
-  review: Review;
+  review: UserReview;
   onSave: (updatedContent: string) => void;
 }
 
@@ -35,7 +35,7 @@ const UserReviewModal: React.FC<UserReviewModalProps> = ({
             <label className="label">Review ID</label>
             <input
               type="text"
-              value={review.id}
+              value={review.reviewId}
               disabled
               className="input input-bordered w-full"
             />
@@ -44,7 +44,7 @@ const UserReviewModal: React.FC<UserReviewModalProps> = ({
             <label className="label">Facility Type</label>
             <input
               type="text"
-              value={review.facilityType}
+              value={review.facility.type}
               disabled
               className="input input-bordered w-full"
             />
@@ -53,7 +53,7 @@ const UserReviewModal: React.FC<UserReviewModalProps> = ({
             <label className="label">Facility ID</label>
             <input
               type="text"
-              value={review.facilityId}
+              value={review.facility.facilityId}
               disabled
               className="input input-bordered w-full"
             />
@@ -62,7 +62,7 @@ const UserReviewModal: React.FC<UserReviewModalProps> = ({
             <label className="label">Facility Name</label>
             <input
               type="text"
-              value={review.facilityName}
+              value={review.facility.name}
               disabled
               className="input input-bordered w-full"
             />
@@ -71,7 +71,7 @@ const UserReviewModal: React.FC<UserReviewModalProps> = ({
             <label className="label">Address</label>
             <input
               type="text"
-              value={review.address}
+              value={review.facility.location}
               disabled
               className="input input-bordered w-full"
             />
@@ -80,7 +80,7 @@ const UserReviewModal: React.FC<UserReviewModalProps> = ({
             <label className="label">Created Date</label>
             <input
               type="text"
-              value={review.createdDate}
+              value={review.facility.createdDate}
               disabled
               className="input input-bordered w-full"
             />

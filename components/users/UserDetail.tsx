@@ -13,26 +13,20 @@ const UserDetailForm = ({ user }: Props) => {
           <span className="font-medium">User ID:</span> {user.email}
         </div>
         <div>
-          <span className="font-medium">Name:</span> {user.name}
-        </div>
-        <div>
           <span className="font-medium">Nickname:</span> {user.nickname}
         </div>
         <div>
-          <span className="font-medium">Birthdate:</span> {user.birthday}
-        </div>
-        <div>
-          <span className="font-medium">Sex:</span> {user.gender}
+          <span className="font-medium">Gender:</span> {user.gender}
         </div>
         <div>
           <span className="font-medium">Email:</span> {user.email}
         </div>
         <div>
-          <span className="font-medium">Social Login:</span>
+          <span className="font-medium">Social Login: </span>
           {user.socialType}
         </div>
         <div>
-          <span className="font-medium">Created Date:</span>
+          <span className="font-medium">Created Date: </span>
           {user.createdDate}
         </div>
       </div>

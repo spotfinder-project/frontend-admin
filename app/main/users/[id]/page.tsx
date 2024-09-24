@@ -3,7 +3,7 @@ import React, { cache, useEffect, useState } from "react";
 import { getUserBySlug } from "@/service/userService";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import UserDetailForm from "@/components/users/UserDetail";
-import { UserDetail, Review, Facility } from "@/types/types";
+import { UserDetail, UserReview, UserFacility } from "@/types/types";
 import UserReviewModal from "@/components/users/UserReviewModal";
 import CustomTable from "@/components/ui/CustomTable";
 import Link from "next/link";
@@ -86,11 +86,41 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
 
   // const { facilities, reviews } = userData;
 
-  const facilities: any[] = [];
-  const reviews: any[] = [];
+  const facilities: UserFacility[] = [
+    {
+      facilityId: 1,
+      type: "R",
+      name: "쌍문역 내 화장실",
+      location: "쌍문역",
+      detailLocation: "지하 1층",
+      information: "개찰구 내에 존재합니다.",
+      approvalStatus: "A",
+      approvalDate: "2024-09-01",
+    },
+  ];
+  const reviews: UserReview[] = [
+    {
+      reviewId: 1,
+      content: "시설물이 청결합니다~",
+      createdDate: "2024-09-01",
+      facility: {
+        facilityId: 1,
+        type: "R",
+        name: "쌍문역 내 화장실",
+        location: "쌍문역",
+        detailLocation: "지하 1층",
+        information: "개찰구 내에 존재합니다.",
+        department: "서울시설공단",
+        departmentPhoneNumber: "02-2290-7111",
+        approvalStatus: "A",
+        createdDate: "2024-09-01",
+        images: ["string"],
+      },
+    },
+  ];
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [selectedReview, setSelectedReview] = useState<UserReview | null>(null);
   const [selectedReviewId, setSelectedReviewId] = useState<number | null>(null);
 
   const handleDeleteReview = (id: number) => {
@@ -101,7 +131,9 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
   const handleConfirmDelete = () => {
     // request delete review
     console.log(selectedReviewId);
+    //close modal
     handleCloseDelete();
+    //fetch review
   };
 
   const handleCloseDelete = () => {
@@ -109,21 +141,24 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
     setSelectedReviewId(null);
   };
 
-  const handleEditReview = (review: Review) => {
+  const handleEditReview = (review: UserReview) => {
     setIsEditModalOpen(true);
     setSelectedReview(review);
   };
 
   const handleCloseEdit = () => {
-    setIsDeleteModalOpen(false);
+    setIsEditModalOpen(false);
     setSelectedReview(null);
   };
   const handleSaveEdit = (updatedContent: string) => {
     console.log("save edit", updatedContent);
     // request update review
+    // close modal
+    setIsEditModalOpen(false);
+    //fetch user review
   };
 
-  const handleViewFacility = (item: Facility) => {
+  const handleViewFacility = (item: UserFacility) => {
     console.log(item);
   };
   return (
@@ -145,18 +180,18 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
             </thead>
             <tbody>
               {facilities.map((facility) => (
-                <tr key={facility.id}>
-                  <td>{facility.facilityType}</td>
-                  <td>{facility.id}</td>
+                <tr key={facility.facilityId}>
+                  <td>{facility.type}</td>
+                  <td>{facility.facilityId}</td>
                   <td>{facility.name}</td>
-                  <td>{facility.address}</td>
-                  <td>{facility.detailedLocation}</td>
-                  <td>{facility.note}</td>
-                  <td>{facility.admin}</td>
-                  <td>{facility.approved}</td>
-                  <td>{facility.approvedDate}</td>
+                  <td>{facility.location}</td>
+                  <td>{facility.detailLocation}</td>
+                  <td>{facility.information}</td>
+                  {/* <td>{facility.department}</td> */}
+                  <td>{facility.approvalStatus}</td>
+                  <td>{facility.approvalDate}</td>
                   <td>
-                    <Link href={`/main/facilities/${facility.id}`}>
+                    <Link href={`/main/facilities/${facility.facilityId}`}>
                       <button className="btn btn-sm btn-primary">View</button>
                     </Link>
                   </td>
@@ -181,12 +216,12 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
             </thead>
             <tbody>
               {reviews.map((review) => (
-                <tr key={review.id}>
+                <tr key={review.reviewId}>
                   <td>{review.content}</td>
-                  <td>{review.facilityType}</td>
-                  <td>{review.facilityId}</td>
-                  <td>{review.facilityName}</td>
-                  <td>{review.address}</td>
+                  <td>{review.facility.type}</td>
+                  <td>{review.facility.facilityId}</td>
+                  <td>{review.facility.name}</td>
+                  <td>{review.facility.location}</td>
                   <td>{review.createdDate}</td>
                   <td>
                     <button
@@ -199,7 +234,7 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
                   <td>
                     <button
                       className="btn btn-sm btn-error"
-                      onClick={() => handleDeleteReview(review.id)}
+                      onClick={() => handleDeleteReview(review.reviewId)}
                     >
                       Delete
                     </button>
