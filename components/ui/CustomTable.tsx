@@ -24,8 +24,8 @@ interface CustomTableProps {
   ) => void;
   onSelectAll: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSelectRow: (event: React.ChangeEvent<HTMLInputElement>, id: string) => void;
-  onEdit: (item: TableData) => void;
-  onItemClick: (item: TableData) => void;
+  onEdit?: (item: TableData) => void;
+  onItemClick?: (item: TableData) => void;
   onDelete?: (item: TableData) => void;
 }
 
@@ -86,7 +86,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                       <td key="edit">
                         <button
                           className="btn btn-neutral"
-                          onClick={() => onEdit(item)}
+                          onClick={() => onEdit?.(item)}
                         >
                           Edit
                         </button>
@@ -125,7 +125,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                     );
                   } else {
                     return (
-                      <td key={column.id} onClick={() => onItemClick(item)}>
+                      <td key={column.id} onClick={() => onItemClick?.(item)}>
                         {(item as any)[column.id]}
                       </td>
                     );
