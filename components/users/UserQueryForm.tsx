@@ -5,11 +5,10 @@ import { addMonths, format } from "date-fns";
 import { User, UserParams } from "@/types/types";
 
 type Props = {
-  userList: any[];
   clickQueryUsers: (searchParams: UserParams) => Promise<void>;
 };
 
-const UserQueryForm = ({ userList, clickQueryUsers }: Props) => {
+const UserQueryForm = ({ clickQueryUsers }: Props) => {
   const [memberId, setMemberId] = useState("");
   const [nickname, setNickname] = useState("");
   const [gender, setGender] = useState("");

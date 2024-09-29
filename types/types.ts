@@ -7,9 +7,18 @@ export interface Facility {
   information: string;
   department: string;
   departmentPhoneNumber: string;
-  approvalStatus: string;
+  approvalStatus?: "P" | "A" | "R" | "S";
   memberId: string;
   createdDate: string;
+}
+
+export interface FacilityParams {
+  facilityId?: string;
+  type?: "R" | "S" | "T";
+  location?: string;
+  approvalStatus?: "P" | "A" | "R" | "S";
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface FacilityDetail {
@@ -21,7 +30,7 @@ export interface FacilityDetail {
   information: string;
   department: string;
   departmentPhoneNumber: string;
-  approvalStatus: string;
+  approvalStatus?: "P" | "A" | "R" | "S";
   memberId: string;
   createdDate: string;
   images: string[];
@@ -44,7 +53,7 @@ export interface FacilityAsItem {
   information: string;
   department: string;
   departmentPhoneNumber: string;
-  approvalStatus: string;
+  approvalStatus?: "P" | "A" | "R" | "S";
   createdDate: string;
   images: string[];
 }
@@ -89,7 +98,7 @@ export interface UserFacility {
   location: string;
   detailLocation: string;
   information: string;
-  approvalStatus: string;
+  approvalStatus?: "P" | "A" | "R" | "S";
   approvalDate: string;
 }
 

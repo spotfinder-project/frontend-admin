@@ -1,24 +1,51 @@
 "use client";
+import { FacilityParams } from "@/types/types";
 import React, { useState } from "react";
+import DateRangePicker from "../ui/DateRangePicker";
+import { addMonths, format } from "date-fns";
 
-const UserQueryForm: React.FC = () => {
+type Props = {
+  clickQueryFacilities: (searchParams: FacilityParams) => Promise<void>;
+};
+
+const UserQueryForm = ({ clickQueryFacilities }: Props) => {
   const [facilityId, setFacilityId] = useState("");
   const [facilityType, setFacilityType] = useState("");
-  const [address, setAddress] = useState("");
+  const [location, setLocation] = useState("");
   const [approved, setApproved] = useState("");
-  const [createdDate, setCreatedDate] = useState("");
+  const today = new Date();
+  const oneMonthFromNow = addMonths(today, 1);
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
+    today,
+    oneMonthFromNow,
+  ]);
+  const [startDate, endDate] = dateRange;
 
   const handleSearch = () => {
     // Implement search functionality here
-    console.log({ facilityId, facilityType, address, approved, createdDate });
+
+    clickQueryFacilities({
+      facilityId,
+      type: facilityType as "R" | "S" | "T",
+      location,
+      approvalStatus: approved as "P" | "A" | "R" | "S",
+      startDate: dateRange[0] ? format(dateRange[0], "yyyy-MM-dd") : undefined,
+      endDate: dateRange[1] ? format(dateRange[1], "yyyy-MM-dd") : undefined,
+    });
+    ({});
+  };
+
+  const updateDateRange = (update: [Date | null, Date | null]) => {
+    console.log(update);
+    setDateRange(update);
   };
 
   const handleReset = () => {
     setFacilityId("");
     setFacilityType("");
     setApproved("Y");
-    setAddress("");
-    setCreatedDate("");
+    setLocation("");
+    setDateRange([today, oneMonthFromNow]);
   };
 
   return (
@@ -60,15 +87,15 @@ const UserQueryForm: React.FC = () => {
         </div>
 
         <div className="form-control">
-          <label className="label" htmlFor="address">
+          <label className="label" htmlFor="location">
             <span className="label-text">주소</span>
           </label>
           <input
             type="text"
-            id="address"
+            id="location"
             className="input input-bordered"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
           />
         </div>
 
@@ -96,12 +123,10 @@ const UserQueryForm: React.FC = () => {
           <label className="label" htmlFor="createdDate">
             <span className="label-text">Created Date</span>
           </label>
-          <input
-            type="date"
-            id="createdDate"
-            className="input input-bordered"
-            value={createdDate}
-            onChange={(e) => setCreatedDate(e.target.value)}
+          <DateRangePicker
+            startDate={startDate}
+            endDate={endDate}
+            setDateRange={updateDateRange}
           />
         </div>
 

@@ -37,14 +37,10 @@ const UserManagementPage: React.FC = () => {
   const { data, error } = useSWR(`/api/users?${queryString}`, {
     onError: (error, key) => {
       if (error.code === 401) {
-        console.log(error);
-        // router.push("/");
+        router.push("/");
       }
     },
   });
-
-  const userList = data?.list || [];
-
   const [users, setUsers] = useState<User[]>([]); //api response
   const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -150,7 +146,7 @@ const UserManagementPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <UserQueryForm userList={userList} clickQueryUsers={handleQueryUsers} />
+      <UserQueryForm clickQueryUsers={handleQueryUsers} />
       <div className="mt-4 bg-base-100 shadow-lg rounded-lg">
         <div className="flex justify-between items-center p-4">
           <input

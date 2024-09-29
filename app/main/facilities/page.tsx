@@ -1,75 +1,30 @@
 "use client";
-import React, { useState, ChangeEvent, MouseEvent } from "react";
+import React, { useState, ChangeEvent, MouseEvent, useEffect } from "react";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
 import FacilityQueryForm from "@/components/facilities/FacilityQueryForm";
 import { useRouter } from "next/navigation";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import AddFacilityModal from "@/components/facilities/AddFacilityModal";
+import useSWR, { mutate } from "swr";
+import { FacilityParams } from "@/types/types";
+import qs from "qs";
 
 type Facility = {
   id: string;
   [key: string]: any;
 };
 
-const initialFacilities: Facility[] = [
-  {
-    id: "1",
-    name: "강남역",
-    address: "강남구 역삼동",
-    detailedLocation: "테헤란로",
-    note: "Google",
-    admin: "fdas",
-    approved: "N",
-    createdDate: "2020-01-01",
-    createdBy: "fda",
-  },
-  {
-    id: "2",
-    name: "강남역",
-    address: "강남구 역삼동",
-    detailedLocation: "테헤란로",
-    note: "Google",
-    admin: "fdas",
-    approved: "N",
-    createdDate: "2020-01-01",
-    createdBy: "fda",
-  },
-  {
-    id: "3",
-    name: "강남역",
-    address: "강남구 역삼동",
-    detailedLocation: "테헤란로",
-    note: "Google",
-    admin: "fdas",
-    approved: "N",
-    createdDate: "2020-01-01",
-    createdBy: "fda",
-  },
-  {
-    id: "4",
-    name: "강남역",
-    address: "강남구 역삼동",
-    detailedLocation: "테헤란로",
-    note: "Google",
-    admin: "fdas",
-    approved: "N",
-    createdDate: "2020-01-01",
-    createdBy: "fda",
-  },
-  // Add more sample users as needed
-];
-
 const columns = [
-  { id: "id", label: "시설물 ID" },
+  { id: "facilityId", label: "시설물 ID" },
   { id: "name", label: "시설물명" },
-  { id: "address", label: "주소" },
+  { id: "location", label: "주소" },
   { id: "detailedLocation", label: "상세위치" },
-  { id: "note", label: "추가 설명" },
-  { id: "admin", label: "관리부서" },
-  { id: "approved", label: "승인상태" },
+  { id: "information", label: "추가 설명" },
+  { id: "department", label: "관리부서" },
+  { id: "approvalStatus", label: "승인상태" },
   { id: "createdDate", label: "생성일" },
-  { id: "createdBy", label: "사용자 ID" },
+  { id: "memberId", label: "사용자 ID" },
   { id: "edit", label: "Edit" },
 ];
 
@@ -82,13 +37,43 @@ const rowsPerPageOptions = [
 
 const FacilitiesPage: React.FC = () => {
   const router = useRouter();
-  const [facilities, setFacilities] = useState<Facility[]>(initialFacilities);
+  const [facilityParams, setFacilityParams] = useState<FacilityParams>({});
+  const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [filteredFacilitiies, setFilteredFacilities] = useState<Facility[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const queryString = qs.stringify(facilityParams);
+  const { data, error } = useSWR(`/api/facilities?${queryString}`, {
+    onError: (error, key) => {
+      if (error.code === 401) {
+        router.push("/");
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (data && data.list) {
+      setFacilities(
+        data.list.map((facility: Facility) => {
+          return { ...facility, id: facility.facilityId };
+        })
+      ); // list 데이터를 state에 저장
+    }
+  }, [data]);
+
+  useEffect(() => {
+    setFilteredFacilities(filterFacilities(facilities));
+  }, [facilities, searchQuery]);
+
+  const handleQueryFacilities = async (searchParams: FacilityParams) => {
+    setFacilityParams(searchParams);
+    const queryString = qs.stringify(facilityParams);
+    await mutate(`/api/facilities?${queryString}`);
+  };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -148,17 +133,19 @@ const FacilitiesPage: React.FC = () => {
     router.push(`/main/facilities/${item.id}`);
   };
 
-  const filteredFacilitiies = facilities.filter((item) =>
-    Object.entries(item).some((value) =>
-      value[0].toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  );
+  const filterFacilities = (facilities: Facility[]) => {
+    return facilities.filter((item) =>
+      Object.entries(item).some((value) =>
+        value[0].toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    );
+  };
 
   const totalPages = Math.ceil(filteredFacilitiies.length / rowsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <FacilityQueryForm />
+      <FacilityQueryForm clickQueryFacilities={handleQueryFacilities} />
       <div className="mt-4 bg-base-100 shadow-lg rounded-lg">
         <div className="flex justify-between items-center p-4">
           <input
