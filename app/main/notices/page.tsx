@@ -1,27 +1,18 @@
 "use client";
-import React, { useState, ChangeEvent, MouseEvent } from "react";
+import React, { useState, ChangeEvent, MouseEvent, useEffect } from "react";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
 import { useRouter } from "next/navigation";
 import NoticeQueryForm from "@/components/notice/NoticeQueryForm";
 import NoticeAddModal from "@/components/notice/NoticeAddModal";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import { Notice } from "@/types/types";
 
-type Notice = {
+type NoticeItem = {
   id: string;
   [key: string]: any;
 };
-
-const initialNotices: Notice[] = [
-  {
-    id: "1",
-    title: "title",
-    noticeContent: "공지 내용",
-    isActive: "N",
-    createdDate: "2024-01-01",
-  },
-];
 
 const columns = [
   { id: "title", label: "제목" },
@@ -41,14 +32,39 @@ const rowsPerPageOptions = [
 
 const ReportPage = () => {
   const router = useRouter();
-  const [notices, setNotices] = useState<Notice[]>(initialNotices);
+  const [notices, setNotices] = useState<NoticeItem[]>([]);
+  const [filteredNotices, setFilteredNotices] = useState<NoticeItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [selectedNotices, setSelectedNotices] = useState<string[]>([]);
   const [isAddNoticeModalOpen, setIsAddNoticeModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<NoticeItem | null>(null);
+  //  const queryString = qs.stringify(userSearchParams);
   const { data, error } = useSWR("/api/notices");
+
+  const filterReports = (notices: NoticeItem[]) => {
+    return notices.filter((item) =>
+      Object.entries(item).some((value) =>
+        value[0].toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    );
+  };
+
+  useEffect(() => {
+    if (data && data.list) {
+      setNotices(
+        data.list.map((notice: Notice) => {
+          return { ...notice, id: notice.noticeId };
+        })
+      );
+    }
+  }, [data]);
+
+  useEffect(() => {
+    setFilteredNotices(filterReports(notices));
+  }, [notices, searchQuery]);
 
   const handleChangeResolvedType = (event: ChangeEvent<HTMLSelectElement>) => {
     console.log(event.target.value);
@@ -98,33 +114,44 @@ const ReportPage = () => {
     setSelectedNotices(newSelected);
   };
 
-  const handleDelete = () => {
-    console.log(selectedNotices);
-    // setNotices(notices.filter((item) => !selectedNotices.includes(item.id)));
-    // setSelectedNotices([]);
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`/api/notices/${itemToDelete?.noticeId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        setIsDeleteModalOpen(false);
+        setItemToDelete(null);
+        await mutate("/api/notices");
+      }
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const handleClickNotice = (item: Notice) => {
+  const handleClickNotice = (item: NoticeItem) => {
     console.log("click ", item);
   };
 
-  const handleClickEdit = (item: Notice) => {
+  const handleClickEdit = (item: NoticeItem) => {
     console.log("click edit", item);
-    router.push(`/main/notices/${item.id}`);
+    router.push(`/main/notices/${item.noticeId}`);
   };
 
-  const handleClickItemDelete = (item: Notice) => {
+  const handleClickItemDelete = (item: NoticeItem) => {
     console.log("delete notice item");
     setIsDeleteModalOpen(true);
+    setItemToDelete(item);
   };
 
-  const filteredReports = notices.filter((item) =>
-    Object.entries(item).some((value) =>
-      value[0].toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  );
-
-  const totalPages = Math.ceil(filteredReports.length / rowsPerPage);
+  const totalPages = Math.ceil(filteredNotices.length / rowsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-4">
@@ -178,7 +205,7 @@ const ReportPage = () => {
 
         <CustomTable
           columns={columns}
-          data={filteredReports}
+          data={filteredNotices}
           selectedRows={selectedNotices}
           rowsPerPage={rowsPerPage}
           page={page}

@@ -126,3 +126,10 @@ export interface ReportDetail {
   nickname: string;
   facility: FacilityAsItem;
 }
+
+export interface NoticeParams {
+  title?: string;
+  valid?: "Y" | "N";
+  startDate?: string;
+  endDate?: string;
+}

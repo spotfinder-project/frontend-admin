@@ -7,7 +7,7 @@ interface Props {
 }
 
 const NoticeAddModal = ({ isOpen, handleCloseModal }: Props) => {
-  const [activeStatus, setActiveStatus] = useState("");
+  const [activeStatus, setActiveStatus] = useState<"Y" | "N">("Y");
   const [noticeContent, setNoticeContent] = useState("");
   const [noticeTitle, setNoticeTitle] = useState("");
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
@@ -17,8 +17,29 @@ const NoticeAddModal = ({ isOpen, handleCloseModal }: Props) => {
     setIsConfirmationModalOpen(true);
   };
 
-  const handleConfirmAddNotice = (itemId: string | undefined) => {
+  const handleConfirmAddNotice = async (itemId: string | undefined) => {
     console.log(noticeContent);
+
+    try {
+      const response = await fetch("/api/notices", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: noticeTitle,
+          content: noticeContent,
+          valid: activeStatus,
+        }),
+        credentials: "include",
+      });
+
+      if (!response.ok) throw Error();
+
+      handleCloseModal();
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (

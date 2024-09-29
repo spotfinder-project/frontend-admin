@@ -32,7 +32,6 @@ const UserQueryForm = ({ clickQueryFacilities }: Props) => {
       startDate: dateRange[0] ? format(dateRange[0], "yyyy-MM-dd") : undefined,
       endDate: dateRange[1] ? format(dateRange[1], "yyyy-MM-dd") : undefined,
     });
-    ({});
   };
 
   const updateDateRange = (update: [Date | null, Date | null]) => {
