@@ -11,29 +11,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-const fetcher = async (url: string) => {
-  const res = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-
-  if (!res.ok) {
-    const { status, statusText } = res;
-
-    const error: ErrorResponse = {
-      status: "error",
-      code: status,
-      errorMessage: statusText,
-    };
-
-    throw error;
-  }
-
-  const { code, data } = await res.json();
-  return code === 204 ? undefined : data;
-};
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function SWRConfigContext({ children }: Props) {
   return (

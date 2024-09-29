@@ -1,4 +1,3 @@
-// app/api/users/route.ts
 import { NextResponse } from "next/server";
 import { UserParams } from "@/types/types";
 
@@ -24,23 +23,20 @@ export async function GET(request: Request) {
       Object.entries(params).filter(([_, value]) => value !== undefined) // Filter out undefined values
     ).toString();
 
-    const apiUrl = `${API_BASE_URL}/users${
+    const apiUrl = `${API_BASE_URL}/members${
       queryString ? `?${queryString}` : ""
     }`;
-
-    console.log(apiUrl);
+    const cookies = request.headers.get("cookie");
 
     // Make the actual call to the external API
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        cookie: cookies || "",
       },
       credentials: "include", // Include cookies
     });
-
-    console.log(request.headers);
-    console.log("Request Headers:", request.headers.get("cookie"));
 
     if (!response.ok) {
       return NextResponse.json(

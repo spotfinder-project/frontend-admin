@@ -35,6 +35,20 @@ export interface FacilityReview {
   nickname: string;
 }
 
+export interface FacilityAsItem {
+  facilityId: number;
+  type: "R" | "S" | "T";
+  name: string;
+  location: string;
+  detailLocation: string;
+  information: string;
+  department: string;
+  departmentPhoneNumber: string;
+  approvalStatus: string;
+  createdDate: string;
+  images: string[];
+}
+
 /** Member 관련 */
 
 export interface UserParams {
@@ -49,9 +63,7 @@ export interface UserParams {
 
 export interface User {
   memberId: number;
-  name: string;
   nickname: string;
-  birthday: string;
   gender: "M" | "F";
   socialType: string;
   createdDate: string;
@@ -85,19 +97,7 @@ export interface UserReview {
   reviewId: number;
   content: string;
   createdDate: string;
-  facility: {
-    facilityId: 1;
-    type: string;
-    name: string;
-    location: string;
-    detailLocation: string;
-    information: string;
-    department: string;
-    departmentPhoneNumber: string;
-    approvalStatus: string;
-    createdDate: string;
-    images: string[];
-  };
+  facility: FacilityAsItem;
 }
 
 export interface Notice {
@@ -107,7 +107,6 @@ export interface Notice {
   valid: "Y" | "N";
   createdAt: string;
 }
-
 export interface ReportDetail {
   reportId: number;
   content: string;
@@ -116,17 +115,5 @@ export interface ReportDetail {
   createdDate: string;
   memberId: number;
   nickname: string;
-  facility: {
-    facilityId: number;
-    type: "R" | "S" | "T";
-    name: string;
-    location: string;
-    detailLocation: string;
-    information: string;
-    department: string;
-    departmentPhoneNumber: string;
-    approvalStatus: string;
-    createdDate: string;
-    images: string[];
-  };
+  facility: FacilityAsItem;
 }

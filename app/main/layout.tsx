@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { logout } from "@/service/authService";
+import { useRouter } from "next/navigation";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -10,6 +12,7 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const getActiveMenu = (url: string) => {
     return pathname.includes(url) ? "font-semibold underline" : "";
   };
@@ -39,17 +42,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   const handleClickLogout = async () => {
     try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include", // Ensure cookies are included
-      });
+      const response = await logout();
 
-      if (!response.ok) {
-        throw new Error("Failed to logout");
-      }
+      router.push("/");
 
-      const data = await response.json();
-      console.log(data.message); // You can show a success message or redirect the user
+      console.log(response); // You can show a success message or redirect the user
     } catch (error) {
       console.error("Logout error:", error);
     }

@@ -38,15 +38,17 @@ export async function GET(request: Request) {
     // ).toString();
 
     // Make the actual call to the external API
+    const cookies = request.headers.get("cookie");
     const response = await fetch(`${API_BASE_URL}/reports`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        cookie: cookies || "",
       },
       credentials: "include", // Include cookies
     });
 
-    console.log("response:", await response.json());
+    // console.log("response:", await response.json());
 
     if (!response.ok) {
       return NextResponse.json(
@@ -56,7 +58,7 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
-
+    console.log(NextResponse.json(data));
     return NextResponse.json(data);
   } catch (error) {
     console.error(error); // Log the error for debugging

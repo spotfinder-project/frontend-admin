@@ -3,8 +3,6 @@ import Head from "next/head";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/service/authService";
-import useSWR from "swr";
-import { loginFetcher } from "@/utils/apiUtil";
 
 export default function LoginPage() {
   const [id, setId] = useState("");
@@ -13,11 +11,16 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleLogin = async () => {
+    setLoading(true);
+
     try {
-      const result = await loginFetcher(id, password);
-      if (result) router.push("/main");
-    } catch (error) {
-      console.error("An error occurred during mutation:", error);
+      const data = await login(id, password);
+
+      if (data.code === "REQ000") router.push("/main");
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 

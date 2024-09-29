@@ -3,11 +3,9 @@ import { getCookie, setCookie, deleteCookie } from "cookies-next";
 
 // Types for your API responses
 interface LoginResponse {
-  id: string;
-  // accessToken: string;
-  // refreshToken: string;
-  // accessExpiration: number;
-  // refreshExpiration: number;
+  code: string;
+  data: object;
+  message: string;
 }
 
 const baseUrl = axios.create({
@@ -19,24 +17,38 @@ export const login = async (
   id: string,
   password: string
 ): Promise<LoginResponse> => {
-  const response = await baseUrl.post<LoginResponse>("/admins/login", {
-    id,
-    password,
+  const response = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id, password }),
+    credentials: "include",
   });
 
-  return response.data;
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Login failed");
+  }
+
+  const data = await response.json();
+  return data;
 };
 
 export const logout = async (): Promise<void> => {
-  try {
-    // Optional: Call the external API to handle logout on the backend
-    await baseUrl.post("/admin/logout"); // Replace with the appropriate logout endpoint if needed
+  const response = await fetch("/api/auth/logout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
 
-    // Remove cookies
-    // deleteCookie("accessToken");
-    // deleteCookie("refreshToken");
-  } catch (error) {
-    console.error("Error during logout:", error);
-    throw error;
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "logout failed");
   }
+
+  const data = await response.json();
+  return data;
 };

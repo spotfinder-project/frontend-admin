@@ -6,51 +6,19 @@ import CustomTable from "@/components/ui/CustomTable";
 import { redirect, useRouter } from "next/navigation";
 import { getUsers } from "@/service/userService";
 import { UserParams } from "@/types/types";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import qs from "qs";
 
 type User = {
   id: string;
   [key: string]: any;
 };
 
-const initialUsers: User[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    gender: "Male",
-    socialLogin: "Google",
-    createdDate: "2020-01-01",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    gender: "Female",
-    socialLogin: "Facebook",
-    createdDate: "2019-03-22",
-  },
-  {
-    id: "3",
-    name: "Jane Smith 2",
-    gender: "Female",
-    socialLogin: "Facebook",
-    createdDate: "2019-03-22",
-  },
-  {
-    id: "4",
-    name: "Jane Smith 3",
-    gender: "Female",
-    socialLogin: "Facebook",
-    createdDate: "2019-03-22",
-  },
-  // Add more sample users as needed
-];
-
 const columns = [
   { id: "id", label: "Member ID" },
-  { id: "name", label: "Name" },
   { id: "gender", label: "Gender" },
-  { id: "socialLogin", label: "Social Login" },
+  { id: "socialType", label: "Social Login" },
   { id: "createdDate", label: "Created Date" },
   { id: "edit", label: "Edit" },
 ];
@@ -62,77 +30,61 @@ const rowsPerPageOptions = [
   { value: 100, label: 100 },
 ];
 
-const fetchUsers = async (url: string) => {
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include", // Ensure cookies are included in the request
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch users");
-  }
-
-  console.log("users response:", response);
-
-  const data = await response.json();
-  return data;
-};
-
 const UserManagementPage: React.FC = () => {
   const router = useRouter();
-  // const userList = await getUsers({});
-
   const [userSearchParams, setUserSearchParams] = useState<UserParams>({});
-  const { data, error, mutate } = useSWR(
-    `/api/users?${new URLSearchParams(
-      userSearchParams as Record<string, string>
-    ).toString()}`,
-    fetchUsers,
-    {
-      onError: (error, key) => {
-        if (error.code === 401) {
-          console.log(error);
-          // router.push("/");
-        }
-      },
-    }
-  );
-  // const userData = data.map((member) => {
-  //   return {
-  //     ...member,
-  //     id: member.memberId,
-  //   };
-  // });
-  const userList: User[] = data;
-  const [users, setUsers] = useState(userList);
+  const queryString = qs.stringify(userSearchParams);
+  const { data, error } = useSWR(`/api/users?${queryString}`, {
+    onError: (error, key) => {
+      if (error.code === 401) {
+        console.log(error);
+        // router.push("/");
+      }
+    },
+  });
+
+  const userList = data?.list || [];
+
+  const [users, setUsers] = useState<User[]>([]); //api response
   const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  const filterUsers = (users: User[]) => {
+    return users?.filter(
+      (user) =>
+        user.nickname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.gender.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.socialType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.memberId.toString().includes(searchQuery) ||
+        user.createdDate.includes(searchQuery)
+    );
+  };
+
   useEffect(() => {
-    console.log(users);
-    if (data) {
-      // Update filteredUsers when data is fetched
-      setUsers(data);
-      // setFilteredUsers(filterUsers(data));
+    if (data && data.list) {
+      setUsers(
+        data.list.map((user: User) => {
+          return { ...user, id: user.memberId };
+        })
+      ); // list 데이터를 state에 저장
     }
   }, [data]);
 
-  // if (!data) {
-  //   return <div>Loading...</div>;
-  // }
+  useEffect(() => {
+    setFilteredUsers(filterUsers(users));
+  }, [users, searchQuery]);
+
+  if (error) return <div>Error loading data</div>;
+  if (!data) return <div>Loading...</div>;
 
   const handleQueryUsers = async (searchParams: UserParams) => {
     setUserSearchParams(searchParams);
-    const userList = await getUsers();
-    console.log(userList);
-    // setUsers(userList);
+    const queryString = qs.stringify(userSearchParams);
+    await mutate(`/api/members?${queryString}`);
   };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -150,7 +102,7 @@ const UserManagementPage: React.FC = () => {
 
   const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelected = users.map((user) => user.id);
+      const newSelected = users.map((user: User) => user.memberId);
       setSelectedUsers(newSelected);
       return;
     }
@@ -179,8 +131,10 @@ const UserManagementPage: React.FC = () => {
 
   const handleDelete = () => {
     console.log(selectedUsers);
-    // setUsers(users.filter((user) => !selectedUsers.includes(user.id)));
-    setSelectedUsers([]);
+    // call delete api
+    // close modal
+    setIsDeleteModalOpen(false);
+    // fetch users
   };
 
   const handleClickUser = (user: User) => {
@@ -191,21 +145,6 @@ const UserManagementPage: React.FC = () => {
     console.log("click edit", user);
     router.push(`/main/users/${user.id}`);
   };
-
-  const filterUsers = (users: User[]) => {
-    return users?.filter(
-      (user) =>
-        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.gender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.birthDate.includes(searchQuery) ||
-        user.socialLogin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.createdDate.includes(searchQuery)
-    );
-  };
-
-  // const filteredUsers: any[] = [];
-
-  console.log(filteredUsers);
 
   const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
 
@@ -224,7 +163,7 @@ const UserManagementPage: React.FC = () => {
           <div className="flex items-end">
             <button
               className="btn btn-sm  btn-error mt-4"
-              onClick={handleDelete}
+              onClick={() => setIsDeleteModalOpen(true)}
               disabled={selectedUsers.length === 0}
             >
               Delete

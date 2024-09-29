@@ -6,15 +6,15 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 export async function POST(request: Request) {
   try {
     // Make the call to the external API for logout
+    const cookies = request.headers.get("cookie");
     const response = await fetch(`${API_BASE_URL}/admins/logout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        cookie: cookies || "",
       },
       credentials: "include", // Include cookies for authentication
     });
-
-    console.log(response);
 
     if (!response.ok) {
       return NextResponse.json(

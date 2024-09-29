@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
     // If there are cookies, set them in the response
     if (setCookieHeader) {
-      res.headers.set("Set-Cookie", setCookieHeader);
+      res.headers.set("set-cookie", setCookieHeader);
     }
 
     return res;
