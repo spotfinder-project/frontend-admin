@@ -1,23 +1,29 @@
 "use client";
 import { Notice } from "@/types/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useSWR, { mutate } from "swr";
+import { useParams } from "next/navigation";
+import { handleUpdateNotice } from "@/service/noticeService";
 
 const NoticeDetailPage = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const { id } = useParams();
+  const { data, error } = useSWR(`/api/notices/${id}`);
 
-  const selectedReview: Notice = {
-    noticeId: 1,
-    title: "시설물 사용에 대한 공지사항입니다.",
-    content: "청결하게 사용해주세요!",
-    valid: "Y",
-    createdAt: "2024-09-01 10:30:00",
-  };
+  const [activeStatus, setActiveStatus] = useState<"Y" | "N" | null>(null);
+  const [noticeTitle, setNoticeTitle] = useState("");
+  const [noticeContent, setNoticeContent] = useState("");
+  const [createdAt, setCreatedAt] = useState("");
 
-  const [activeStatus, setActiveStatus] = useState<"Y" | "N">(
-    selectedReview.valid
-  );
-  const [noticeTitle, setNoticeTitle] = useState(selectedReview.title);
-  const [noticeContent, setNoticeContent] = useState(selectedReview.content);
+  useEffect(() => {
+    if (data && data.data) {
+      const item = data.data;
+      setActiveStatus(item.valid);
+      setNoticeTitle(item.title);
+      setNoticeContent(item.content);
+      setCreatedAt(item.createdAt);
+    }
+  }, [data]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -25,11 +31,25 @@ const NoticeDetailPage = () => {
 
   const handleCancelClick = () => {
     setIsEditing(false);
-    setActiveStatus("N"); // Resetting approval status
   };
 
-  const handleSaveClick = () => {
-    setIsEditing(false);
+  const handleSaveClick = async () => {
+    try {
+      const response = await handleUpdateNotice({
+        noticeId: id as string,
+        title: noticeTitle,
+        content: noticeContent,
+        valid: activeStatus as "Y" | "N",
+      });
+
+      if (response.code === "REQ000") {
+        await mutate(`/api/notices/${id}`);
+        setIsEditing(false);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
     // Save logic goes here
   };
 
@@ -42,7 +62,7 @@ const NoticeDetailPage = () => {
           <label className="label">상태</label>
           <select
             className="select select-bordered w-full"
-            value={activeStatus}
+            value={activeStatus ?? undefined}
             disabled={!isEditing}
             onChange={(e) => setActiveStatus(e.target.value as "Y" | "N")}
           >
@@ -57,6 +77,7 @@ const NoticeDetailPage = () => {
             className="input input-bordered"
             value={noticeTitle}
             disabled={!isEditing}
+            onChange={(e) => setNoticeTitle(e.target.value)}
           />
         </div>
 
@@ -66,6 +87,7 @@ const NoticeDetailPage = () => {
             className="textarea textarea-bordered w-full"
             disabled={!isEditing}
             value={noticeContent}
+            onChange={(e) => setNoticeContent(e.target.value)}
           ></textarea>
         </div>
 
@@ -74,7 +96,7 @@ const NoticeDetailPage = () => {
           <input
             type="text"
             className="input input-bordered"
-            value={selectedReview.createdAt}
+            value={createdAt}
             disabled
           />
         </div>
