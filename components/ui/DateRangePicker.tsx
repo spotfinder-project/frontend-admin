@@ -19,6 +19,7 @@ const DateRangePicker = ({ startDate, endDate, setDateRange }: Props) => {
         endDate={endDate || undefined}
         dateFormat="yyyy/MM/dd"
         placeholderText="Start Date"
+        isClearable
       />
     </div>
   );

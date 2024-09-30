@@ -1,13 +1,16 @@
 "use client";
 import React, { useState } from "react";
 import DateRangePicker from "../ui/DateRangePicker";
-import { addMonths } from "date-fns";
+import { addMonths, format } from "date-fns";
+import { NoticeParams } from "@/types/types";
 
-type DateRange = [Date | null, Date | null];
+type NoticeType = "Y" | "N" | undefined;
 
-type NoticeType = "active" | "inactive" | undefined;
+type Props = {
+  handleQueryNotices: (params: NoticeParams) => void;
+};
 
-const NoticeQueryForm: React.FC = () => {
+const NoticeQueryForm = ({ handleQueryNotices }: Props) => {
   const [title, setTitle] = useState("");
   const [isActive, setIsActive] = useState<NoticeType>(undefined);
   const today = new Date();
@@ -21,12 +24,18 @@ const NoticeQueryForm: React.FC = () => {
   const handleSearch = () => {
     // Implement search functionality here
     console.log(title);
+    handleQueryNotices({
+      title,
+      valid: isActive,
+      startDate: dateRange[0] ? format(dateRange[0], "yyyy-MM-dd") : undefined,
+      endDate: dateRange[1] ? format(dateRange[1], "yyyy-MM-dd") : undefined,
+    });
   };
 
   const handleReset = () => {
     setTitle("");
     setIsActive(undefined);
-    setDateRange([null, null]);
+    setDateRange([oneMonthFromNow, today]);
   };
 
   return (
@@ -60,8 +69,8 @@ const NoticeQueryForm: React.FC = () => {
             onChange={(e) => setIsActive(e.target.value as NoticeType)}
           >
             <option value={undefined}>게시 상태</option>
-            <option value="active">게시 중</option>
-            <option value="inactive">게시 중지</option>
+            <option value="Y">게시 중</option>
+            <option value="N">게시 중지</option>
           </select>
         </div>
         <div className="form-control">

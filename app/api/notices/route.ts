@@ -86,3 +86,30 @@ export async function POST(request: Request, response: Response) {
     );
   }
 }
+
+export async function PUT(request: Request, response: Response) {
+  try {
+    const cookies = request.headers.get("cookie");
+    const { title, content, valid, noticeId } = await request.json();
+    const response = await fetch(`${API_BASE_URL}/notices`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: cookies || "",
+      },
+      credentials: "include",
+      body: JSON.stringify({ noticeId, title, content, valid }),
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}

@@ -7,7 +7,9 @@ import NoticeQueryForm from "@/components/notice/NoticeQueryForm";
 import NoticeAddModal from "@/components/notice/NoticeAddModal";
 import useSWR, { mutate } from "swr";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
-import { Notice } from "@/types/types";
+import { Notice, NoticeParams } from "@/types/types";
+import qs from "qs";
+import { handleUpdateNotice } from "@/service/noticeService";
 
 type NoticeItem = {
   id: string;
@@ -16,8 +18,8 @@ type NoticeItem = {
 
 const columns = [
   { id: "title", label: "제목" },
-  { id: "noticeContent", label: "공지 내용" },
-  { id: "isActive", label: "게시 상태" },
+  { id: "content", label: "공지 내용" },
+  { id: "valid", label: "게시 상태" },
   { id: "createdDate", label: "생성일" },
   { id: "edit", label: "Edit" },
   { id: "delete", label: "Delete" },
@@ -41,8 +43,13 @@ const ReportPage = () => {
   const [isAddNoticeModalOpen, setIsAddNoticeModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<NoticeItem | null>(null);
+  const [noticeSearchParams, setNoticeSearchParams] = useState<NoticeParams>(
+    {}
+  );
   //  const queryString = qs.stringify(userSearchParams);
-  const { data, error } = useSWR("/api/notices");
+  const { data, error } = useSWR(
+    `/api/notices?${qs.stringify(noticeSearchParams)}`
+  );
 
   const filterReports = (notices: NoticeItem[]) => {
     return notices.filter((item) =>
@@ -66,10 +73,29 @@ const ReportPage = () => {
     setFilteredNotices(filterReports(notices));
   }, [notices, searchQuery]);
 
-  const handleChangeResolvedType = (event: ChangeEvent<HTMLSelectElement>) => {
-    console.log(event.target.value);
+  const handleQueryNotices = async (params: NoticeParams) => {
+    setNoticeSearchParams(params);
+    const queryString = qs.stringify(noticeSearchParams);
+    await mutate(`/api/notices?${queryString}`);
+  };
 
-    // setResolvedType(event.target.value);
+  const handleChangeValidValue = async (
+    event: ChangeEvent<HTMLSelectElement>,
+    item: NoticeItem
+  ) => {
+    try {
+      const response = await handleUpdateNotice({
+        noticeId: item.noticeId,
+        title: item.title,
+        content: item.content,
+        valid: event.target.value as "Y" | "N",
+      });
+
+      if (response.code === "REQ000")
+        await mutate(`/api/notices?${qs.stringify(noticeSearchParams)}`);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -128,7 +154,7 @@ const ReportPage = () => {
       if (response.ok) {
         setIsDeleteModalOpen(false);
         setItemToDelete(null);
-        await mutate("/api/notices");
+        await mutate(`/api/notices?${qs.stringify(noticeSearchParams)}`);
       }
       console.log(response);
     } catch (err) {
@@ -155,7 +181,7 @@ const ReportPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <NoticeQueryForm />
+      <NoticeQueryForm handleQueryNotices={handleQueryNotices} />
       <div className="mt-4 bg-base-100 shadow-lg rounded-lg">
         <div className="flex justify-between items-center p-4">
           <input
@@ -214,7 +240,7 @@ const ReportPage = () => {
           onEdit={handleClickEdit}
           onItemClick={handleClickNotice}
           onDelete={handleClickItemDelete}
-          handleChangeResolvedType={handleChangeResolvedType}
+          handleChangeTableValue={handleChangeValidValue}
         />
 
         <div className="flex justify-center items-center p-4">

@@ -19,8 +19,9 @@ interface CustomTableProps {
   rowsPerPage: number;
   page: number;
   resolvedType?: string;
-  handleChangeResolvedType?: (
-    event: React.ChangeEvent<HTMLSelectElement>
+  handleChangeTableValue?: (
+    event: React.ChangeEvent<HTMLSelectElement>,
+    item: TableData
   ) => void;
   onSelectAll: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSelectRow: (event: React.ChangeEvent<HTMLInputElement>, id: string) => void;
@@ -41,7 +42,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   onEdit,
   onItemClick,
   onDelete,
-  handleChangeResolvedType,
+  handleChangeTableValue,
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -94,7 +95,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                     );
                   } else if (
                     column.id === "resolved" &&
-                    handleChangeResolvedType
+                    handleChangeTableValue
                   ) {
                     return (
                       <td key="resolved">
@@ -102,13 +103,30 @@ const CustomTable: React.FC<CustomTableProps> = ({
                           id="resolvedType"
                           className="select select-bordered"
                           value={item.resolved}
-                          onChange={(e) => handleChangeResolvedType(e)}
+                          onChange={(e) => handleChangeTableValue(e, item)}
                         >
                           <option value="" disabled>
                             상태
                           </option>
                           <option value="N">해결 요청</option>
                           <option value="Y">해결 완료</option>
+                        </select>
+                      </td>
+                    );
+                  } else if (column.id === "valid" && handleChangeTableValue) {
+                    return (
+                      <td key="valid">
+                        <select
+                          id="valid"
+                          className="select select-bordered"
+                          value={item.valid}
+                          onChange={(e) => handleChangeTableValue(e, item)}
+                        >
+                          {/* <option value="" disabled>
+                            상태
+                          </option> */}
+                          <option value="Y">게시 중</option>
+                          <option value="N">게시 중지</option>
                         </select>
                       </td>
                     );

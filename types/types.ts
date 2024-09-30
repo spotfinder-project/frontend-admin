@@ -116,6 +116,13 @@ export interface Notice {
   valid: "Y" | "N";
   createdAt: string;
 }
+
+export interface NoticeParams {
+  title?: string;
+  valid?: "Y" | "N";
+  startDate?: string;
+  endDate?: string;
+}
 export interface ReportDetail {
   reportId: number;
   content: string;
@@ -125,11 +132,4 @@ export interface ReportDetail {
   memberId: number;
   nickname: string;
   facility: FacilityAsItem;
-}
-
-export interface NoticeParams {
-  title?: string;
-  valid?: "Y" | "N";
-  startDate?: string;
-  endDate?: string;
 }
