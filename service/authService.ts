@@ -35,7 +35,7 @@ export const login = async (
   return data;
 };
 
-export const logout = async (): Promise<void> => {
+export const logout = async () => {
   const response = await fetch("/api/auth/logout", {
     method: "POST",
     headers: {
@@ -49,8 +49,11 @@ export const logout = async (): Promise<void> => {
     throw new Error(errorData.error || "logout failed");
   }
 
-  const data = await response.json();
-  return data;
+  // const data = await response.json();
+  // console.log(data);
+  // return data;
+
+  return response;
 };
 
 interface UpdateResponse {

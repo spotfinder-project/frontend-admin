@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { logout } from "@/service/authService";
 import { useRouter } from "next/navigation";
+import { ToastContainer, toast } from "react-toastify";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -27,13 +28,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     return breadcrumbs;
   };
 
-  const menu = {
-    "/main": "Home",
-    "/main/users": "Users",
-    "/main/facilities": "Facilities",
-    "/main/administrators": "Administrators",
-  };
-
   const [isMenuOpen, setIsMenuOpen] = useState(true);
 
   const handleOpenMenu = () => {
@@ -44,11 +38,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     try {
       const response = await logout();
 
-      router.push("/");
-
-      console.log(response); // You can show a success message or redirect the user
-    } catch (error) {
+      if (response.status === 200) router.push("/");
+    } catch (error: any) {
       console.error("Logout error:", error);
+      toast.error("로그아웃 할 수 없습니다.");
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
     }
   };
 
@@ -111,6 +107,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </ul>
         </div>
       </div>
+      <ToastContainer theme="colored" position="bottom-center" />
     </div>
   );
 };

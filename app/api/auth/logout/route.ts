@@ -23,15 +23,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Optionally, you can clear any local cookies if needed
-    // For example: NextResponse.clearCookie('your-cookie-name');
-
-    const logoutResponse = NextResponse.json({
-      message: "Logged out successfully",
-    });
+    const logoutResponse = NextResponse.json(response);
     logoutResponse.cookies.delete("accessToken");
     logoutResponse.cookies.delete("refreshToken");
-
+    console.log(logoutResponse);
     return logoutResponse;
   } catch (error) {
     console.error(error);
