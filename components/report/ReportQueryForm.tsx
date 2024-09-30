@@ -1,11 +1,14 @@
 "use client";
 import React, { useState } from "react";
 import DateRangePicker from "../ui/DateRangePicker";
-import { addMonths } from "date-fns";
+import { addMonths, format } from "date-fns";
+import { ReportParams } from "@/types/types";
 
 type DateRange = [Date | null, Date | null];
-
-const ReportQueryForm: React.FC = () => {
+type Props = {
+  clickQueryReports: (searchParams: ReportParams) => Promise<void>;
+};
+const ReportQueryForm = ({ clickQueryReports }: Props) => {
   const [reportId, setReportId] = useState("");
   const [reportContent, setReportContent] = useState("");
   const [facilityId, setFacilityId] = useState("");
@@ -29,6 +32,15 @@ const ReportQueryForm: React.FC = () => {
       createdDate,
       reportContent,
       userId,
+    });
+
+    clickQueryReports({
+      facilityId,
+      status: resolved,
+      content: reportContent,
+      memberId: userId,
+      startDate: dateRange[0] ? format(dateRange[0], "yyyy-MM-dd") : undefined,
+      endDate: dateRange[1] ? format(dateRange[1], "yyyy-MM-dd") : undefined,
     });
   };
 

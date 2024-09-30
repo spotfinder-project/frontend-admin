@@ -28,6 +28,10 @@ export default function AddressSearch({
     }
   }, [isPostcodeOpen]);
 
+  useEffect(() => {
+    setAddress(facilityAddress);
+  }, [facilityAddress]);
+
   return (
     <div className="form-control">
       <label className="label">주소</label>

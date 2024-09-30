@@ -1,18 +1,20 @@
 "use client";
-import React, { useState, ChangeEvent, MouseEvent } from "react";
+import React, { useState, ChangeEvent, MouseEvent, useEffect } from "react";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
 import { useRouter } from "next/navigation";
 import ReportQueryForm from "@/components/report/ReportQueryForm";
 import useSWR from "swr";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import { Report, ReportParams } from "@/types/types";
+import qs from "qs";
 
-type Report = {
+type ReportItem = {
   id: string;
   [key: string]: any;
 };
 
-const initialReports: Report[] = [
+const initialReports: ReportItem[] = [
   {
     id: "1",
     userId: "userId",
@@ -24,10 +26,10 @@ const initialReports: Report[] = [
 ];
 
 const columns = [
-  { id: "userId", label: "신고자 ID" },
-  { id: "reportContent", label: "신고 내용" },
+  { id: "memberId", label: "신고자 ID" },
+  { id: "content", label: "신고 내용" },
   { id: "facilityId", label: "시설물 ID" },
-  { id: "resolved", label: "상태" },
+  { id: "status", label: "상태" },
   { id: "createdDate", label: "생성일" },
   { id: "edit", label: "Edit" },
 ];
@@ -41,14 +43,18 @@ const rowsPerPageOptions = [
 
 const ReportPage: React.FC = () => {
   const router = useRouter();
-  const [reports, setReports] = useState<Report[]>(initialReports);
-
+  const [reports, setReports] = useState<ReportItem[]>([]);
+  const [filteredReports, setFilteredReports] = useState<ReportItem[]>([]);
+  const [reportSearchParams, setReportSearchParams] = useState<ReportParams>(
+    {}
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [selectedReports, setSelectedReports] = useState<string[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const { data, error, mutate } = useSWR(`/api/reports`, {
+  const queryString = qs.stringify(reportSearchParams);
+  const { data, error, mutate } = useSWR(`/api/reports?${queryString}`, {
     onError: (error, key) => {
       if (error.code === 401) {
         console.log(error);
@@ -56,14 +62,31 @@ const ReportPage: React.FC = () => {
       }
     },
   });
+  useEffect(() => {
+    if (data && data.list) {
+      setReports(
+        data.list.map((report: Report) => {
+          return { ...report, id: report.reportId };
+        })
+      );
+    }
+  }, [data]);
   console.log(data);
+
+  useEffect(() => {
+    setFilteredReports(filterReports(reports));
+  }, [reports, searchQuery]);
 
   // const handleChangeResolvedType = (event: ChangeEvent<HTMLSelectElement>) => {
   //   console.log(event.target.value);
 
   //   // setResolvedType(event.target.value);
   // };
-
+  const handleQueryReports = async (searchParams: ReportParams) => {
+    setReportSearchParams(searchParams);
+    const queryString = qs.stringify(reportSearchParams);
+    await mutate(`/api/reports?${queryString}`);
+  };
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
@@ -112,26 +135,30 @@ const ReportPage: React.FC = () => {
     // setSelectedReports([]);
   };
 
-  const handleClickFacility = (item: Report) => {
+  const handleClickFacility = (item: ReportItem) => {
     console.log("click ", item);
   };
 
-  const handleClickEdit = (item: Report) => {
+  const handleClickEdit = (item: ReportItem) => {
     console.log("click edit", item);
-    router.push(`/main/report/${item.id}`);
+    router.push(`/main/report/${item.reportId}`);
   };
 
-  const filteredReports = reports.filter((item) =>
-    Object.entries(item).some((value) =>
-      value[0].toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  );
+  const filterReports = (reports: ReportItem[]) => {
+    return reports?.filter((item) => {
+      item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.facilityId.toString().includes(searchQuery) ||
+        item.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.memberId.toString().includes(searchQuery) ||
+        item.createdDate.includes(searchQuery);
+    });
+  };
 
   const totalPages = Math.ceil(filteredReports.length / rowsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <ReportQueryForm />
+      <ReportQueryForm clickQueryReports={handleQueryReports} />
       <div className="mt-4 bg-base-100 shadow-lg rounded-lg">
         <div className="flex justify-between items-center p-4">
           <input

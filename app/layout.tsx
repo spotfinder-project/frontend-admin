@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "remixicon/fonts/remixicon.css";
+import "react-toastify/dist/ReactToastify.css";
 import Script from "next/script";
 import GlobalSWRConfig from "./swrConfig";
 

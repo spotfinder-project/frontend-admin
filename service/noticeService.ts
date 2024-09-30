@@ -26,7 +26,7 @@ export const handleUpdateNotice = async ({
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || "Login failed");
+      throw new Error(errorData.error || "Notice update failed");
     }
 
     const data = await response.json();

@@ -52,3 +52,29 @@ export const logout = async (): Promise<void> => {
   const data = await response.json();
   return data;
 };
+
+interface UpdateResponse {
+  code: string;
+  message: string;
+}
+
+export const updatePassword = async (
+  password: string
+): Promise<UpdateResponse> => {
+  const response = await fetch("/api/auth/update", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({ password }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "logout failed");
+  }
+
+  const data = await response.json();
+  return data;
+};

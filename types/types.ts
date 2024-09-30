@@ -133,3 +133,24 @@ export interface ReportDetail {
   nickname: string;
   facility: FacilityAsItem;
 }
+
+export interface Report {
+  reportId: number;
+  content: string;
+  status: "Y" | "N";
+  memberId: number;
+  facilityId: number;
+  createdDate: string;
+}
+
+export interface ReportParams {
+  page?: number;
+  size?: number;
+  content?: string;
+  status?: string;
+  memberId?: string;
+  facilityId?: string;
+  startDate?: string;
+  endDate?: string;
+  offset?: number;
+}

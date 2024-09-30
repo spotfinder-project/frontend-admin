@@ -56,3 +56,56 @@ export async function GET(request: Request) {
     );
   }
 }
+
+export async function PUT(request: Request, response: Response) {
+  try {
+    const cookies = request.headers.get("cookie");
+    const {
+      facilityId,
+      type,
+      name,
+      location,
+      detailLocation,
+      latitude,
+      longitude,
+      information,
+      department,
+      departmentPhoneNumber,
+      approvalStatus,
+      imageIds,
+    } = await request.json();
+    const response = await fetch(`${API_BASE_URL}/facilities`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: cookies || "",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        facilityId,
+        type,
+        name,
+        location,
+        detailLocation,
+        latitude,
+        longitude,
+        information,
+        department,
+        departmentPhoneNumber,
+        approvalStatus,
+        imageIds,
+      }),
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
