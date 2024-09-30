@@ -70,6 +70,8 @@ export interface UserParams {
   socialType?: string;
   startDate?: string;
   endDate?: string;
+  page?: number;
+  size?: number;
 }
 
 export interface User {
@@ -124,6 +126,8 @@ export interface NoticeParams {
   valid?: "Y" | "N";
   startDate?: string;
   endDate?: string;
+  page?: number;
+  size?: number;
 }
 export interface ReportDetail {
   reportId: number;

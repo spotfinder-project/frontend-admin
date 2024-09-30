@@ -37,15 +37,17 @@ const ReportPage = () => {
   const [notices, setNotices] = useState<NoticeItem[]>([]);
   const [filteredNotices, setFilteredNotices] = useState<NoticeItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(3);
   const [page, setPage] = useState(0);
   const [selectedNotices, setSelectedNotices] = useState<string[]>([]);
   const [isAddNoticeModalOpen, setIsAddNoticeModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<NoticeItem | null>(null);
-  const [noticeSearchParams, setNoticeSearchParams] = useState<NoticeParams>(
-    {}
-  );
+  const [noticeSearchParams, setNoticeSearchParams] = useState<NoticeParams>({
+    page: page + 1,
+    size: rowsPerPage,
+  });
+  const [totalPages, setTotalPages] = useState(0);
   //  const queryString = qs.stringify(userSearchParams);
   const { data, error } = useSWR(
     `/api/notices?${qs.stringify(noticeSearchParams)}`
@@ -67,14 +69,32 @@ const ReportPage = () => {
         })
       );
     }
+
+    if (data && data.page) {
+      setTotalPages(data.page.totalPages);
+    } else if (data && !data.page) {
+      setTotalPages(1);
+    }
   }, [data]);
 
   useEffect(() => {
     setFilteredNotices(filterReports(notices));
   }, [notices, searchQuery]);
 
+  useEffect(() => {
+    setNoticeSearchParams((prev) => ({
+      ...prev,
+      page: page + 1, // Convert to 1-based index for API call
+      size: rowsPerPage,
+    }));
+  }, [page, rowsPerPage]);
+
   const handleQueryNotices = async (params: NoticeParams) => {
-    setNoticeSearchParams(params);
+    setNoticeSearchParams(() => ({
+      ...params,
+      page: page + 1, // Convert to 1-based index for API call
+      size: rowsPerPage,
+    }));
     const queryString = qs.stringify(noticeSearchParams);
     await mutate(`/api/notices?${queryString}`);
   };
@@ -181,8 +201,6 @@ const ReportPage = () => {
     await mutate(`/api/notices?${qs.stringify(noticeSearchParams)}`);
     setIsAddNoticeModalOpen(false);
   };
-
-  const totalPages = Math.ceil(filteredNotices.length / rowsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-4">

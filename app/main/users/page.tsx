@@ -32,7 +32,19 @@ const rowsPerPageOptions = [
 
 const UserManagementPage: React.FC = () => {
   const router = useRouter();
-  const [userSearchParams, setUserSearchParams] = useState<UserParams>({});
+
+  const [users, setUsers] = useState<User[]>([]); //api response
+  const [searchQuery, setSearchQuery] = useState("");
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userSearchParams, setUserSearchParams] = useState<UserParams>({
+    page: page + 1,
+    size: rowsPerPage,
+  });
   const queryString = qs.stringify(userSearchParams);
   const { data, error } = useSWR(`/api/users?${queryString}`, {
     onError: (error, key) => {
@@ -41,13 +53,6 @@ const UserManagementPage: React.FC = () => {
       }
     },
   });
-  const [users, setUsers] = useState<User[]>([]); //api response
-  const [searchQuery, setSearchQuery] = useState("");
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [page, setPage] = useState(0);
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const filterUsers = (users: User[]) => {
     return users?.filter(
@@ -66,7 +71,13 @@ const UserManagementPage: React.FC = () => {
         data.list.map((user: User) => {
           return { ...user, id: user.memberId };
         })
-      ); // list 데이터를 state에 저장
+      );
+    }
+
+    if (data && data.page) {
+      setTotalPages(data.page.totalPages);
+    } else if (data && !data.page) {
+      setTotalPages(1);
     }
   }, [data]);
 
@@ -74,11 +85,23 @@ const UserManagementPage: React.FC = () => {
     setFilteredUsers(filterUsers(users));
   }, [users, searchQuery]);
 
+  useEffect(() => {
+    setUserSearchParams((prev) => ({
+      ...prev,
+      page: page + 1, // Convert to 1-based index for API call
+      size: rowsPerPage,
+    }));
+  }, [page, rowsPerPage]);
+
   if (error) return <div>Error loading data</div>;
   if (!data) return <div>Loading...</div>;
 
   const handleQueryUsers = async (searchParams: UserParams) => {
-    setUserSearchParams(searchParams);
+    setUserSearchParams(() => ({
+      ...searchParams,
+      page: page + 1, // Convert to 1-based index for API call
+      size: rowsPerPage,
+    }));
     const queryString = qs.stringify(userSearchParams);
     await mutate(`/api/members?${queryString}`);
   };
@@ -141,8 +164,6 @@ const UserManagementPage: React.FC = () => {
     console.log("click edit", user);
     router.push(`/main/users/${user.id}`);
   };
-
-  const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-4">

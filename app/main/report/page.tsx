@@ -45,15 +45,17 @@ const ReportPage: React.FC = () => {
   const router = useRouter();
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [filteredReports, setFilteredReports] = useState<ReportItem[]>([]);
-  const [reportSearchParams, setReportSearchParams] = useState<ReportParams>(
-    {}
-  );
-  const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
+  const [reportSearchParams, setReportSearchParams] = useState<ReportParams>({
+    page: page + 1,
+    size: rowsPerPage,
+  });
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedReports, setSelectedReports] = useState<string[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const queryString = qs.stringify(reportSearchParams);
+  const [totalPages, setTotalPages] = useState(0);
   const { data, error, mutate } = useSWR(`/api/reports?${queryString}`, {
     onError: (error, key) => {
       if (error.code === 401) {
@@ -70,6 +72,12 @@ const ReportPage: React.FC = () => {
         })
       );
     }
+
+    if (data && data.page) {
+      setTotalPages(data.page.totalPages);
+    } else if (data && !data.page) {
+      setTotalPages(1);
+    }
   }, [data]);
   console.log(data);
 
@@ -77,13 +85,20 @@ const ReportPage: React.FC = () => {
     setFilteredReports(filterReports(reports));
   }, [reports, searchQuery]);
 
-  // const handleChangeResolvedType = (event: ChangeEvent<HTMLSelectElement>) => {
-  //   console.log(event.target.value);
+  useEffect(() => {
+    setReportSearchParams((prev) => ({
+      ...prev,
+      page: page + 1, // Convert to 1-based index for API call
+      size: rowsPerPage,
+    }));
+  }, [page, rowsPerPage]);
 
-  //   // setResolvedType(event.target.value);
-  // };
   const handleQueryReports = async (searchParams: ReportParams) => {
-    setReportSearchParams(searchParams);
+    setReportSearchParams(() => ({
+      ...searchParams,
+      page: page + 1, // Convert to 1-based index for API call
+      size: rowsPerPage,
+    }));
     const queryString = qs.stringify(reportSearchParams);
     await mutate(`/api/reports?${queryString}`);
   };
@@ -135,10 +150,6 @@ const ReportPage: React.FC = () => {
     // setSelectedReports([]);
   };
 
-  const handleClickFacility = (item: ReportItem) => {
-    console.log("click ", item);
-  };
-
   const handleClickEdit = (item: ReportItem) => {
     console.log("click edit", item);
     router.push(`/main/report/${item.reportId}`);
@@ -153,8 +164,6 @@ const ReportPage: React.FC = () => {
         item.createdDate.includes(searchQuery);
     });
   };
-
-  const totalPages = Math.ceil(filteredReports.length / rowsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-4">
@@ -209,7 +218,6 @@ const ReportPage: React.FC = () => {
           onSelectAll={handleSelectAllClick}
           onSelectRow={handleClick}
           onEdit={handleClickEdit}
-          onItemClick={handleClickFacility}
         />
 
         <div className="flex justify-center items-center p-4">
