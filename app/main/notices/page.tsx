@@ -177,6 +177,11 @@ const ReportPage = () => {
     setItemToDelete(item);
   };
 
+  const handleCloseModal = async () => {
+    await mutate(`/api/notices?${qs.stringify(noticeSearchParams)}`);
+    setIsAddNoticeModalOpen(false);
+  };
+
   const totalPages = Math.ceil(filteredNotices.length / rowsPerPage);
 
   return (
@@ -254,7 +259,7 @@ const ReportPage = () => {
         {isAddNoticeModalOpen && (
           <NoticeAddModal
             isOpen={isAddNoticeModalOpen}
-            handleCloseModal={() => setIsAddNoticeModalOpen(false)}
+            handleCloseModal={handleCloseModal}
           />
         )}
 

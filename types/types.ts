@@ -19,6 +19,8 @@ export interface FacilityParams {
   approvalStatus?: "P" | "A" | "R" | "S";
   startDate?: string;
   endDate?: string;
+  page?: number;
+  size?: number;
 }
 
 export interface FacilityDetail {

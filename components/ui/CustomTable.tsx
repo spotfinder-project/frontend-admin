@@ -64,93 +64,88 @@ const CustomTable: React.FC<CustomTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {data
-            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((item) => (
-              <tr
-                key={item.id}
-                className={`hover ${
-                  selectedRows.indexOf(item.id) !== -1 ? "active" : ""
-                }`}
-              >
-                <td>
-                  <input
-                    type="checkbox"
-                    className="checkbox"
-                    checked={selectedRows.indexOf(item.id) !== -1}
-                    onChange={(event) => onSelectRow(event, item.id)}
-                  />
-                </td>
-                {columns.map((column) => {
-                  if (column.id === "edit") {
-                    return (
-                      <td key="edit">
-                        <button
-                          className="btn btn-neutral"
-                          onClick={() => onEdit?.(item)}
-                        >
-                          Edit
-                        </button>
-                      </td>
-                    );
-                  } else if (
-                    column.id === "resolved" &&
-                    handleChangeTableValue
-                  ) {
-                    return (
-                      <td key="resolved">
-                        <select
-                          id="resolvedType"
-                          className="select select-bordered"
-                          value={item.resolved}
-                          onChange={(e) => handleChangeTableValue(e, item)}
-                        >
-                          <option value="" disabled>
-                            상태
-                          </option>
-                          <option value="N">해결 요청</option>
-                          <option value="Y">해결 완료</option>
-                        </select>
-                      </td>
-                    );
-                  } else if (column.id === "valid" && handleChangeTableValue) {
-                    return (
-                      <td key="valid">
-                        <select
-                          id="valid"
-                          className="select select-bordered"
-                          value={item.valid}
-                          onChange={(e) => handleChangeTableValue(e, item)}
-                        >
-                          {/* <option value="" disabled>
+          {data.map((item) => (
+            <tr
+              key={item.id}
+              className={`hover ${
+                selectedRows.indexOf(item.id) !== -1 ? "active" : ""
+              }`}
+            >
+              <td>
+                <input
+                  type="checkbox"
+                  className="checkbox"
+                  checked={selectedRows.indexOf(item.id) !== -1}
+                  onChange={(event) => onSelectRow(event, item.id)}
+                />
+              </td>
+              {columns.map((column) => {
+                if (column.id === "edit") {
+                  return (
+                    <td key="edit">
+                      <button
+                        className="btn btn-neutral"
+                        onClick={() => onEdit?.(item)}
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  );
+                } else if (column.id === "resolved" && handleChangeTableValue) {
+                  return (
+                    <td key="resolved">
+                      <select
+                        id="resolvedType"
+                        className="select select-bordered"
+                        value={item.resolved}
+                        onChange={(e) => handleChangeTableValue(e, item)}
+                      >
+                        <option value="" disabled>
+                          상태
+                        </option>
+                        <option value="N">해결 요청</option>
+                        <option value="Y">해결 완료</option>
+                      </select>
+                    </td>
+                  );
+                } else if (column.id === "valid" && handleChangeTableValue) {
+                  return (
+                    <td key="valid">
+                      <select
+                        id="valid"
+                        className="select select-bordered"
+                        value={item.valid}
+                        onChange={(e) => handleChangeTableValue(e, item)}
+                      >
+                        {/* <option value="" disabled>
                             상태
                           </option> */}
-                          <option value="Y">게시 중</option>
-                          <option value="N">게시 중지</option>
-                        </select>
-                      </td>
-                    );
-                  } else if (column.id === "delete" && onDelete) {
-                    return (
-                      <td key="delete">
-                        <button
-                          className="btn btn-neutral"
-                          onClick={() => onDelete(item)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    );
-                  } else {
-                    return (
-                      <td key={column.id} onClick={() => onItemClick?.(item)}>
-                        {(item as any)[column.id]}
-                      </td>
-                    );
-                  }
-                })}
-              </tr>
-            ))}
+                        <option value="Y">게시 중</option>
+                        <option value="N">게시 중지</option>
+                      </select>
+                    </td>
+                  );
+                } else if (column.id === "delete" && onDelete) {
+                  return (
+                    <td key="delete">
+                      <button
+                        className="btn btn-neutral"
+                        onClick={() => onDelete(item)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  );
+                } else {
+                  return (
+                    <td key={column.id} onClick={() => onItemClick?.(item)}>
+                      {(item as any)[column.id]}
+                    </td>
+                  );
+                }
+              })}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

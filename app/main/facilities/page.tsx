@@ -30,22 +30,27 @@ const columns = [
 
 const rowsPerPageOptions = [
   { value: 10, label: 10 },
-  { value: 25, label: 25 },
+  { value: 20, label: 20 },
   { value: 50, label: 50 },
   { value: 100, label: 100 },
 ];
 
 const FacilitiesPage: React.FC = () => {
   const router = useRouter();
-  const [facilityParams, setFacilityParams] = useState<FacilityParams>({});
+
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [filteredFacilitiies, setFilteredFacilities] = useState<Facility[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
   const [page, setPage] = useState(0);
+  const [facilityParams, setFacilityParams] = useState<FacilityParams>({
+    page: page + 1,
+    size: rowsPerPage,
+  });
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
   const queryString = qs.stringify(facilityParams);
   const { data, error } = useSWR(`/api/facilities?${queryString}`, {
     onError: (error, key) => {
@@ -55,6 +60,22 @@ const FacilitiesPage: React.FC = () => {
     },
   });
 
+  const filterFacilities = (facilities: Facility[]) => {
+    return facilities?.filter(
+      (item) =>
+        item.facilityId.toString().includes(searchQuery) ||
+        item.createdDate?.includes(searchQuery) ||
+        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.detailLocation
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        item.information?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.department?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.approvalStatus?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
   useEffect(() => {
     if (data && data.list) {
       setFacilities(
@@ -63,11 +84,27 @@ const FacilitiesPage: React.FC = () => {
         })
       );
     }
+
+    if (data && data.page) {
+      setTotalPages(data.page.totalPages);
+    }
   }, [data]);
 
   useEffect(() => {
     setFilteredFacilities(filterFacilities(facilities));
+    console.log(facilities);
   }, [facilities, searchQuery]);
+
+  useEffect(() => {
+    setFacilityParams((prev) => ({
+      ...prev,
+      page: page + 1, // Convert to 1-based index for API call
+      size: rowsPerPage,
+    }));
+  }, [page, rowsPerPage]);
+
+  if (error) return <div>Failed to load</div>;
+  if (!data) return <div>Loading...</div>;
 
   const handleQueryFacilities = async (searchParams: FacilityParams) => {
     setFacilityParams(searchParams);
@@ -84,7 +121,7 @@ const FacilitiesPage: React.FC = () => {
     setPage(0);
   };
 
-  const handleChangePage = (newPage: number) => {
+  const handleChangePage = async (newPage: number) => {
     setPage(newPage - 1);
   };
 
@@ -124,31 +161,9 @@ const FacilitiesPage: React.FC = () => {
     setIsDeleteModalOpen(false);
   };
 
-  const handleClickFacility = (item: Facility) => {
-    console.log("click ", item);
-  };
-
   const handleClickEdit = (item: Facility) => {
     router.push(`/main/facilities/${item.id}`);
   };
-
-  const filterFacilities = (facilities: Facility[]) => {
-    return facilities?.filter(
-      (item) =>
-        item.facilityId.toString().includes(searchQuery) ||
-        item.createdDate?.includes(searchQuery) ||
-        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.detailLocation
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        item.information?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.department?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.approvalStatus?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  };
-
-  const totalPages = Math.ceil(filteredFacilitiies.length / rowsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-4">
@@ -209,7 +224,6 @@ const FacilitiesPage: React.FC = () => {
           onSelectAll={handleSelectAllClick}
           onSelectRow={handleClick}
           onEdit={handleClickEdit}
-          onItemClick={handleClickFacility}
         />
 
         <div className="flex justify-center items-center p-4">
