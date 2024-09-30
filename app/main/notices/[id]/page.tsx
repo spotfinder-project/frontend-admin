@@ -49,8 +49,6 @@ const NoticeDetailPage = () => {
     } catch (err) {
       console.error(err);
     }
-
-    // Save logic goes here
   };
 
   return (

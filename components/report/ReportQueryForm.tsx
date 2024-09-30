@@ -43,7 +43,7 @@ const ReportQueryForm: React.FC = () => {
   return (
     <>
       <div>
-        <h2 className="text-2xl font-semibold">시설물 검색</h2>
+        <h2 className="text-2xl font-semibold">신고/제보 검색</h2>
       </div>
       <form className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
         <div className="form-control">

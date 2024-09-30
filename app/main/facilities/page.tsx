@@ -61,7 +61,7 @@ const FacilitiesPage: React.FC = () => {
         data.list.map((facility: Facility) => {
           return { ...facility, id: facility.facilityId };
         })
-      ); // list 데이터를 state에 저장
+      );
     }
   }, [data]);
 
@@ -129,15 +129,22 @@ const FacilitiesPage: React.FC = () => {
   };
 
   const handleClickEdit = (item: Facility) => {
-    console.log("click edit", item);
     router.push(`/main/facilities/${item.id}`);
   };
 
   const filterFacilities = (facilities: Facility[]) => {
-    return facilities.filter((item) =>
-      Object.entries(item).some((value) =>
-        value[0].toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    return facilities?.filter(
+      (item) =>
+        item.facilityId.toString().includes(searchQuery) ||
+        item.createdDate?.includes(searchQuery) ||
+        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.detailLocation
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        item.information?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.department?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.approvalStatus?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   };
 
