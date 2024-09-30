@@ -70,8 +70,8 @@ export interface UserParams {
   socialType?: string;
   startDate?: string;
   endDate?: string;
-  page?: number;
-  size?: number;
+  page?: string;
+  size?: string;
 }
 
 export interface User {

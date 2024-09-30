@@ -60,7 +60,7 @@ const ReportPage: React.FC = () => {
     onError: (error, key) => {
       if (error.code === 401) {
         console.log(error);
-        // router.push("/");
+        router.push("/");
       }
     },
   });
@@ -79,7 +79,6 @@ const ReportPage: React.FC = () => {
       setTotalPages(1);
     }
   }, [data]);
-  console.log(data);
 
   useEffect(() => {
     setFilteredReports(filterReports(reports));

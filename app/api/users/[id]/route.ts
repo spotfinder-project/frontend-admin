@@ -5,19 +5,27 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 // GET request handler (Fetch user by id)
 export async function GET(
   request: Request,
-  { params }: { params: { memberId: string } }
+  { params }: { params: { id: string } }
 ) {
-  const { memberId } = params;
+  const id = params.id;
+
+  console.log(id);
 
   try {
     // Fetch the user from the external API or your database
-    const response = await fetch(`${API_BASE_URL}/memers/${memberId}`, {
+    const cookies = request.headers.get("cookie");
+    const response = await fetch(`${API_BASE_URL}/members/${id}`, {
       method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: cookies || "",
+      },
+      credentials: "include",
     });
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: `Failed to fetch user with memberId: ${memberId}` },
+        { error: `Failed to fetch user with memberId: ${id}` },
         { status: response.status }
       );
     }
@@ -41,9 +49,15 @@ export async function DELETE(
   const { memberId } = params;
 
   try {
+    const cookies = request.headers.get("cookie");
     // Send a request to delete the user
-    const response = await fetch(`${API_BASE_URL}/users/${memberId}`, {
+    const response = await fetch(`${API_BASE_URL}/members/${memberId}`, {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: cookies || "",
+      },
+      credentials: "include",
     });
 
     if (!response.ok) {

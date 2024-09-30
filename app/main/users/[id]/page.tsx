@@ -7,6 +7,8 @@ import { UserDetail, UserReview, UserFacility } from "@/types/types";
 import UserReviewModal from "@/components/users/UserReviewModal";
 import CustomTable from "@/components/ui/CustomTable";
 import Link from "next/link";
+import useSWR from "swr";
+import { useParams, useRouter } from "next/navigation";
 
 interface Props {
   params: {
@@ -47,57 +49,32 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
     { id: "delete", label: "Delete" },
   ];
 
-  const userData: UserDetail = {
-    memberId: 4,
-    name: "name",
-    nickname: "abcd",
-    birthday: "1991-08-08",
-    gender: "F",
-    email: "abcd@naver.com",
-    socialType: "Naver",
-    createdDate: "2024-08-01",
-    // facilities: [
-    //   {
-    //     facilityType: "쓰레기통",
-    //     id: "1",
-    //     name: "Facility 1",
-    //     address: "123 Main St",
-    //     detailedLocation: "Room 101",
-    //     note: "Near the entrance",
-    //     admin: "Maintenance",
-    //     approved: "Yes",
-    //     approvedDate: "2023-02-01",
-    //   },
-    //   // Add more facility data as needed
-    // ],
-    // reviews: [
-    //   {
-    //     id: "1",
-    //     content: "Great place!",
-    //     facilityType: "Gym",
-    //     facilityId: "1",
-    //     facilityName: "Gym 1",
-    //     address: "123 Main St",
-    //     createdDate: "2023-03-01",
-    //   },
-    //   // Add more review data as needed
-    // ],
-  };
+  // const userData: UserDetail = {
+  //   memberId: 4,
+  //   name: "name",
+  //   nickname: "abcd",
+  //   birthday: "1991-08-08",
+  //   gender: "F",
+  //   email: "abcd@naver.com",
+  //   socialType: "Naver",
+  //   createdDate: "2024-08-01",
+
+  // };
 
   // const { facilities, reviews } = userData;
 
-  const facilities: UserFacility[] = [
-    {
-      facilityId: 1,
-      type: "R",
-      name: "쌍문역 내 화장실",
-      location: "쌍문역",
-      detailLocation: "지하 1층",
-      information: "개찰구 내에 존재합니다.",
-      approvalStatus: "A",
-      approvalDate: "2024-09-01",
-    },
-  ];
+  // const facilities: UserFacility[] = [
+  //   {
+  //     facilityId: 1,
+  //     type: "R",
+  //     name: "쌍문역 내 화장실",
+  //     location: "쌍문역",
+  //     detailLocation: "지하 1층",
+  //     information: "개찰구 내에 존재합니다.",
+  //     approvalStatus: "A",
+  //     approvalDate: "2024-09-01",
+  //   },
+  // ];
   const reviews: UserReview[] = [
     {
       reviewId: 1,
@@ -122,6 +99,36 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<UserReview | null>(null);
   const [selectedReviewId, setSelectedReviewId] = useState<number | null>(null);
+  const [userData, setUserData] = useState<UserDetail | null>(null);
+  const [reviewPage, setReviewPage] = useState(0);
+  const [facilityPage, setFacilityPage] = useState(0);
+  const [facilities, setFacilities] = useState<UserFacility[] | null>(null);
+  const { id } = useParams();
+  const router = useRouter();
+
+  const { data: user, error: userError } = useSWR(`/api/users/${id}`, {
+    onError: (error, key) => {
+      if (error.code === 401) {
+        router.push("/");
+      }
+    },
+  });
+
+  const { data: review, error: facilityError } = useSWR(
+    `/api/users/facilities?memberId=${id}&page=${facilityPage}&size=10`
+  );
+
+  useEffect(() => {
+    if (user) {
+      setUserData(user.data);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (review && review.list) {
+      setFacilities(review.list);
+    }
+  }, [review]);
 
   const handleDeleteReview = (id: number) => {
     setIsDeleteModalOpen(true);
@@ -164,7 +171,7 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
   return (
     <div className="container mx-auto p-6">
       {/* User Details */}
-      <UserDetailForm user={userData} />
+      <UserDetailForm user={userData as UserDetail} />
 
       {/* Facilities Table */}
       <div className="bg-white shadow rounded-lg p-6 mb-6">
@@ -179,7 +186,7 @@ const UserDetailPage = ({ params: { slug } }: Props) => {
               </tr>
             </thead>
             <tbody>
-              {facilities.map((facility) => (
+              {facilities?.map((facility: UserFacility) => (
                 <tr key={facility.facilityId}>
                   <td>{facility.type}</td>
                   <td>{facility.facilityId}</td>

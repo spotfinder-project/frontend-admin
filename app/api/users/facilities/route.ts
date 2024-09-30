@@ -1,21 +1,18 @@
 import { NextResponse } from "next/server";
-import { UserParams } from "@/types/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
+type Params = {
+  memberId?: string;
+  size?: string;
+  page?: string;
+};
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const query = url.searchParams;
 
-    const params: UserParams = {
+    const params: Params = {
       memberId: query.get("memberId") || undefined,
-      name: query.get("name") || undefined,
-      nickname: query.get("nickname") || undefined,
-      gender: query.get("gender") || undefined,
-      socialType: query.get("socialType") || undefined,
-      startDate: query.get("startDate") || undefined,
-      endDate: query.get("endDate") || undefined,
       page: query.get("page") || undefined,
       size: query.get("size") || undefined,
     };
@@ -25,9 +22,11 @@ export async function GET(request: Request) {
       Object.entries(params).filter(([_, value]) => value !== undefined) // Filter out undefined values
     ).toString();
 
-    const apiUrl = `${API_BASE_URL}/members${
+    const apiUrl = `${API_BASE_URL}/members/facilities${
       queryString ? `?${queryString}` : ""
     }`;
+
+    console.log(apiUrl);
     const cookies = request.headers.get("cookie");
 
     // Make the actual call to the external API
