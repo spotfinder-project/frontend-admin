@@ -109,9 +109,10 @@ const FacilitiesPage: React.FC = () => {
   if (!data) return <div>Loading...</div>;
 
   const handleQueryFacilities = async (searchParams: FacilityParams) => {
+    setPage(0);
     setFacilityParams(() => ({
       ...searchParams,
-      page: page + 1, // Convert to 1-based index for API call
+      page: 1, // Convert to 1-based index for API call
       size: rowsPerPage,
     }));
     const queryString = qs.stringify(facilityParams);

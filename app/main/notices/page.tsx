@@ -90,6 +90,7 @@ const ReportPage = () => {
   }, [page, rowsPerPage]);
 
   const handleQueryNotices = async (params: NoticeParams) => {
+    setPage(0);
     setNoticeSearchParams(() => ({
       ...params,
       page: page + 1, // Convert to 1-based index for API call
@@ -261,7 +262,6 @@ const ReportPage = () => {
           onSelectAll={handleSelectAllClick}
           onSelectRow={handleClick}
           onEdit={handleClickEdit}
-          onItemClick={handleClickNotice}
           onDelete={handleClickItemDelete}
           handleChangeTableValue={handleChangeValidValue}
         />

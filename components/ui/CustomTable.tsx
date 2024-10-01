@@ -15,7 +15,7 @@ interface TableData {
 interface CustomTableProps {
   columns: Column[];
   data: TableData[];
-  selectedRows: string[];
+  selectedRows?: string[];
   rowsPerPage: number;
   page: number;
   resolvedType?: string;
@@ -23,10 +23,12 @@ interface CustomTableProps {
     event: React.ChangeEvent<HTMLSelectElement>,
     item: TableData
   ) => void;
-  onSelectAll: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onSelectRow: (event: React.ChangeEvent<HTMLInputElement>, id: string) => void;
+  onSelectAll?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelectRow?: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    id: string
+  ) => void;
   onEdit?: (item: TableData) => void;
-  onItemClick?: (item: TableData) => void;
   onDelete?: (item: TableData) => void;
 }
 
@@ -40,7 +42,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   onSelectAll,
   onSelectRow,
   onEdit,
-  onItemClick,
+
   onDelete,
   handleChangeTableValue,
 }) => {
@@ -50,13 +52,17 @@ const CustomTable: React.FC<CustomTableProps> = ({
         <thead>
           <tr>
             <th>
-              <input
-                type="checkbox"
-                className="checkbox"
-                checked={data.length > 0 && selectedRows.length === data.length}
-                // Optionally, handle indeterminate state
-                onChange={onSelectAll}
-              />
+              {selectedRows && (
+                <input
+                  type="checkbox"
+                  className="checkbox"
+                  checked={
+                    data.length > 0 && selectedRows.length === data.length
+                  }
+                  // Optionally, handle indeterminate state
+                  onChange={onSelectAll}
+                />
+              )}
             </th>
             {columns.map((column) => (
               <th key={column.id}>{column.label}</th>
@@ -65,19 +71,16 @@ const CustomTable: React.FC<CustomTableProps> = ({
         </thead>
         <tbody>
           {data.map((item) => (
-            <tr
-              key={item.id}
-              className={`hover ${
-                selectedRows.indexOf(item.id) !== -1 ? "active" : ""
-              }`}
-            >
+            <tr key={item.id} className={`hover`}>
               <td>
-                <input
-                  type="checkbox"
-                  className="checkbox"
-                  checked={selectedRows.indexOf(item.id) !== -1}
-                  onChange={(event) => onSelectRow(event, item.id)}
-                />
+                {selectedRows && onSelectRow && (
+                  <input
+                    type="checkbox"
+                    className="checkbox"
+                    checked={selectedRows.indexOf(item.id) !== -1}
+                    onChange={(event) => onSelectRow(event, item.id)}
+                  />
+                )}
               </td>
               {columns.map((column) => {
                 if (column.id === "edit") {
@@ -137,11 +140,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                     </td>
                   );
                 } else {
-                  return (
-                    <td key={column.id} onClick={() => onItemClick?.(item)}>
-                      {(item as any)[column.id]}
-                    </td>
-                  );
+                  return <td key={column.id}>{(item as any)[column.id]}</td>;
                 }
               })}
             </tr>

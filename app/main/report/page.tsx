@@ -85,6 +85,7 @@ const ReportPage: React.FC = () => {
   }, [reports, searchQuery]);
 
   useEffect(() => {
+    setPage(0);
     setReportSearchParams((prev) => ({
       ...prev,
       page: page + 1, // Convert to 1-based index for API call
