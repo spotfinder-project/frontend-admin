@@ -9,6 +9,7 @@ import useSWR from "swr";
 import { useParams, useRouter } from "next/navigation";
 import { selectTableItems } from "@/utils/util";
 import { toast } from "react-toastify";
+import Pagination from "@/components/ui/Pagination";
 
 const UserDetailPage = () => {
   const facilityColumns = [
@@ -58,12 +59,17 @@ const UserDetailPage = () => {
   const [selectedReview, setSelectedReview] = useState<UserReview | null>(null);
   const [selectedReviewIds, setSelectedReviewIds] = useState<number[]>([]);
   const [userData, setUserData] = useState<UserDetail | null>(null);
-  const [reviewPage, setReviewPage] = useState(0);
-  const [facilityPage, setFacilityPage] = useState(0);
+
   const [facilities, setFacilities] = useState<UserFacility[]>([]);
   const [reviews, setReviews] = useState<UserReview[]>([]);
   const { id } = useParams();
   const router = useRouter();
+
+  /** 페이지 관련 */
+  const [reviewPage, setReviewPage] = useState(0);
+  const [facilityPage, setFacilityPage] = useState(0);
+  const [totalReviewPages, setTotalReviewPages] = useState(0);
+  const [totalFacilityPages, setTotalFacilityPages] = useState(0);
 
   const { data: user, error: userError } = useSWR(`/api/users/${id}`, {
     onError: (error, key) => {
@@ -91,11 +97,23 @@ const UserDetailPage = () => {
     if (facilityData && facilityData.list) {
       setFacilities(facilityData.list);
     }
+
+    if (facilityData && facilityData.page) {
+      setTotalFacilityPages(facilityData.page.totalPages);
+    } else if (facilityData && !facilityData.page) {
+      setTotalFacilityPages(1);
+    }
   }, [facilityData]);
 
   useEffect(() => {
     if (reviewData && reviewData.list) {
-      // setReviews(reviewData.list);
+      setReviews(reviewData.list);
+    }
+
+    if (reviewData && reviewData.page) {
+      setTotalReviewPages(reviewData.page.totalPages);
+    } else if (reviewData && !reviewData.page) {
+      setTotalReviewPages(1);
     }
   }, [reviewData]);
 
@@ -204,6 +222,14 @@ const UserDetailPage = () => {
               ))}
             </tbody>
           </table>
+
+          <div className="flex justify-center items-center p-4">
+            <Pagination
+              currentPage={facilityPage + 1} // Adjusting for one-based index
+              totalPages={totalFacilityPages}
+              onPageChange={(newPage: number) => setFacilityPage(newPage - 1)}
+            />
+          </div>
         </div>
       </div>
 
@@ -274,6 +300,13 @@ const UserDetailPage = () => {
               ))}
             </tbody>
           </table>
+          <div className="flex justify-center items-center p-4">
+            <Pagination
+              currentPage={reviewPage + 1} // Adjusting for one-based index
+              totalPages={totalReviewPages}
+              onPageChange={(newPage: number) => setReviewPage(newPage - 1)}
+            />
+          </div>
           {isDeleteModalOpen && selectedReviewIds.length > 0 && (
             <ConfirmationModal
               isOpen={isDeleteModalOpen}
