@@ -48,13 +48,7 @@ const UserManagementPage: React.FC = () => {
     size: rowsPerPage,
   });
   const queryString = qs.stringify(userSearchParams);
-  const { data, error } = useSWR(`/api/users?${queryString}`, {
-    onError: (error, key) => {
-      if (error.code === 401) {
-        router.push("/");
-      }
-    },
-  });
+  const { data, error } = useSWR(`/api/users?${queryString}`, {});
 
   const filterUsers = (users: User[]) => {
     return users?.filter(
@@ -95,7 +89,6 @@ const UserManagementPage: React.FC = () => {
     }));
   }, [page, rowsPerPage]);
 
-  if (error) return <div>Error loading data</div>;
   if (!data) return <div>Loading...</div>;
 
   const handleQueryUsers = async (searchParams: UserParams) => {

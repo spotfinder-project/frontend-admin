@@ -52,13 +52,7 @@ const FacilitiesPage: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
   const queryString = qs.stringify(facilityParams);
-  const { data, error } = useSWR(`/api/facilities?${queryString}`, {
-    onError: (error, key) => {
-      if (error.code === 401) {
-        router.push("/");
-      }
-    },
-  });
+  const { data } = useSWR(`/api/facilities?${queryString}`);
 
   const filterFacilities = (facilities: Facility[]) => {
     return facilities?.filter(
@@ -104,9 +98,6 @@ const FacilitiesPage: React.FC = () => {
       size: rowsPerPage,
     }));
   }, [page, rowsPerPage]);
-
-  if (error) return <div>Failed to load</div>;
-  if (!data) return <div>Loading...</div>;
 
   const handleQueryFacilities = async (searchParams: FacilityParams) => {
     setPage(0);

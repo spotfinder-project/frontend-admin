@@ -56,14 +56,7 @@ const ReportPage: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const queryString = qs.stringify(reportSearchParams);
   const [totalPages, setTotalPages] = useState(0);
-  const { data, error, mutate } = useSWR(`/api/reports?${queryString}`, {
-    onError: (error, key) => {
-      if (error.code === 401) {
-        console.log(error);
-        router.push("/");
-      }
-    },
-  });
+  const { data, error, mutate } = useSWR(`/api/reports?${queryString}`, {});
   useEffect(() => {
     if (data && data.list) {
       setReports(
