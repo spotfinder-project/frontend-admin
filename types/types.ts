@@ -38,6 +38,19 @@ export interface FacilityDetail {
   images: string[];
 }
 
+export interface FacilityAdd {
+  type: "R" | "S" | "T";
+  name: string;
+  location: string;
+  detailLocation: string;
+  latitude: number;
+  longitude: number;
+  information: string;
+  department: string;
+  departmentPhoneNumber: string;
+  approvalStatus: "P" | "A" | "R" | "S";
+  imageIds: number[];
+}
 export interface FacilityReview {
   reviewId: number;
   content: string;

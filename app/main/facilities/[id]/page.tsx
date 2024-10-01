@@ -13,6 +13,7 @@ import {
   handleAddImages,
   handleUpdateFacility,
 } from "@/service/facilityService";
+import { toast } from "react-toastify";
 
 interface Props {
   params: {
@@ -72,7 +73,6 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     error: facilityError,
     isLoading,
   } = useSWR(`/api/facilities/${id}`);
-  console.log(facilityData);
 
   const { data: reviewData, error: reviewError } = useSWR(
     `/api/facilities/reviews?facilityId=${id}`
@@ -89,8 +89,6 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
       setApproval(facility.approvalStatus);
       setDepartment(facility.department);
       setImages(facility.images);
-
-      console.log(facility.location);
     }
   }, [facilityData]);
 
@@ -109,7 +107,6 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     facilityReviews
   );
   if (isLoading) return <div>Loading...</div>;
-  console.log(reviewData);
 
   const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -179,8 +176,8 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
         name,
         location: selectedAddress,
         detailLocation: selectedFacility?.detailLocation ?? null,
-        latitude: geoData?.latitude as number,
-        longitude: geoData?.longitude as number,
+        latitude: parseFloat(geoData?.latitude),
+        longitude: parseFloat(geoData?.longitude),
         information,
         department,
         departmentPhoneNumber: selectedFacility?.departmentPhoneNumber ?? null, // 수정된 부분
@@ -189,9 +186,12 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
       };
       const response = await handleUpdateFacility(bodyParams);
       if (response.code === "REQ000") {
+        toast.success("시설물 수정을 완료했습니다.");
         await mutate(`/api/facilities/${id}`);
         await mutate(`/api/facilities/reviews?facilityId=${id}`);
         setIsEditing(false);
+      } else if (response.code === "FAC000") {
+        toast.error("시설물 정보가 존재하지 않습니다.");
       }
     }
   };

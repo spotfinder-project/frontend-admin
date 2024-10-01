@@ -1,4 +1,4 @@
-type FacilityEditBody = {
+interface FacilityEditBody {
   facilityId: number;
   type: "T" | "R" | "S";
   name: string;
@@ -10,8 +10,10 @@ type FacilityEditBody = {
   department: string;
   departmentPhoneNumber: string | null;
   approvalStatus: "P" | "A" | "R" | "S";
-  imageIds: string[];
-};
+  imageIds: number[];
+}
+
+interface FacilityAddBody extends Omit<FacilityEditBody, "facilityId"> {}
 
 export const handleUpdateFacility = async ({
   facilityId,
@@ -73,6 +75,52 @@ export const handleAddImages = async (images: FormData) => {
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || "Images Upload Failed");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const addFacility = async ({
+  type,
+  name,
+  location,
+  detailLocation,
+  latitude,
+  longitude,
+  information,
+  department,
+  departmentPhoneNumber,
+  approvalStatus,
+  imageIds,
+}: FacilityAddBody) => {
+  try {
+    const response = await fetch("/api/facilities", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        type,
+        name,
+        location,
+        detailLocation,
+        latitude,
+        longitude,
+        information,
+        department,
+        departmentPhoneNumber,
+        approvalStatus,
+        imageIds,
+      }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Facility Update Failed");
     }
 
     const data = await response.json();

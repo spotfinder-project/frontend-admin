@@ -1,56 +1,113 @@
 import { ChangeEvent, useState } from "react";
 import AddressSearch from "./AddressSearch";
 import Image from "next/image";
+import { toast } from "react-toastify";
+import { FacilityAdd } from "@/types/types";
+import { getCoordinatesFromAddress } from "@/service/geoService";
+import { addFacility } from "@/service/facilityService";
 
-// "type": "R",
-//   "name": "쌍문역 내 화장실",
-//   "location": "쌍문역",
-//   "detailLocation": "지하 1층",
-//   "latitude": 37.413294,
-//   "longitude": 126.764166,
-//   "information": "개찰구 내에 존재합니다.",
-//   "department": "서울시설공단",
-//   "departmentPhoneNumber": "02-2290-7111",
-//   "approvalStatus": "A",
-//   "imageIds": [
-//     1,
-//     2
-//   ]
 type Props = {
   onClose: () => void;
 };
 
+type Images = {
+  id: number;
+  preview: string;
+};
 export default function AddFacilityModal({ onClose }: Props) {
-  const [type, setType] = useState("");
+  const [type, setType] = useState<"R" | "S" | "T">("R");
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [detailLocation, setDetailLocation] = useState("");
   const [information, setInformation] = useState("");
   const [department, setDepartment] = useState("");
   const [departmentPhoneNumber, setDepartmentPhoneNumber] = useState("");
-  const [approvalStatus, setApprovalStatus] = useState("");
+  const [approvalStatus, setApprovalStatus] = useState<"R" | "S" | "P" | "A">(
+    "A"
+  );
   const [images, setImages] = useState<string[]>([]);
+  const [imageData, setImageData] = useState<File[]>([]);
 
   const handleImageRemove = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
   };
 
-  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (reader.result) {
-          setImages((prevImages) => [...prevImages, reader.result as string]);
-        }
-      };
-      reader.readAsDataURL(file);
+      try {
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          if (reader.result) {
+            setImageData((prev) => [...prev, file]);
+            setImages((prevImages) => [...prevImages, reader.result as string]);
+          }
+        };
+
+        reader.readAsDataURL(file); // Create the preview
+      } catch (error) {
+        console.error("Image upload error:", error);
+      }
     }
   };
 
-  const handleAddFacility = () => {
-    console.log("add facility");
+  const getImageIds = async () => {
+    try {
+      if (!imageData.length) return null;
+      const formData = new FormData();
+      imageData.forEach((file) => {
+        formData.append("images", file);
+      });
+      const response = await fetch("/api/facilities/images", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        toast.error("이미지 등록에 실패하였습니다.");
+        return null;
+      }
+      const result = await response.json();
+      return result;
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleAddFacility = async () => {
+    try {
+      const imageResult = await getImageIds();
+      const imageIds = imageResult?.data?.imageIds ?? [];
+
+      const geoData = await getCoordinatesFromAddress(location);
+
+      const params: FacilityAdd = {
+        type,
+        name,
+        location,
+        detailLocation,
+        latitude: parseFloat(geoData?.latitude),
+        longitude: parseFloat(geoData?.longitude),
+        information,
+        department,
+        departmentPhoneNumber,
+        approvalStatus,
+        imageIds,
+      };
+
+      const response = await addFacility(params);
+      console.log("Add facility:", response);
+      if (response.code === "REQ000") {
+        toast.success("시설물을 등록했습니다.");
+        onClose();
+      }
+    } catch (err) {
+      console.error("Failed to add facility:", err);
+      toast.error("시설물 등록에 실패하였습니다. 다시 시도해 주세요.");
+    }
   };
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -66,7 +123,7 @@ export default function AddFacilityModal({ onClose }: Props) {
                 id="facilityType"
                 className="select select-bordered"
                 value={type}
-                onChange={(e) => setType(e.target.value)}
+                onChange={(e) => setType(e.target.value as "R" | "S" | "T")}
               >
                 <option value="" disabled>
                   시설물 구분
@@ -86,7 +143,8 @@ export default function AddFacilityModal({ onClose }: Props) {
               />
             </div>
             <AddressSearch
-              updateAddress={setLocation}
+              isEditing={true}
+              updateAddress={() => setLocation(location)}
               facilityAddress={location}
             />
             <div className="form-control">
@@ -95,7 +153,7 @@ export default function AddFacilityModal({ onClose }: Props) {
                 type="text"
                 className="input input-bordered"
                 value={detailLocation}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={(e) => setDetailLocation(e.target.value)}
               />
             </div>
             <div className="form-control">
@@ -131,34 +189,38 @@ export default function AddFacilityModal({ onClose }: Props) {
                 type="text"
                 className="input input-bordered"
                 value={approvalStatus}
-                onChange={(e) => setApprovalStatus(e.target.value)}
+                onChange={(e) =>
+                  setApprovalStatus(e.target.value as "R" | "S" | "P" | "A")
+                }
               />
             </div>
           </div>
 
           <h2 className="text-2xl font-bold mt-8 mb-4">이미지</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="flex flex-wrap">
             {images.map((image, index) => (
-              <div className="relative" key={index}>
+              <div
+                className="relative w-[200px] mr-4 border border-gray-300 rounded-md"
+                key={index}
+              >
                 <Image
                   src={image}
                   alt={`Facility Image ${index + 1}`}
                   width={200}
                   height={200}
-                  className="w-full h-auto"
+                  className="w-[200px] h-auto"
                 />
-                (
+
                 <button
                   className="btn btn-sm btn-error absolute top-2 right-2"
                   onClick={() => handleImageRemove(index)}
                 >
                   X
                 </button>
-                )
               </div>
             ))}
 
-            <div className="flex items-center justify-center border-2 border-dashed border-gray-400 w-[200px] h-[200px]">
+            <div className="flex items-center justify-center border-2 border-dashed border-gray-400 rounded-md w-[200px] h-[200px] mr-4">
               <label className="cursor-pointer">
                 <span className="btn btn-sm btn-primary">+</span>
                 <input
