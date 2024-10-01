@@ -162,3 +162,56 @@ export async function POST(request: Request, response: Response) {
     );
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const body = await request.json();
+    const { facilityIds } = body;
+
+    // Validate facilityIds
+    if (!Array.isArray(facilityIds) || facilityIds.length === 0) {
+      return NextResponse.json(
+        { error: "No facilityIds provided" },
+        { status: 400 }
+      );
+    }
+
+    const facilityIdsQuery = facilityIds
+      .map((id: number) => `facilityIds=${id}`)
+      .join("&");
+    const apiUrl = `${API_BASE_URL}/facilities${
+      facilityIdsQuery ? `?${facilityIdsQuery}` : ""
+    }`;
+
+    const cookies = request.headers.get("cookie");
+
+    // Make DELETE request to the external API
+    const response = await fetch(apiUrl, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: cookies || "",
+      },
+      credentials: "include", // Include cookies
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json(); // Log the error response
+      console.error("Fetch error response:", errorResponse);
+      return NextResponse.json(
+        { error: "Failed to delete reviews" },
+        { status: response.status }
+      );
+    }
+
+    const data = await response.json();
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error:", error); // Log the error for debugging
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}

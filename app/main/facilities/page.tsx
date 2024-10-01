@@ -163,6 +163,12 @@ const FacilitiesPage: React.FC = () => {
     router.push(`/main/facilities/${item.id}`);
   };
 
+  const handleAddFacility = async () => {
+    setIsAddModalOpen(false);
+    const queryString = qs.stringify(facilityParams);
+    await mutate(`/api/facilities?${queryString}`);
+  };
+
   return (
     <div className="container mx-auto px-4 py-4">
       <FacilityQueryForm clickQueryFacilities={handleQueryFacilities} />
@@ -242,7 +248,10 @@ const FacilitiesPage: React.FC = () => {
       )}
 
       {isAddModalOpen && (
-        <AddFacilityModal onClose={() => setIsAddModalOpen(false)} />
+        <AddFacilityModal
+          onClose={() => setIsAddModalOpen(false)}
+          onFinishAdd={handleAddFacility}
+        />
       )}
     </div>
   );

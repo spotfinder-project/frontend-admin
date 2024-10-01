@@ -5,16 +5,18 @@ import { toast } from "react-toastify";
 import { FacilityAdd } from "@/types/types";
 import { getCoordinatesFromAddress } from "@/service/geoService";
 import { addFacility } from "@/service/facilityService";
+import { handleImageUpload } from "@/utils/util";
 
 type Props = {
   onClose: () => void;
+  onFinishAdd: () => void;
 };
 
 type Images = {
   id: number;
   preview: string;
 };
-export default function AddFacilityModal({ onClose }: Props) {
+export default function AddFacilityModal({ onClose, onFinishAdd }: Props) {
   const [type, setType] = useState<"R" | "S" | "T">("R");
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
@@ -27,30 +29,13 @@ export default function AddFacilityModal({ onClose }: Props) {
   );
   const [images, setImages] = useState<string[]>([]);
   const [imageData, setImageData] = useState<File[]>([]);
+  const updateLocation = (location: string) => {
+    setLocation(location);
+  };
 
   const handleImageRemove = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
-  };
-
-  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      try {
-        const reader = new FileReader();
-
-        reader.onloadend = () => {
-          if (reader.result) {
-            setImageData((prev) => [...prev, file]);
-            setImages((prevImages) => [...prevImages, reader.result as string]);
-          }
-        };
-
-        reader.readAsDataURL(file); // Create the preview
-      } catch (error) {
-        console.error("Image upload error:", error);
-      }
-    }
   };
 
   const getImageIds = async () => {
@@ -82,6 +67,8 @@ export default function AddFacilityModal({ onClose }: Props) {
       const imageResult = await getImageIds();
       const imageIds = imageResult?.data?.imageIds ?? [];
 
+      console.log(location);
+
       const geoData = await getCoordinatesFromAddress(location);
 
       const params: FacilityAdd = {
@@ -102,7 +89,7 @@ export default function AddFacilityModal({ onClose }: Props) {
       console.log("Add facility:", response);
       if (response.code === "REQ000") {
         toast.success("시설물을 등록했습니다.");
-        onClose();
+        onFinishAdd();
       }
     } catch (err) {
       console.error("Failed to add facility:", err);
@@ -144,7 +131,7 @@ export default function AddFacilityModal({ onClose }: Props) {
             </div>
             <AddressSearch
               isEditing={true}
-              updateAddress={() => setLocation(location)}
+              updateAddress={updateLocation}
               facilityAddress={location}
             />
             <div className="form-control">
@@ -226,7 +213,9 @@ export default function AddFacilityModal({ onClose }: Props) {
                 <input
                   type="file"
                   className="hidden"
-                  onChange={handleImageUpload}
+                  onChange={(event) =>
+                    handleImageUpload(event, setImageData, setImages)
+                  }
                 />
               </label>
             </div>

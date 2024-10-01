@@ -14,6 +14,8 @@ import {
   handleUpdateFacility,
 } from "@/service/facilityService";
 import { toast } from "react-toastify";
+import { handleImageUpload } from "@/utils/util";
+import { useRouter } from "next/navigation";
 
 interface Props {
   params: {
@@ -51,13 +53,14 @@ const facilityReviewColumns = [
 
 export default function FacilityDetailPage({ params: { id } }: Props) {
   // const { id } = useParams();
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedReviews, setSelectedReviews] = useState<string[]>([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [facilityType, setFacilityType] = useState("");
-  const [images, setImages] = useState<string[]>([]);
+
   const [selectedFacility, setSelectedFacility] =
     useState<FacilityDetail | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
@@ -66,7 +69,9 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
   const [approval, setApproval] = useState<"P" | "A" | "R" | "S">("A");
   const [department, setDepartment] = useState("");
   const [name, setName] = useState("");
-  const [imageIds, setImageIds] = useState<string[]>([]);
+
+  const [images, setImages] = useState<string[]>([]);
+  const [imageData, setImageData] = useState<File[]>([]);
 
   const {
     data: facilityData,
@@ -108,51 +113,38 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
   );
   if (isLoading) return <div>Loading...</div>;
 
-  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        if (reader.result) {
-          // 미리보기를 위한 이미지 URL을 상태에 저장합니다.
-          setImages((prevImages) => [...prevImages, reader.result as string]);
-
-          // 이미지를 서버에 업로드합니다.
-          const formData = new FormData();
-          formData.append("image", file); // 파일을 FormData에 추가합니다.
-
-          try {
-            const response = await handleAddImages(formData);
-            console.log(response);
-            if (response.ok) {
-              const data = await response.json();
-              const imageId = data.imageIds[0]; // 서버에서 반환된 이미지 ID를 가져옵니다.
-
-              // 여기에서 imageId를 imageIds 배열에 추가합니다.
-              setImageIds((prevIds) => [...prevIds, imageId]); // 상태로 관리하는 경우
-            } else {
-              console.error(
-                "이미지 업로드에 실패했습니다.",
-                response.statusText
-              );
-            }
-          } catch (error) {
-            console.error("이미지 업로드 중 오류 발생:", error);
-          }
-        }
-      };
-      reader.readAsDataURL(file); // 이미지를 Data URL로 읽습니다.
-    }
-  };
-
   const handleImageRemove = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
   };
 
-  const handleConfirmDeleteFacility = () => {
-    console.log("here");
-    console.log(selectedFacility?.facilityId);
+  const handleConfirmDeleteFacility = async () => {
+    try {
+      if (!selectedFacility) return;
+
+      const response = await fetch(`/api/facilities`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ facilityIds: [selectedFacility.facilityId] }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+
+      if (data.code === "REQ000") {
+        toast.success("시설물을 삭제하였습니다.");
+        handleCloseConfirmModal();
+        router.push("/main/facilities");
+      }
+    } catch (err) {
+      console.error("filated to delete the review:", err);
+      toast.error("시설물 삭제를 할 수 없습니다. 다시 시도해 주세요.");
+    }
   };
 
   const handleCloseConfirmModal = () => {
@@ -182,7 +174,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
         department,
         departmentPhoneNumber: selectedFacility?.departmentPhoneNumber ?? null, // 수정된 부분
         approvalStatus: approval as "P" | "A" | "R" | "S",
-        imageIds: [],
+        imageIds: [], // 임시 처리
       };
       const response = await handleUpdateFacility(bodyParams);
       if (response.code === "REQ000") {
@@ -394,7 +386,9 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
                 <input
                   type="file"
                   className="hidden"
-                  onChange={handleImageUpload}
+                  onChange={(event) =>
+                    handleImageUpload(event, setImageData, setImages)
+                  }
                 />
               </label>
             </div>
