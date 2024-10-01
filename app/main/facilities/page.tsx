@@ -9,6 +9,7 @@ import AddFacilityModal from "@/components/facilities/AddFacilityModal";
 import useSWR, { mutate } from "swr";
 import { FacilityParams } from "@/types/types";
 import qs from "qs";
+import { toast } from "react-toastify";
 
 type Facility = {
   id: string;
@@ -152,11 +153,37 @@ const FacilitiesPage: React.FC = () => {
     setSelectedFacilities(newSelected);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     console.log(selectedFacilities);
+    try {
+      if (!selectedFacilities.length) return;
 
-    setSelectedFacilities([]);
-    setIsDeleteModalOpen(false);
+      const response = await fetch(`/api/facilities`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ facilityIds: selectedFacilities }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+
+      if (data.code === "REQ000") {
+        toast.success("시설물을 삭제하였습니다.");
+
+        const queryString = qs.stringify(facilityParams);
+        await mutate(`/api/facilities?${queryString}`);
+        setSelectedFacilities([]);
+        setIsDeleteModalOpen(false);
+      }
+    } catch (err) {
+      console.error("filated to delete the review:", err);
+      toast.error("시설물 삭제를 할 수 없습니다. 다시 시도해 주세요.");
+    }
   };
 
   const handleClickEdit = (item: Facility) => {
