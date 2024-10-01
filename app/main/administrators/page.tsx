@@ -1,7 +1,7 @@
 "use client";
 import { updatePassword } from "@/service/authService";
 import { FormEvent, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
 const AdminPage = () => {
@@ -50,7 +50,6 @@ const AdminPage = () => {
           >
             수정
           </button>
-          <ToastContainer theme="colored" position="bottom-center" />
         </form>
       </div>
     </div>

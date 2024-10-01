@@ -3,12 +3,12 @@ import React, { useState, ChangeEvent, MouseEvent, useEffect } from "react";
 import UserQueryForm from "@/components/users/UserQueryForm";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
-import { redirect, useRouter } from "next/navigation";
-import { getUsers } from "@/service/userService";
+import { useRouter } from "next/navigation";
 import { UserParams } from "@/types/types";
 import useSWR, { mutate } from "swr";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import qs from "qs";
+import { selectTableItems } from "@/utils/util";
 
 type User = {
   id: string;
@@ -99,7 +99,7 @@ const UserManagementPage: React.FC = () => {
   const handleQueryUsers = async (searchParams: UserParams) => {
     setUserSearchParams(() => ({
       ...searchParams,
-      page: page + 1, // Convert to 1-based index for API call
+      page: page + 1,
       size: rowsPerPage,
     }));
     const queryString = qs.stringify(userSearchParams);
@@ -129,23 +129,7 @@ const UserManagementPage: React.FC = () => {
   };
 
   const handleClick = (event: ChangeEvent<HTMLInputElement>, id: string) => {
-    const selectedIndex = selectedUsers.indexOf(id);
-    let newSelected: string[] = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selectedUsers, id);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selectedUsers.slice(1));
-    } else if (selectedIndex === selectedUsers.length - 1) {
-      newSelected = newSelected.concat(selectedUsers.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selectedUsers.slice(0, selectedIndex),
-        selectedUsers.slice(selectedIndex + 1)
-      );
-    }
-
-    setSelectedUsers(newSelected);
+    setSelectedUsers(selectTableItems(id, selectedUsers) as string[]);
   };
 
   const handleDelete = () => {

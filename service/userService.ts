@@ -33,3 +33,26 @@ export const getUsers = async (params: UserParams) => {
     throw error;
   }
 };
+
+export const deleteUserReviews = async (params: number[]) => {
+  try {
+    if (!params.length) return;
+    // const queryString = params.map((id) => `reviewIds=${id}`).join("&");
+
+    // console.log("queryString:", queryString);
+
+    const response = await fetch(`/api/users/reviews`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ reviewIds: params }),
+    });
+
+    console.log(response);
+    return response;
+  } catch (err) {
+    console.error("filated to delete the review:", err);
+  }
+};

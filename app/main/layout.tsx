@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { logout } from "@/service/authService";
 import { useRouter } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -107,7 +107,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </ul>
         </div>
       </div>
-      <ToastContainer theme="colored" position="bottom-center" />
     </div>
   );
 };

@@ -19,8 +19,8 @@ export interface FacilityParams {
   approvalStatus?: "P" | "A" | "R" | "S";
   startDate?: string;
   endDate?: string;
-  page?: number;
-  size?: number;
+  page?: number | string;
+  size?: number | string;
 }
 
 export interface FacilityDetail {
@@ -70,8 +70,8 @@ export interface UserParams {
   socialType?: string;
   startDate?: string;
   endDate?: string;
-  page?: string;
-  size?: string;
+  page?: string | number;
+  size?: string | number;
 }
 
 export interface User {
@@ -126,8 +126,8 @@ export interface NoticeParams {
   valid?: "Y" | "N";
   startDate?: string;
   endDate?: string;
-  page?: number;
-  size?: number;
+  page?: number | string;
+  size?: number | string;
 }
 export interface ReportDetail {
   reportId: number;
