@@ -10,7 +10,7 @@ interface FacilityEditBody {
   department: string;
   departmentPhoneNumber: string | null;
   approvalStatus: "P" | "A" | "R" | "S";
-  imageIds: number[];
+  imageIds?: number[];
 }
 
 interface FacilityAddBody extends Omit<FacilityEditBody, "facilityId"> {}

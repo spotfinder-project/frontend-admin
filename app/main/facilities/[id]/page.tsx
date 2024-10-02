@@ -174,7 +174,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
         department,
         departmentPhoneNumber: selectedFacility?.departmentPhoneNumber ?? null, // 수정된 부분
         approvalStatus: approval as "P" | "A" | "R" | "S",
-        imageIds: [], // 임시 처리
+        // imageIds: [], // 임시 처리
       };
       const response = await handleUpdateFacility(bodyParams);
       if (response.code === "REQ000") {

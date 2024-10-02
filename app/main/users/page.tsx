@@ -10,6 +10,7 @@ import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import qs from "qs";
 import { selectTableItems } from "@/utils/util";
 import { toast } from "react-toastify";
+import Loading from "@/components/ui/Loading";
 
 type User = {
   id: string;
@@ -48,7 +49,8 @@ const UserManagementPage: React.FC = () => {
     size: rowsPerPage,
   });
   const queryString = qs.stringify(userSearchParams);
-  const { data, error } = useSWR(`/api/users?${queryString}`, {});
+  const [loading, setLoading] = useState(false);
+  const { data, error, isLoading } = useSWR(`/api/users?${queryString}`, {});
 
   const filterUsers = (users: User[]) => {
     return users?.filter(
@@ -89,8 +91,6 @@ const UserManagementPage: React.FC = () => {
     }));
   }, [page, rowsPerPage]);
 
-  if (!data) return <div>Loading...</div>;
-
   const handleQueryUsers = async (searchParams: UserParams) => {
     setPage(0);
     setUserSearchParams(() => ({
@@ -122,6 +122,7 @@ const UserManagementPage: React.FC = () => {
         toast.warn("선택된 사용자가 없습니다. 다시 확인해 주세요.");
         return;
       }
+      setLoading(true);
       const response = await fetch(`/api/users/${selectedUser.memberId}`, {
         method: "DELETE",
         headers: {
@@ -144,6 +145,8 @@ const UserManagementPage: React.FC = () => {
       console.log(response);
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   }; //NOTE: 테스트 필요
 
@@ -156,6 +159,8 @@ const UserManagementPage: React.FC = () => {
     setSelectedUser(item);
     setIsDeleteModalOpen(true);
   }
+
+  if (isLoading) return <Loading loading={isLoading} />;
 
   return (
     <div className="container mx-auto px-4 py-4">
@@ -219,6 +224,7 @@ const UserManagementPage: React.FC = () => {
           message="삭제하시겠습니까?"
         />
       )}
+      <Loading loading={loading} />
     </div>
   );
 };

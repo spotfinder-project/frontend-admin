@@ -3,6 +3,8 @@ import Head from "next/head";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/service/authService";
+import SyncLoader from "react-spinners/SyncLoader";
+import Loading from "@/components/ui/Loading";
 
 export default function LoginPage() {
   const [id, setId] = useState("");
@@ -69,6 +71,7 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
+        <Loading loading={loading} />
       </div>
     </div>
   );

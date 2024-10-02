@@ -10,6 +10,7 @@ import { useParams, useRouter } from "next/navigation";
 import { selectTableItems } from "@/utils/util";
 import { toast } from "react-toastify";
 import Pagination from "@/components/ui/Pagination";
+import Loading from "@/components/ui/Loading";
 
 const UserDetailPage = () => {
   const facilityColumns = [
@@ -34,32 +35,12 @@ const UserDetailPage = () => {
     { id: "edit", label: "Edit" },
   ];
 
-  // const reviews: UserReview[] = [
-  //   {
-  //     reviewId: 1,
-  //     content: "시설물이 청결합니다~",
-  //     createdDate: "2024-09-01",
-  //     facility: {
-  //       facilityId: 1,
-  //       type: "R",
-  //       name: "쌍문역 내 화장실",
-  //       location: "쌍문역",
-  //       detailLocation: "지하 1층",
-  //       information: "개찰구 내에 존재합니다.",
-  //       department: "서울시설공단",
-  //       departmentPhoneNumber: "02-2290-7111",
-  //       approvalStatus: "A",
-  //       createdDate: "2024-09-01",
-  //       images: ["string"],
-  //     },
-  //   },
-  // ];
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<UserReview | null>(null);
   const [selectedReviewIds, setSelectedReviewIds] = useState<number[]>([]);
   const [userData, setUserData] = useState<UserDetail | null>(null);
-
+  const [loading, setLoading] = useState(false);
   const [facilities, setFacilities] = useState<UserFacility[]>([]);
   const [reviews, setReviews] = useState<UserReview[]>([]);
   const { id } = useParams();
@@ -71,7 +52,11 @@ const UserDetailPage = () => {
   const [totalReviewPages, setTotalReviewPages] = useState(0);
   const [totalFacilityPages, setTotalFacilityPages] = useState(0);
 
-  const { data: user, error: userError } = useSWR(`/api/users/${id}`, {
+  const {
+    data: user,
+    error: userError,
+    isLoading,
+  } = useSWR(`/api/users/${id}`, {
     onError: (error, key) => {
       if (error.code === 401) {
         router.push("/");
@@ -120,7 +105,7 @@ const UserDetailPage = () => {
   const handleConfirmDeleteReview = async () => {
     try {
       if (!selectedReviewIds.length) return;
-
+      setLoading(true);
       const response = await fetch(`/api/users/reviews`, {
         method: "DELETE",
         headers: {
@@ -142,6 +127,8 @@ const UserDetailPage = () => {
     } catch (err) {
       console.error("filated to delete the review:", err);
       toast.error("리뷰 삭제를 할 수 없습니다. 다시 시도해 주세요.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -165,6 +152,8 @@ const UserDetailPage = () => {
     // close modal
     setIsEditModalOpen(false);
     //fetch user review
+
+    //NOTE: 회원 리뷰 수정 API 추가 후 수정 예정
   };
 
   const handleSelectAllReviews = (event: ChangeEvent<HTMLInputElement>) => {
@@ -184,6 +173,8 @@ const UserDetailPage = () => {
       selectTableItems(reviewId, selectedReviewIds) as number[]
     );
   };
+
+  if (isLoading) return <Loading loading={isLoading} />;
 
   return (
     <div className="container mx-auto p-6">
@@ -326,6 +317,7 @@ const UserDetailPage = () => {
           )}
         </div>
       </div>
+      <Loading loading={loading} />
     </div>
   );
 };
