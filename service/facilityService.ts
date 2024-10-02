@@ -63,6 +63,30 @@ export const handleUpdateFacility = async ({
   }
 };
 
+export const getImageIds = async (imageData: File[]) => {
+  try {
+    if (!imageData.length) return null;
+
+    const formData = new FormData();
+    imageData.forEach((file) => {
+      formData.append("images", file);
+    });
+    const response = await fetch("/api/facilities/images", {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export const handleAddImages = async (images: FormData) => {
   try {
     const response = await fetch("/api/facilities/images", {

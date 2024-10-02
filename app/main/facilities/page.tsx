@@ -91,7 +91,6 @@ const FacilitiesPage: React.FC = () => {
 
   useEffect(() => {
     setFilteredFacilities(filterFacilities(facilities));
-    console.log(facilities);
   }, [facilities, searchQuery]);
 
   useEffect(() => {

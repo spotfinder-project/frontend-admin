@@ -10,6 +10,7 @@ import Pagination from "@/components/ui/Pagination";
 import { useParams } from "next/navigation";
 import useSWR, { mutate } from "swr";
 import {
+  getImageIds,
   handleAddImages,
   handleUpdateFacility,
 } from "@/service/facilityService";
@@ -63,14 +64,21 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
   const [facilityType, setFacilityType] = useState("");
   const [selectedFacility, setSelectedFacility] =
     useState<FacilityDetail | null>(null);
-  const [selectedAddress, setSelectedAddress] = useState<string>("");
+  const [selectedAddress, setSelectedAddress] = useState("");
+  const [detailLocation, setDetailLocation] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [facilityReviews, setFacilityReviews] = useState<TableData[]>([]);
   const [information, setInformation] = useState("");
   const [approval, setApproval] = useState<"P" | "A" | "R" | "S">("A");
   const [department, setDepartment] = useState("");
   const [name, setName] = useState("");
-  const [images, setImages] = useState<string[]>([]);
   const [imageData, setImageData] = useState<File[]>([]);
+  const [images, setImages] = useState<
+    {
+      url: string;
+      imageId: number | null;
+    }[]
+  >([]);
   const [loading, setLoading] = useState(false);
   const {
     data: facilityData,
@@ -89,6 +97,8 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
       setName(facility.name);
       setFacilityType(facility.type);
       setSelectedAddress(facility.location);
+      setDetailLocation(facility.detailedLocation);
+      setPhoneNumber(facility.phoneNumber);
       setInformation(facility.information);
       setApproval(facility.approvalStatus);
       setDepartment(facility.department);
@@ -113,6 +123,29 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
   const handleImageRemove = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
+  };
+
+  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          if (reader.result) {
+            setImageData((prev) => [...prev, file]);
+            setImages((prevImages) => [
+              ...prevImages,
+              { url: reader.result as string, imageId: null },
+            ]);
+          }
+        };
+
+        reader.readAsDataURL(file); // Create the preview
+      } catch (error) {
+        console.error("Image upload error:", error);
+      }
+    }
   };
 
   const handleConfirmDeleteFacility = async () => {
@@ -159,22 +192,31 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     if (isEditing) {
       try {
         setLoading(true);
+        const updatedIds = images
+          .filter((item) => item.imageId)
+          .map((item) => item.imageId);
+        if (imageData.length > 0) {
+          const addImageResponse = await getImageIds(imageData);
+          const ids = addImageResponse?.data?.imageIds ?? [];
+          updatedIds.push(...ids);
+        }
+
         const geoData = await getCoordinatesFromAddress(selectedAddress);
         const bodyParams = {
           facilityId: selectedFacility?.facilityId as number,
           type: facilityType as "T" | "R" | "S",
           name,
           location: selectedAddress,
-          detailLocation: selectedFacility?.detailLocation ?? null,
+          detailLocation,
           latitude: parseFloat(geoData?.latitude),
           longitude: parseFloat(geoData?.longitude),
           information,
           department,
-          departmentPhoneNumber:
-            selectedFacility?.departmentPhoneNumber ?? null, // 수정된 부분
+          departmentPhoneNumber: phoneNumber,
           approvalStatus: approval as "P" | "A" | "R" | "S",
-          // imageIds: [], // 임시 처리
+          imageIds: updatedIds as number[],
         };
+
         const response = await handleUpdateFacility(bodyParams);
         if (response.code === "REQ000") {
           toast.success("시설물 수정을 완료했습니다.");
@@ -285,7 +327,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
             <select
               id="facilityType"
               className="select select-bordered"
-              value={facilityType || ""}
+              value={facilityType}
               onChange={(e) => setFacilityType(e.target.value)}
               disabled={!isEditing}
             >
@@ -315,22 +357,23 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
             />
           )}
 
-          {/* <div className="form-control">
+          <div className="form-control">
             <label className="label">상세 주소</label>
             <input
               type="text"
               className="input input-bordered"
               disabled={!isEditing}
-              value={selectedFacility?.detailLocation}
+              value={detailLocation ?? ""}
+              onChange={(e) => setDetailLocation(e.target.value)}
             />
-          </div> */}
+          </div>
           <div className="form-control">
             <label className="label">추가설명</label>
             <input
               type="text"
               className="input input-bordered"
               disabled={!isEditing}
-              value={information || ""}
+              value={information ?? ""}
               onChange={(e) => setInformation(e.target.value)}
             />
           </div>
@@ -340,48 +383,46 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
               type="text"
               className="input input-bordered"
               disabled={!isEditing}
-              value={department || ""}
+              value={department ?? ""}
               onChange={(e) => setDepartment(e.target.value)}
             />
           </div>
-          {/* <div className="form-control">
+          <div className="form-control">
             <label className="label">관리부서 번호</label>
             <input
               type="text"
               className="input input-bordered"
               disabled={!isEditing}
-              value={selectedFacility?.departmentPhoneNumber}
+              value={phoneNumber ?? ""}
+              onChange={(e) => setPhoneNumber(e.target.value)}
             />
-          </div> */}
+          </div>
           <div className="form-control">
             <label className="label">승인 상태</label>
             <select
               id="approvalStatus"
               className="select select-bordered"
-              value={approval || ""}
+              value={approval}
               onChange={(e) =>
                 setApproval(e.target.value as "P" | "A" | "R" | "S")
               }
               disabled={!isEditing}
             >
-              <option value="" disabled>
-                시설물 구분
-              </option>
               <option value="P">승인대기</option>
               <option value="A">승인완료</option>
               <option value="R">승인거절</option>
               <option value="S">승인중지</option>
             </select>
           </div>
-          {/* <div className="form-control">
+          <div className="form-control">
             <label className="label">승인 요청자 ID</label>
             <input
               type="text"
               className="input input-bordered"
-              disabled={!isEditing}
+              disabled
               value={selectedFacility?.memberId || ""}
             />
-          </div> */}
+          </div>
           <div className="form-control">
             <label className="label">생성일</label>
             <input
@@ -398,7 +439,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
           {images.map((image, index) => (
             <div className="relative" key={index}>
               <Image
-                src={image}
+                src={image.url}
                 alt={`Facility Image ${index + 1}`}
                 width={300}
                 height={300}
@@ -421,9 +462,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
                 <input
                   type="file"
                   className="hidden"
-                  onChange={(event) =>
-                    handleImageUpload(event, setImageData, setImages)
-                  }
+                  onChange={(event) => handleImageUpload(event)}
                 />
               </label>
             </div>

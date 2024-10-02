@@ -7,6 +7,7 @@ import { getCoordinatesFromAddress } from "@/service/geoService";
 import { addFacility } from "@/service/facilityService";
 import { handleImageUpload } from "@/utils/util";
 import Loading from "../ui/Loading";
+import { getImageIds } from "@/service/facilityService";
 
 type Props = {
   onClose: () => void;
@@ -40,39 +41,36 @@ export default function AddFacilityModal({ onClose, onFinishAdd }: Props) {
     setImages(newImages);
   };
 
-  const getImageIds = async () => {
-    try {
-      if (!imageData.length) return null;
+  // const getImageIds = async () => {
+  //   try {
+  //     if (!imageData.length) return null;
 
-      const formData = new FormData();
-      imageData.forEach((file) => {
-        formData.append("images", file);
-      });
-      const response = await fetch("/api/facilities/images", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
+  //     const formData = new FormData();
+  //     imageData.forEach((file) => {
+  //       formData.append("images", file);
+  //     });
+  //     const response = await fetch("/api/facilities/images", {
+  //       method: "POST",
+  //       body: formData,
+  //       credentials: "include",
+  //     });
 
-      if (!response.ok) {
-        toast.error("이미지 등록에 실패하였습니다.");
-        return null;
-      }
-      const result = await response.json();
-      return result;
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  //     if (!response.ok) {
+  //       toast.error("이미지 등록에 실패하였습니다.");
+  //       return null;
+  //     }
+  //     const result = await response.json();
+  //     return result;
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
 
   const handleAddFacility = async () => {
     try {
       setLoading(true);
-      const imageResult = await getImageIds();
-      const imageIds = imageResult?.data?.imageIds ?? [];
-
-      console.log(location);
-
+      const imageResult = await getImageIds(imageData);
+      const imageIds = imageResult ? imageResult?.data?.imageIds : [];
       const geoData = await getCoordinatesFromAddress(location);
 
       const params: FacilityAdd = {
