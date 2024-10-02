@@ -10,6 +10,7 @@ import useSWR, { mutate } from "swr";
 import { FacilityParams } from "@/types/types";
 import qs from "qs";
 import { toast } from "react-toastify";
+import Loading from "@/components/ui/Loading";
 
 type Facility = {
   id: string;
@@ -51,9 +52,10 @@ const FacilitiesPage: React.FC = () => {
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
   const queryString = qs.stringify(facilityParams);
-  const { data } = useSWR(`/api/facilities?${queryString}`);
+  const { data, isLoading } = useSWR(`/api/facilities?${queryString}`);
 
   const filterFacilities = (facilities: Facility[]) => {
     return facilities?.filter(
@@ -157,7 +159,7 @@ const FacilitiesPage: React.FC = () => {
     console.log(selectedFacilities);
     try {
       if (!selectedFacilities.length) return;
-
+      setLoading(true);
       const response = await fetch(`/api/facilities`, {
         method: "DELETE",
         headers: {
@@ -183,6 +185,8 @@ const FacilitiesPage: React.FC = () => {
     } catch (err) {
       console.error("filated to delete the review:", err);
       toast.error("시설물 삭제를 할 수 없습니다. 다시 시도해 주세요.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -195,6 +199,8 @@ const FacilitiesPage: React.FC = () => {
     const queryString = qs.stringify(facilityParams);
     await mutate(`/api/facilities?${queryString}`);
   };
+
+  if (isLoading) return <Loading loading={isLoading} />;
 
   return (
     <div className="container mx-auto px-4 py-4">
@@ -280,6 +286,7 @@ const FacilitiesPage: React.FC = () => {
           onFinishAdd={handleAddFacility}
         />
       )}
+      <Loading loading={loading} />
     </div>
   );
 };

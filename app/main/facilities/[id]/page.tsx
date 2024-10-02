@@ -16,6 +16,7 @@ import {
 import { toast } from "react-toastify";
 import { handleImageUpload } from "@/utils/util";
 import { useRouter } from "next/navigation";
+import Loading from "@/components/ui/Loading";
 
 interface Props {
   params: {
@@ -60,7 +61,6 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [page, setPage] = useState(0);
   const [facilityType, setFacilityType] = useState("");
-
   const [selectedFacility, setSelectedFacility] =
     useState<FacilityDetail | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
@@ -69,10 +69,9 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
   const [approval, setApproval] = useState<"P" | "A" | "R" | "S">("A");
   const [department, setDepartment] = useState("");
   const [name, setName] = useState("");
-
   const [images, setImages] = useState<string[]>([]);
   const [imageData, setImageData] = useState<File[]>([]);
-
+  const [loading, setLoading] = useState(false);
   const {
     data: facilityData,
     error: facilityError,
@@ -111,8 +110,6 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     () => Math.ceil(facilityReviews.length / rowsPerPage),
     facilityReviews
   );
-  if (isLoading) return <div>Loading...</div>;
-
   const handleImageRemove = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
@@ -122,6 +119,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     try {
       if (!selectedFacility) return;
 
+      setLoading(true);
       const response = await fetch(`/api/facilities`, {
         method: "DELETE",
         headers: {
@@ -144,6 +142,8 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     } catch (err) {
       console.error("filated to delete the review:", err);
       toast.error("시설물 삭제를 할 수 없습니다. 다시 시도해 주세요.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -156,34 +156,39 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
   };
 
   const handleClickEditOrConfirm = async (isEditing: boolean) => {
-    console.log(isEditing);
-    setIsEditing(!isEditing);
-
     if (isEditing) {
-      //주소 위경도 변환
-      const geoData = await getCoordinatesFromAddress(selectedAddress);
-      const bodyParams = {
-        facilityId: selectedFacility?.facilityId as number,
-        type: facilityType as "T" | "R" | "S",
-        name,
-        location: selectedAddress,
-        detailLocation: selectedFacility?.detailLocation ?? null,
-        latitude: parseFloat(geoData?.latitude),
-        longitude: parseFloat(geoData?.longitude),
-        information,
-        department,
-        departmentPhoneNumber: selectedFacility?.departmentPhoneNumber ?? null, // 수정된 부분
-        approvalStatus: approval as "P" | "A" | "R" | "S",
-        // imageIds: [], // 임시 처리
-      };
-      const response = await handleUpdateFacility(bodyParams);
-      if (response.code === "REQ000") {
-        toast.success("시설물 수정을 완료했습니다.");
-        await mutate(`/api/facilities/${id}`);
-        await mutate(`/api/facilities/reviews?facilityId=${id}`);
+      try {
+        setLoading(true);
+        const geoData = await getCoordinatesFromAddress(selectedAddress);
+        const bodyParams = {
+          facilityId: selectedFacility?.facilityId as number,
+          type: facilityType as "T" | "R" | "S",
+          name,
+          location: selectedAddress,
+          detailLocation: selectedFacility?.detailLocation ?? null,
+          latitude: parseFloat(geoData?.latitude),
+          longitude: parseFloat(geoData?.longitude),
+          information,
+          department,
+          departmentPhoneNumber:
+            selectedFacility?.departmentPhoneNumber ?? null, // 수정된 부분
+          approvalStatus: approval as "P" | "A" | "R" | "S",
+          // imageIds: [], // 임시 처리
+        };
+        const response = await handleUpdateFacility(bodyParams);
+        if (response.code === "REQ000") {
+          toast.success("시설물 수정을 완료했습니다.");
+          await mutate(`/api/facilities/${id}`);
+          await mutate(`/api/facilities/reviews?facilityId=${id}`);
+        } else if (response.code === "FAC000") {
+          toast.error("시설물 정보가 존재하지 않습니다.");
+        }
+      } catch (err) {
+        console.log(err);
+        toast.error("시설물 수정을 할 수 없습니다. 다시 시도해 주세요.");
+      } finally {
+        setLoading(false);
         setIsEditing(false);
-      } else if (response.code === "FAC000") {
-        toast.error("시설물 정보가 존재하지 않습니다.");
       }
     }
   };
@@ -230,7 +235,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     // console.log(selectedReviews);
     try {
       if (!selectedReviews.length) return;
-
+      setLoading(true);
       const response = await fetch(`/api/users/reviews`, {
         method: "DELETE",
         headers: {
@@ -254,8 +259,11 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
       toast.error("리뷰 삭제를 할 수 없습니다. 다시 시도해 주세요.");
     } finally {
       setIsDeleteModalOpen(false);
+      setLoading(true);
     }
   }; //NOTE: test 필요
+
+  if (isLoading) return <Loading loading={isLoading} />;
 
   return (
     <div className="container mx-auto p-4">
@@ -453,12 +461,23 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
         </div>
 
         <div className="flex justify-end mt-8">
-          <button
-            className="btn btn-warning mr-2"
-            onClick={() => handleClickEditOrConfirm(isEditing)}
-          >
-            {isEditing ? "완료" : "수정하기"}
-          </button>
+          {!isEditing && (
+            <button
+              className="btn btn-warning mr-2"
+              onClick={() => setIsEditing(true)}
+            >
+              수정하기
+            </button>
+          )}
+
+          {isEditing && (
+            <button
+              className="btn btn-warning mr-2"
+              onClick={() => handleClickEditOrConfirm(isEditing)}
+            >
+              완료
+            </button>
+          )}
           {isEditing && (
             <button
               className="btn btn-error"
@@ -495,6 +514,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
           />
         )}
       </div>
+      <Loading loading={loading} />
     </div>
   );
 }

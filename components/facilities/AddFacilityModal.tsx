@@ -6,6 +6,7 @@ import { FacilityAdd } from "@/types/types";
 import { getCoordinatesFromAddress } from "@/service/geoService";
 import { addFacility } from "@/service/facilityService";
 import { handleImageUpload } from "@/utils/util";
+import Loading from "../ui/Loading";
 
 type Props = {
   onClose: () => void;
@@ -29,6 +30,7 @@ export default function AddFacilityModal({ onClose, onFinishAdd }: Props) {
   );
   const [images, setImages] = useState<string[]>([]);
   const [imageData, setImageData] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
   const updateLocation = (location: string) => {
     setLocation(location);
   };
@@ -41,6 +43,7 @@ export default function AddFacilityModal({ onClose, onFinishAdd }: Props) {
   const getImageIds = async () => {
     try {
       if (!imageData.length) return null;
+
       const formData = new FormData();
       imageData.forEach((file) => {
         formData.append("images", file);
@@ -64,6 +67,7 @@ export default function AddFacilityModal({ onClose, onFinishAdd }: Props) {
 
   const handleAddFacility = async () => {
     try {
+      setLoading(true);
       const imageResult = await getImageIds();
       const imageIds = imageResult?.data?.imageIds ?? [];
 
@@ -94,6 +98,8 @@ export default function AddFacilityModal({ onClose, onFinishAdd }: Props) {
     } catch (err) {
       console.error("Failed to add facility:", err);
       toast.error("시설물 등록에 실패하였습니다. 다시 시도해 주세요.");
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -244,6 +250,7 @@ export default function AddFacilityModal({ onClose, onFinishAdd }: Props) {
           </div>
         </div>
       </div>
+      <Loading loading={loading} />
     </div>
   );
 }
