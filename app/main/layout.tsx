@@ -6,6 +6,7 @@ import { useState } from "react";
 import { logout } from "@/service/authService";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import Loading from "@/components/ui/Loading";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -29,6 +30,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   const [isMenuOpen, setIsMenuOpen] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleOpenMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -36,15 +38,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   const handleClickLogout = async () => {
     try {
+      setLoading(true);
       const response = await logout();
 
-      if (response.status === 200) router.push("/");
+      if (response.code === "REQ000") router.push("/");
     } catch (error: any) {
       console.error("Logout error:", error);
       toast.error("로그아웃 할 수 없습니다.");
-      setTimeout(() => {
-        router.push("/");
-      }, 1000);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -107,6 +109,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </ul>
         </div>
       </div>
+      <Loading loading={loading} />
     </div>
   );
 };

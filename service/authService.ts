@@ -49,11 +49,8 @@ export const logout = async () => {
     throw new Error(errorData.error || "logout failed");
   }
 
-  // const data = await response.json();
-  // console.log(data);
-  // return data;
-
-  return response;
+  const data = await response.json();
+  return data;
 };
 
 interface UpdateResponse {

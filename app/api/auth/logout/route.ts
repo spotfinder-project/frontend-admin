@@ -23,10 +23,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const logoutResponse = NextResponse.json(response);
+    const data = await response.json();
+
+    const logoutResponse = NextResponse.json(data);
     logoutResponse.cookies.delete("accessToken");
     logoutResponse.cookies.delete("refreshToken");
-    console.log(logoutResponse);
+
     return logoutResponse;
   } catch (error) {
     console.error(error);

@@ -3,14 +3,17 @@ import { updatePassword } from "@/service/authService";
 import { FormEvent, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import Loading from "@/components/ui/Loading";
 
 const AdminPage = () => {
   const router = useRouter();
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     try {
       e.preventDefault();
+      setLoading(true);
       const response = await updatePassword(password);
 
       if (response.code === "REQ000") {
@@ -26,6 +29,9 @@ const AdminPage = () => {
       }
     } catch (err) {
       console.log(err);
+      toast.error("비밀번호 수정을 할 수 없습니다. 다시 시도해 주세요.");
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -52,6 +58,7 @@ const AdminPage = () => {
           </button>
         </form>
       </div>
+      <Loading loading={loading} />
     </div>
   );
 };
