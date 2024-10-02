@@ -163,8 +163,8 @@ export interface Report {
 }
 
 export interface ReportParams {
-  page?: number;
-  size?: number;
+  page?: number | string;
+  size?: number | string;
   content?: string;
   status?: string;
   memberId?: string;

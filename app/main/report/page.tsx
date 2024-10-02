@@ -9,6 +9,8 @@ import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { Report, ReportParams } from "@/types/types";
 import qs from "qs";
 
+//NOTE: 테스트 필요
+
 type ReportItem = {
   id: string;
   [key: string]: any;
@@ -17,10 +19,10 @@ type ReportItem = {
 const initialReports: ReportItem[] = [
   {
     id: "1",
-    userId: "userId",
-    reportContent: "위치가 틀립니다",
+    memberId: "userId",
+    content: "위치가 틀립니다",
     facilityId: "fdafd",
-    resolved: "N",
+    status: "N",
     createdDate: "2024-01-01",
   },
 ];

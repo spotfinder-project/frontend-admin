@@ -1,41 +1,57 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ReportDetail } from "@/types/types";
+import useSWR, { mutate } from "swr";
+import { toast } from "react-toastify";
 
-const ReportDetailPage = () => {
+interface Props {
+  params: {
+    id: string;
+  };
+}
+
+const ReportDetailPage = ({ params: { id } }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
 
-  const selectedReport: ReportDetail = {
-    reportId: 1,
-    content: "현재는 해당 시설물이 존재하지 않습니다.",
-    answer: "처리 완료했습니다!",
-    status: "Y",
-    createdDate: "2024-09-01",
-    memberId: 1,
-    nickname: "Kim",
-    facility: {
-      facilityId: 1,
-      type: "R",
-      name: "쌍문역 내 화장실",
-      location: "쌍문역",
-      detailLocation: "지하 1층",
-      information: "개찰구 내에 존재합니다.",
-      department: "서울시설공단",
-      departmentPhoneNumber: "02-2290-7111",
-      approvalStatus: "A",
-      createdDate: "2024-09-01",
-      images: [],
-    },
-  };
-
+  // const selectedReport: ReportDetail = {
+  //   reportId: 1,
+  //   content: "현재는 해당 시설물이 존재하지 않습니다.",
+  //   answer: "처리 완료했습니다!",
+  //   status: "Y",
+  //   createdDate: "2024-09-01",
+  //   memberId: 1,
+  //   nickname: "Kim",
+  //   facility: {
+  //     facilityId: 1,
+  //     type: "R",
+  //     name: "쌍문역 내 화장실",
+  //     location: "쌍문역",
+  //     detailLocation: "지하 1층",
+  //     information: "개찰구 내에 존재합니다.",
+  //     department: "서울시설공단",
+  //     departmentPhoneNumber: "02-2290-7111",
+  //     approvalStatus: "A",
+  //     createdDate: "2024-09-01",
+  //     images: [],
+  //   },
+  // };
+  const [selectedReport, setSelectedReport] = useState<ReportDetail>();
   const [approvalStatus, setApprovalStatus] = useState<"Y" | "N">(
-    selectedReport.status
+    selectedReport?.status as "Y" | "N"
   );
-  const [answer, setAnswer] = useState(selectedReport.answer);
+  const [answer, setAnswer] = useState(selectedReport?.answer);
+  const [facility, setFacility] = useState(selectedReport?.facility);
 
-  const [images, setImages] = useState(selectedReport.facility.images);
-  const { facility } = selectedReport;
+  const { data, error } = useSWR(`/api/reports/${id}`);
+
+  useEffect(() => {
+    if (data && data.data) {
+      const report = data.data;
+      setSelectedReport(report);
+      setFacility(report.faclity);
+    }
+  }, [data]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -47,10 +63,43 @@ const ReportDetailPage = () => {
     setAnswer(""); // Resetting processing content
   };
 
-  const handleSaveClick = () => {
-    setIsEditing(false);
+  const handleSaveClick = async () => {
     // Save logic goes here
-  };
+    try {
+      const bodyParams = {
+        reportId: id,
+        status: approvalStatus,
+        answer,
+      };
+
+      const response = await fetch("/api/reports", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(bodyParams),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Report Update Failed");
+      }
+
+      const data = await response.json();
+
+      if (data.code === "REQ000") {
+        toast.success("신고/제보 수정을 완료했습니다.");
+        await mutate(`/api/reports/${id}`);
+        setIsEditing(false);
+      } else if (data.code === "FAC000") {
+        toast.error("신고/제보 정보가 존재하지 않습니다.");
+      }
+    } catch (err) {
+      toast.error("수정을 실패하였습니다. 다시 시도해 주세요.");
+    }
+  }; //NOTE: 테스트 필요
+
+  if (!data) return <div>신고 정보가 존재하지 않습니다.</div>;
 
   return (
     <div className="container mx-auto p-4">
@@ -62,7 +111,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered"
-            value={selectedReport.memberId}
+            value={selectedReport?.memberId}
             disabled
           />
         </div>
@@ -72,7 +121,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered"
-            value={selectedReport.nickname}
+            value={selectedReport?.nickname}
             disabled
           />
         </div>
@@ -93,7 +142,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered"
-            value={selectedReport.createdDate}
+            value={selectedReport?.createdDate}
             disabled
           />
         </div>
@@ -102,7 +151,7 @@ const ReportDetailPage = () => {
           <textarea
             className="textarea textarea-bordered w-full"
             disabled
-            value={selectedReport.content}
+            value={selectedReport?.content}
           ></textarea>
         </div>
 
@@ -125,7 +174,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered w-full"
-            value={facility.facilityId}
+            value={facility?.facilityId}
             disabled
           />
         </div>
@@ -135,7 +184,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered w-full"
-            value={facility.name}
+            value={facility?.name}
             disabled
           />
         </div>
@@ -145,7 +194,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered w-full"
-            value={facility.location}
+            value={facility?.location}
             disabled
           />
         </div>
@@ -155,7 +204,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered w-full"
-            value={facility.detailLocation}
+            value={facility?.detailLocation}
             disabled
           />
         </div>
@@ -165,7 +214,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered w-full"
-            value={facility.department}
+            value={facility?.department}
             disabled
           />
         </div>
@@ -175,7 +224,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered w-full"
-            value={facility.departmentPhoneNumber}
+            value={facility?.departmentPhoneNumber}
             disabled
           />
         </div>
@@ -185,7 +234,7 @@ const ReportDetailPage = () => {
           <select
             className="select select-bordered w-full"
             disabled
-            value={facility.approvalStatus}
+            value={facility?.approvalStatus}
           >
             <option value="Y">Y</option>
             <option value="N">N</option>
@@ -197,7 +246,7 @@ const ReportDetailPage = () => {
           <input
             type="text"
             className="input input-bordered"
-            value={facility.createdDate}
+            value={facility?.createdDate}
             disabled
           />
         </div>
@@ -205,9 +254,10 @@ const ReportDetailPage = () => {
 
       {/* 사진 Section */}
       <h3 className="text-xl font-bold mt-4">이미지</h3>
-      <div className="flex mt-4 p-4">
-        {images.length > 0 &&
-          images.map((image, index) => (
+      <div className="flex flex-wrap mt-4 p-4">
+        {facility?.images &&
+          facility?.images.length > 0 &&
+          facility.images.map((image, index) => (
             <div
               className={`relative ${index % 2 !== 0 ? "ml-4" : ""}`}
               key={index}
@@ -221,7 +271,7 @@ const ReportDetailPage = () => {
               />
             </div>
           ))}
-        {!images.length && <p>이미지가 없습니다.</p>}
+        {!facility?.images.length && <p>이미지가 없습니다.</p>}
       </div>
 
       {/* Buttons */}

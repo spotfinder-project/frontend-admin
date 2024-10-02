@@ -49,3 +49,57 @@ export async function GET(request: Request) {
     );
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const body = await request.json();
+    const { reviewIds } = body;
+
+    // Validate reviewIds
+    if (!Array.isArray(reviewIds) || reviewIds.length === 0) {
+      return NextResponse.json(
+        { error: "No reviewIds provided" },
+        { status: 400 }
+      );
+    }
+
+    // Convert reviewIds array to query string
+    const reviewIdsQuery = reviewIds
+      .map((id: number) => `reviewIds=${id}`)
+      .join("&");
+    const apiUrl = `${API_BASE_URL}/facilities/reviews${
+      reviewIdsQuery ? `?${reviewIdsQuery}` : ""
+    }`;
+
+    const cookies = request.headers.get("cookie");
+
+    // Make DELETE request to the external API
+    const response = await fetch(apiUrl, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: cookies || "",
+      },
+      credentials: "include", // Include cookies
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json(); // Log the error response
+      console.error("Fetch error response:", errorResponse);
+      return NextResponse.json(
+        { error: "Failed to delete reviews" },
+        { status: response.status }
+      );
+    }
+
+    const data = await response.json();
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error:", error); // Log the error for debugging
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}

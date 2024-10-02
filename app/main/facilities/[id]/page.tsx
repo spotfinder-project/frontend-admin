@@ -226,9 +226,36 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     setPage(newPage - 1);
   };
 
-  const handleDeleteReviews = () => {
-    console.log(selectedReviews);
-  };
+  const handleDeleteReviews = async () => {
+    // console.log(selectedReviews);
+    try {
+      if (!selectedReviews.length) return;
+
+      const response = await fetch(`/api/users/reviews`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ reviewIds: selectedReviews }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+
+      if (data.code === "REQ000") {
+        toast.success("리뷰를 삭제하였습니다.");
+        await mutate(`/api/facilities/reviews?facilityId=${id}`);
+      }
+    } catch (err) {
+      console.error("filated to delete the review:", err);
+      toast.error("리뷰 삭제를 할 수 없습니다. 다시 시도해 주세요.");
+    } finally {
+      setIsDeleteModalOpen(false);
+    }
+  }; //NOTE: test 필요
 
   return (
     <div className="container mx-auto p-4">
