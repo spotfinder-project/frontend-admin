@@ -10,6 +10,8 @@ import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { Notice, NoticeParams } from "@/types/types";
 import qs from "qs";
 import { handleUpdateNotice } from "@/service/noticeService";
+import Loading from "@/components/ui/Loading";
+import { toast } from "react-toastify";
 
 type NoticeItem = {
   id: string;
@@ -48,16 +50,19 @@ const ReportPage = () => {
     size: rowsPerPage,
   });
   const [totalPages, setTotalPages] = useState(0);
-  //  const queryString = qs.stringify(userSearchParams);
-  const { data, error } = useSWR(
+  const [loading, setLoading] = useState(false);
+
+  const { data, isLoading } = useSWR(
     `/api/notices?${qs.stringify(noticeSearchParams)}`
   );
 
   const filterReports = (notices: NoticeItem[]) => {
-    return notices.filter((item) =>
-      Object.entries(item).some((value) =>
-        value[0].toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    return notices.filter(
+      (item) =>
+        item.title.toLowerCase().includes(searchQuery.toLocaleLowerCase()) ||
+        item.content.toLowerCase().includes(searchQuery.toLocaleLowerCase()) ||
+        item.valid.toLowerCase().includes(searchQuery.toLocaleLowerCase()) ||
+        item.createdDate.includes(searchQuery)
     );
   };
 
@@ -105,6 +110,7 @@ const ReportPage = () => {
     item: NoticeItem
   ) => {
     try {
+      setLoading(true);
       const response = await handleUpdateNotice({
         noticeId: item.noticeId,
         title: item.title,
@@ -112,10 +118,15 @@ const ReportPage = () => {
         valid: event.target.value as "Y" | "N",
       });
 
-      if (response.code === "REQ000")
+      if (response.code === "REQ000") {
+        toast.success("수정하였습니다.");
         await mutate(`/api/notices?${qs.stringify(noticeSearchParams)}`);
+      }
     } catch (err) {
+      toast.error("수정에 실패하였습니다. 다시 시도해 주세요.");
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -163,6 +174,11 @@ const ReportPage = () => {
 
   const handleDelete = async () => {
     try {
+      if (!itemToDelete || !itemToDelete.noticeId) {
+        toast.error("삭제할 공지가 없습니다.");
+        return;
+      }
+      setLoading(true);
       const response = await fetch(`/api/notices/${itemToDelete?.noticeId}`, {
         method: "DELETE",
         headers: {
@@ -180,11 +196,9 @@ const ReportPage = () => {
       console.log(response);
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleClickNotice = (item: NoticeItem) => {
-    console.log("click ", item);
   };
 
   const handleClickEdit = (item: NoticeItem) => {
@@ -202,6 +216,8 @@ const ReportPage = () => {
     await mutate(`/api/notices?${qs.stringify(noticeSearchParams)}`);
     setIsAddNoticeModalOpen(false);
   };
+
+  if (isLoading) return <Loading loading={isLoading} />;
 
   return (
     <div className="container mx-auto px-4 py-4">
@@ -221,13 +237,6 @@ const ReportPage = () => {
               onClick={() => setIsAddNoticeModalOpen(true)}
             >
               추가
-            </button>
-            <button
-              className="btn btn-sm  btn-error mt-4 ml-2"
-              onClick={() => setIsDeleteModalOpen(true)}
-              disabled={selectedNotices.length === 0}
-            >
-              삭제
             </button>
 
             <div className="form-control ml-4">
@@ -256,11 +265,11 @@ const ReportPage = () => {
         <CustomTable
           columns={columns}
           data={filteredNotices}
-          selectedRows={selectedNotices}
+          // selectedRows={selectedNotices}
           rowsPerPage={rowsPerPage}
           page={page}
-          onSelectAll={handleSelectAllClick}
-          onSelectRow={handleClick}
+          // onSelectAll={handleSelectAllClick}
+          // onSelectRow={handleClick}
           onEdit={handleClickEdit}
           onDelete={handleClickItemDelete}
           handleChangeTableValue={handleChangeValidValue}
@@ -290,6 +299,7 @@ const ReportPage = () => {
           />
         )}
       </div>
+      <Loading loading={loading} />
     </div>
   );
 };

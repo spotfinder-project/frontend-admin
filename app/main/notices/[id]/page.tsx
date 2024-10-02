@@ -1,19 +1,21 @@
 "use client";
-import { Notice } from "@/types/types";
+
 import { useEffect, useState } from "react";
 import useSWR, { mutate } from "swr";
 import { useParams } from "next/navigation";
 import { handleUpdateNotice } from "@/service/noticeService";
+import Loading from "@/components/ui/Loading";
+import { toast } from "react-toastify";
 
 const NoticeDetailPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { id } = useParams();
-  const { data, error } = useSWR(`/api/notices/${id}`);
-
   const [activeStatus, setActiveStatus] = useState<"Y" | "N" | null>(null);
   const [noticeTitle, setNoticeTitle] = useState("");
   const [noticeContent, setNoticeContent] = useState("");
   const [createdAt, setCreatedAt] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { data, error, isLoading } = useSWR(`/api/notices/${id}`);
 
   useEffect(() => {
     if (data && data.data) {
@@ -35,6 +37,7 @@ const NoticeDetailPage = () => {
 
   const handleSaveClick = async () => {
     try {
+      setLoading(true);
       const response = await handleUpdateNotice({
         noticeId: id as string,
         title: noticeTitle,
@@ -45,11 +48,17 @@ const NoticeDetailPage = () => {
       if (response.code === "REQ000") {
         await mutate(`/api/notices/${id}`);
         setIsEditing(false);
+        toast.success("수정하였습니다");
       }
     } catch (err) {
+      toast.error("수정에 실패하였습니다. 다시 시도해 주세요.");
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (isLoading) return <Loading loading={isLoading} />;
 
   return (
     <div className="container mx-auto p-4">
@@ -117,6 +126,7 @@ const NoticeDetailPage = () => {
           </div>
         )}
       </div>
+      <Loading loading={loading} />
     </div>
   );
 };
