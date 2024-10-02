@@ -112,8 +112,10 @@ const UserQueryForm = ({ clickQueryFacilities }: Props) => {
             <option value="" disabled>
               승인 여부
             </option>
-            <option value="N">미승인</option>
-            <option value="Y">승인</option>
+            <option value="P">승인 대기</option>
+            <option value="A">승인 완료</option>
+            <option value="R">승인 거절</option>
+            <option value="S">승인 중단</option>
           </select>
         </div>
 

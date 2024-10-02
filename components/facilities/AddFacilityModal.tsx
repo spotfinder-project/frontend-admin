@@ -172,14 +172,22 @@ export default function AddFacilityModal({ onClose, onFinishAdd }: Props) {
             </div>
             <div className="form-control">
               <label className="label">승인 상태</label>
-              <input
-                type="text"
-                className="input input-bordered"
+              <select
+                id="approved"
+                className="select select-bordered"
                 value={approvalStatus}
                 onChange={(e) =>
-                  setApprovalStatus(e.target.value as "R" | "S" | "P" | "A")
+                  setApprovalStatus(e.target.value as "P" | "A" | "R" | "S")
                 }
-              />
+              >
+                <option value="" disabled>
+                  승인 여부
+                </option>
+                <option value="P">승인 대기</option>
+                <option value="A">승인 완료</option>
+                <option value="R">승인 거절</option>
+                <option value="S">승인 중단</option>
+              </select>
             </div>
           </div>
 
