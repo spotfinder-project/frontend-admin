@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ReportDetail } from "@/types/types";
 import useSWR, { mutate } from "swr";
 import { toast } from "react-toastify";
+import Loading from "@/components/ui/Loading";
 
 interface Props {
   params: {
@@ -43,7 +44,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
   const [answer, setAnswer] = useState(selectedReport?.answer);
   const [facility, setFacility] = useState(selectedReport?.facility);
 
-  const { data, error } = useSWR(`/api/reports/${id}`);
+  const { data, error, isLoading } = useSWR(`/api/reports/${id}`);
 
   useEffect(() => {
     if (data && data.data) {
@@ -99,7 +100,9 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
     }
   }; //NOTE: 테스트 필요
 
-  if (!data) return <div>신고 정보가 존재하지 않습니다.</div>;
+  if (isLoading) {
+    return <Loading loading={isLoading} />;
+  }
 
   return (
     <div className="container mx-auto p-4">

@@ -8,6 +8,7 @@ import useSWR from "swr";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { Report, ReportParams } from "@/types/types";
 import qs from "qs";
+import Loading from "@/components/ui/Loading";
 
 //NOTE: 테스트 필요
 
@@ -54,11 +55,12 @@ const ReportPage: React.FC = () => {
     size: rowsPerPage,
   });
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedReports, setSelectedReports] = useState<string[]>([]);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const queryString = qs.stringify(reportSearchParams);
   const [totalPages, setTotalPages] = useState(0);
-  const { data, error, mutate } = useSWR(`/api/reports?${queryString}`, {});
+  const { data, error, mutate, isLoading } = useSWR(
+    `/api/reports?${queryString}`,
+    {}
+  );
   useEffect(() => {
     if (data && data.list) {
       setReports(
@@ -110,41 +112,6 @@ const ReportPage: React.FC = () => {
     setPage(newPage - 1);
   };
 
-  const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      const newSelected = reports.map((item) => item.id);
-      setSelectedReports(newSelected);
-      return;
-    }
-    setSelectedReports([]);
-  };
-
-  const handleClick = (event: ChangeEvent<HTMLInputElement>, id: string) => {
-    const selectedIndex = selectedReports.indexOf(id);
-    let newSelected: string[] = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selectedReports, id);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selectedReports.slice(1));
-    } else if (selectedIndex === selectedReports.length - 1) {
-      newSelected = newSelected.concat(selectedReports.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selectedReports.slice(0, selectedIndex),
-        selectedReports.slice(selectedIndex + 1)
-      );
-    }
-
-    setSelectedReports(newSelected);
-  };
-
-  const handleDelete = () => {
-    console.log(selectedReports);
-    // setReports(reports.filter((item) => !selectedReports.includes(item.id)));
-    // setSelectedReports([]);
-  };
-
   const handleClickEdit = (item: ReportItem) => {
     console.log("click edit", item);
     router.push(`/main/report/${item.reportId}`);
@@ -160,6 +127,8 @@ const ReportPage: React.FC = () => {
     });
   };
 
+  if (isLoading) return <Loading loading={isLoading} />;
+
   return (
     <div className="container mx-auto px-4 py-4">
       <ReportQueryForm clickQueryReports={handleQueryReports} />
@@ -173,14 +142,6 @@ const ReportPage: React.FC = () => {
             className="input input-bordered w-1/3"
           />
           <div className="flex items-end">
-            <button
-              className="btn btn-sm  btn-error mt-4"
-              onClick={() => setIsDeleteModalOpen(true)}
-              disabled={selectedReports.length === 0}
-            >
-              Delete
-            </button>
-
             <div className="form-control ml-4">
               <div className="label pb-0">
                 <span className="label-text">페이지 당 개수</span>
@@ -207,11 +168,8 @@ const ReportPage: React.FC = () => {
         <CustomTable
           columns={columns}
           data={filteredReports}
-          selectedRows={selectedReports}
           rowsPerPage={rowsPerPage}
           page={page}
-          onSelectAll={handleSelectAllClick}
-          onSelectRow={handleClick}
           onEdit={handleClickEdit}
         />
 
@@ -223,14 +181,6 @@ const ReportPage: React.FC = () => {
           />
         </div>
       </div>
-      {isDeleteModalOpen && (
-        <ConfirmationModal
-          isOpen={isDeleteModalOpen}
-          onConfirm={handleDelete}
-          onCancel={() => setIsDeleteModalOpen(false)}
-          message="삭제하시겠습니까?"
-        />
-      )}
     </div>
   );
 };
