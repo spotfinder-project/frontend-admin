@@ -5,7 +5,7 @@ import UserDetailForm from "@/components/users/UserDetail";
 import { UserDetail, UserReview, UserFacility } from "@/types/types";
 import UserReviewModal from "@/components/users/UserReviewModal";
 import Link from "next/link";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { useParams, useRouter } from "next/navigation";
 import { selectTableItems } from "@/utils/util";
 import { toast } from "react-toastify";
@@ -146,14 +146,44 @@ const UserDetailPage = () => {
     setIsEditModalOpen(false);
     setSelectedReview(null);
   };
-  const handleSaveEdit = (updatedContent: string) => {
-    console.log("save edit", updatedContent);
-    // request update review
-    // close modal
-    setIsEditModalOpen(false);
-    //fetch user review
+  const handleSaveEdit = async (updatedContent: string) => {
+    try {
+      if (!selectedReview || !updatedContent) {
+        toast.error("선택된 리뷰나 내용이 존재하지 않습니다.");
+        return;
+      }
+      setLoading(true);
+      const response = await fetch(`/api/users/reviews`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          reviewId: selectedReview?.reviewId,
+          content: updatedContent,
+        }),
+      });
 
-    //NOTE: 회원 리뷰 수정 API 추가 후 수정 예정
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+
+      if (data.code === "REQ000") {
+        toast.success("리뷰를 삭제하였습니다.");
+        handleCloseEdit();
+        await mutate(
+          `/api/users/reviews?memberId=${id}&page=${reviewPage}&size=10`
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("리뷰를 수정할 수 없습니다. 다시 시도해 주세요.");
+    } finally {
+      setLoading(false);
+    }
+    //NOTE: test 필요
   };
 
   const handleSelectAllReviews = (event: ChangeEvent<HTMLInputElement>) => {

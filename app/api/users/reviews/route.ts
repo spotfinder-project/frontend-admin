@@ -110,3 +110,40 @@ export async function DELETE(request: Request) {
     );
   }
 }
+
+export async function PUT(request: Request) {
+  try {
+    const cookies = request.headers.get("cookie");
+    const { reviewId, content } = await request.json();
+
+    const response = await fetch(`${API_BASE_URL}/members/reviews`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        cookie: cookies || "",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        reviewId,
+        content,
+      }),
+    });
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: "Failed to fetch users" },
+        { status: response.status }
+      );
+    }
+
+    const data = await response.json();
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}

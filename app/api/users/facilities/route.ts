@@ -26,7 +26,6 @@ export async function GET(request: Request) {
       queryString ? `?${queryString}` : ""
     }`;
 
-    console.log(apiUrl);
     const cookies = request.headers.get("cookie");
 
     // Make the actual call to the external API
