@@ -1,5 +1,5 @@
 "use client";
-import { updatePassword } from "@/service/authService";
+import { logout, updatePassword } from "@/service/authService";
 import { FormEvent, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,8 @@ const AdminPage = () => {
       if (response.code === "REQ000") {
         setPassword("");
         toast.success("비밀번호가 수정되었습니다.");
+        const response = await logout();
+        if (response.code === "REQ000") router.push("/");
       } else if (response.message === "REQ003") {
         toast.error("권한이 없습니다. 다시 로그인 해주세요.");
         setTimeout(() => {
