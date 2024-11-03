@@ -8,7 +8,6 @@ import { UserParams } from "@/types/types";
 import useSWR, { mutate } from "swr";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import qs from "qs";
-import { selectTableItems } from "@/utils/util";
 import { toast } from "react-toastify";
 import Loading from "@/components/ui/Loading";
 
@@ -19,6 +18,7 @@ type User = {
 
 const columns = [
   { id: "id", label: "Member ID" },
+  { id: "nickname", label: "Nickname" },
   { id: "gender", label: "Gender" },
   { id: "socialType", label: "Social Login" },
   { id: "createdDate", label: "Created Date" },
