@@ -127,10 +127,9 @@ const ReportPage: React.FC = () => {
     });
   };
 
-  if (isLoading) return <Loading loading={isLoading} />;
-
   return (
     <div className="container mx-auto px-4 py-4">
+      {isLoading && <Loading loading={isLoading} />}
       <ReportQueryForm clickQueryReports={handleQueryReports} />
       <div className="mt-4 bg-base-100 shadow-lg rounded-lg">
         <div className="flex justify-between items-center p-4">
