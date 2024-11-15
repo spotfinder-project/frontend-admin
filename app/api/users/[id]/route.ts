@@ -9,8 +9,6 @@ export async function GET(
 ) {
   const id = params.id;
 
-  console.log(id);
-
   try {
     // Fetch the user from the external API or your database
     const cookies = request.headers.get("cookie");
@@ -44,14 +42,14 @@ export async function GET(
 // DELETE request handler (Delete user by id)
 export async function DELETE(
   request: Request,
-  { params }: { params: { memberId: string } }
+  { params }: { params: { id: string } }
 ) {
-  const { memberId } = params;
+  const { id } = params;
 
   try {
     const cookies = request.headers.get("cookie");
     // Send a request to delete the user
-    const response = await fetch(`${API_BASE_URL}/members/${memberId}`, {
+    const response = await fetch(`${API_BASE_URL}/members/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -62,13 +60,13 @@ export async function DELETE(
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: `Failed to delete user with memberId: ${memberId}` },
+        { error: `Failed to delete user with memberId: ${id}` },
         { status: response.status }
       );
     }
 
     return NextResponse.json({
-      message: `User with memberId: ${memberId} deleted successfully`,
+      message: `User with memberId: ${id} deleted successfully`,
     });
   } catch (error) {
     console.error(error);

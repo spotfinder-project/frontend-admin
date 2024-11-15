@@ -123,6 +123,8 @@ const UserManagementPage: React.FC = () => {
         return;
       }
       setLoading(true);
+
+      console.log(selectedUser.memberId);
       const response = await fetch(`/api/users/${selectedUser.memberId}`, {
         method: "DELETE",
         headers: {
