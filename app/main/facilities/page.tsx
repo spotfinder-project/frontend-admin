@@ -27,6 +27,7 @@ type Facility = {
 const columns = [
   { id: "facilityId", label: "시설물 ID" },
   { id: "name", label: "시설물명" },
+  { id: "type", label: "시설물구분" },
   { id: "location", label: "주소" },
   { id: "detailedLocation", label: "상세위치" },
   { id: "information", label: "추가 설명" },
