@@ -19,9 +19,9 @@ const MainPage = () => {
   ]);
   const [startDate, endDate] = dateRange;
   const isValidDateRange = (dateRange: [Date | null, Date | null]) => {
-    if (!dateRange[0] || !dateRange[1]) return false; // Both dates must be defined
+    if (!dateRange[0] || !dateRange[1]) return false;
     const daysDifference = differenceInDays(dateRange[1], dateRange[0]);
-    return daysDifference <= 7; // Difference must not exceed 7 days
+    return daysDifference <= 7;
   };
 
   const queryString = (dateRange: [Date | null, Date | null]) => {
@@ -32,7 +32,7 @@ const MainPage = () => {
   };
 
   const { data, error, isLoading } = useSWR(() => {
-    if (!isValidDateRange(dateRange)) return null; // Skip fetch for invalid ranges
+    if (!isValidDateRange(dateRange)) return null;
     const query = queryString(dateRange);
     return `/api/users/history?${query}`;
   });
@@ -42,6 +42,13 @@ const MainPage = () => {
   const updateDateRange = (update: [Date | null, Date | null]) => {
     setDateRange(update);
   };
+
+  useEffect(() => {
+    if (dateRange[0] && dateRange[1]) {
+      const daysDifference = differenceInDays(dateRange[1], dateRange[0]);
+      if (daysDifference > 7) toast.warn("일주일 간격으로 조회해주세요.");
+    }
+  }, [dateRange]);
 
   useEffect(() => {
     if (data && data.code === "REQ000") {
