@@ -15,10 +15,10 @@ const UserQueryForm = ({ clickQueryUsers }: Props) => {
   // const [birthDate, setBirthDate] = useState("");
   const [socialType, setSocialType] = useState("");
   const today = new Date();
-  const oneMonthFromNow = addMonths(today, 1);
+  const from = addMonths(today, -6);
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
+    from,
     today,
-    oneMonthFromNow,
   ]);
   const [startDate, endDate] = dateRange;
 
@@ -43,7 +43,7 @@ const UserQueryForm = ({ clickQueryUsers }: Props) => {
     setNickname("");
     setGender("");
     setSocialType("");
-    setDateRange([today, oneMonthFromNow]);
+    setDateRange([from, today]);
   };
 
   return (

@@ -15,10 +15,10 @@ const UserQueryForm = ({ clickQueryFacilities }: Props) => {
   const [location, setLocation] = useState("");
   const [approved, setApproved] = useState("");
   const today = new Date();
-  const oneMonthFromNow = addMonths(today, 1);
+  const from = addMonths(today, -6);
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
+    from,
     today,
-    oneMonthFromNow,
   ]);
   const [startDate, endDate] = dateRange;
 
@@ -47,7 +47,7 @@ const UserQueryForm = ({ clickQueryFacilities }: Props) => {
     setFacilityName("");
     setApproved("Y");
     setLocation("");
-    setDateRange([today, oneMonthFromNow]);
+    setDateRange([from, today]);
   };
 
   return (

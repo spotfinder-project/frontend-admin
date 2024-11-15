@@ -14,9 +14,9 @@ const NoticeQueryForm = ({ handleQueryNotices }: Props) => {
   const [title, setTitle] = useState("");
   const [isActive, setIsActive] = useState<NoticeType>(undefined);
   const today = new Date();
-  const oneMonthFromNow = addMonths(today, -1);
+  const from = addMonths(today, -6);
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-    oneMonthFromNow,
+    from,
     today,
   ]);
   const [startDate, endDate] = dateRange;
@@ -35,7 +35,7 @@ const NoticeQueryForm = ({ handleQueryNotices }: Props) => {
   const handleReset = () => {
     setTitle("");
     setIsActive(undefined);
-    setDateRange([oneMonthFromNow, today]);
+    setDateRange([from, today]);
   };
 
   return (

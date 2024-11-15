@@ -16,9 +16,9 @@ const ReportQueryForm = ({ clickQueryReports }: Props) => {
   const [resolved, setResolved] = useState("");
   const [createdDate, setCreatedDate] = useState("");
   const today = new Date();
-  const oneMonthFromNow = addMonths(today, -1);
+  const from = addMonths(today, -6);
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-    oneMonthFromNow,
+    from,
     today,
   ]);
   const [startDate, endDate] = dateRange;
