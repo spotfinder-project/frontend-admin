@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useEffect, useState } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -19,21 +20,52 @@ ChartJS.register(
   Legend
 );
 
-const mockData = {
-  labels: ["Jan", "Feb", "Mar", "Apr", "May", "June"],
-  datasets: [
-    {
-      label: "사용자 수",
-      data: [10, 20, 30, 100, 30, 50],
-      backgroundColor: "rgba(54, 162, 235, 0.5)",
-      borderColor: "rgba(54, 162, 235, 1)",
-    },
-  ],
+type ChartData = {
+  date: string;
+  count: number;
 };
 
-export const BarChart = () => {
+type Props = {
+  chartData: ChartData[];
+};
+
+type Dataset = {
+  label: string;
+  data: number[];
+  backgroundColor: string;
+  borderColor: string;
+};
+
+type Chart = {
+  labels: string[];
+  datasets: Dataset[];
+};
+
+export const BarChart = ({ chartData }: Props) => {
+  const [chart, setChart] = useState<Chart | null>(null);
+  useEffect(() => {
+    setChart({
+      labels: chartData.map((item) => item.date),
+      datasets: [
+        {
+          label: "사용자 수",
+          data: chartData.map((item) => item.count),
+          backgroundColor: "rgba(54, 162, 235, 0.5)",
+          borderColor: "rgba(54, 162, 235, 1)",
+        },
+      ],
+    });
+  }, [chartData]);
+
   const options = {
     responsive: true,
+    scales: {
+      y: {
+        ticks: {
+          stepSize: 1,
+        },
+      },
+    },
   };
-  return <Bar options={options} data={mockData} />;
+  return <div>{chart && <Bar options={options} data={chart} />}</div>;
 };
