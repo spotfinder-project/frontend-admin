@@ -49,9 +49,9 @@ const MainPage = () => {
     }
   }, [data]);
   return (
-    <div className="">
+    <div className="flex flex-col items-center justify-center">
       {isLoading && <Loading loading={isLoading} />}
-      <div className=" flex justify-end">
+      <div className="w-[80%] flex justify-end">
         <div className="w-[300px]">
           <DateRangePicker
             startDate={startDate}
@@ -61,7 +61,9 @@ const MainPage = () => {
         </div>
       </div>
 
-      <BarChart chartData={chartData} />
+      <div className="w-[80%] mt-8">
+        <BarChart chartData={chartData} />
+      </div>
     </div>
   );
 };
