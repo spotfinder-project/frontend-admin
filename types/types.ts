@@ -14,6 +14,7 @@ export interface Facility {
 
 export interface FacilityParams {
   facilityId?: string;
+  name?: string;
   type?: "R" | "S" | "T";
   location?: string;
   approvalStatus?: "P" | "A" | "R" | "S";

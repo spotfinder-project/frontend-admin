@@ -11,6 +11,7 @@ type Props = {
 const UserQueryForm = ({ clickQueryFacilities }: Props) => {
   const [facilityId, setFacilityId] = useState("");
   const [facilityType, setFacilityType] = useState("");
+  const [facilityName, setFacilityName] = useState("");
   const [location, setLocation] = useState("");
   const [approved, setApproved] = useState("");
   const today = new Date();
@@ -26,6 +27,7 @@ const UserQueryForm = ({ clickQueryFacilities }: Props) => {
 
     clickQueryFacilities({
       facilityId,
+      name: facilityName,
       type: facilityType as "R" | "S" | "T",
       location,
       approvalStatus: approved as "P" | "A" | "R" | "S",
@@ -42,6 +44,7 @@ const UserQueryForm = ({ clickQueryFacilities }: Props) => {
   const handleReset = () => {
     setFacilityId("");
     setFacilityType("");
+    setFacilityName("");
     setApproved("Y");
     setLocation("");
     setDateRange([today, oneMonthFromNow]);
@@ -63,6 +66,19 @@ const UserQueryForm = ({ clickQueryFacilities }: Props) => {
             className="input input-bordered"
             value={facilityId}
             onChange={(e) => setFacilityId(e.target.value)}
+          />
+        </div>
+
+        <div className="form-control">
+          <label className="label" htmlFor="facilityId">
+            <span className="label-text">시설물 이름</span>
+          </label>
+          <input
+            type="text"
+            id="facilityName"
+            className="input input-bordered"
+            value={facilityName}
+            onChange={(e) => setFacilityName(e.target.value)}
           />
         </div>
 
@@ -98,10 +114,10 @@ const UserQueryForm = ({ clickQueryFacilities }: Props) => {
           />
         </div>
 
-        {/* Social Login */}
+        {/* Approval status */}
         <div className="form-control">
           <label className="label" htmlFor="approved">
-            <span className="label-text">Social Login</span>
+            <span className="label-text">승인 여부</span>
           </label>
           <select
             id="approved"

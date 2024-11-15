@@ -10,6 +10,7 @@ export async function GET(request: Request) {
 
     const params: FacilityParams = {
       facilityId: query.get("facilityId") || undefined,
+      name: query.get("name") || undefined,
       type: (query.get("type") as "R" | "S" | "T") || undefined,
       location: query.get("location") || undefined,
       approvalStatus:

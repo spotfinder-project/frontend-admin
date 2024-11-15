@@ -1,5 +1,12 @@
 "use client";
-import React, { useState, ChangeEvent, MouseEvent, useEffect } from "react";
+import React, {
+  useState,
+  ChangeEvent,
+  MouseEvent,
+  useEffect,
+  use,
+  useCallback,
+} from "react";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
 import FacilityQueryForm from "@/components/facilities/FacilityQueryForm";
@@ -105,10 +112,14 @@ const FacilitiesPage: React.FC = () => {
     setPage(0);
     setFacilityParams(() => ({
       ...searchParams,
-      page: 1, // Convert to 1-based index for API call
+      page: 1,
       size: rowsPerPage,
     }));
-    const queryString = qs.stringify(facilityParams);
+    const queryString = qs.stringify({
+      ...searchParams,
+      page: 1,
+      size: rowsPerPage,
+    });
     await mutate(`/api/facilities?${queryString}`);
   };
 
@@ -155,7 +166,6 @@ const FacilitiesPage: React.FC = () => {
   };
 
   const handleDelete = async () => {
-    console.log(selectedFacilities);
     try {
       if (!selectedFacilities.length) return;
       setLoading(true);
@@ -199,10 +209,9 @@ const FacilitiesPage: React.FC = () => {
     await mutate(`/api/facilities?${queryString}`);
   };
 
-  if (isLoading) return <Loading loading={isLoading} />;
-
   return (
     <div className="container mx-auto px-4 py-4">
+      {isLoading && <Loading loading={isLoading} />}
       <FacilityQueryForm clickQueryFacilities={handleQueryFacilities} />
       <div className="mt-4 bg-base-100 shadow-lg rounded-lg">
         <div className="flex justify-between items-center p-4">
