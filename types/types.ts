@@ -52,6 +52,7 @@ export interface FacilityAdd {
   approvalStatus: "P" | "A" | "R" | "S";
   imageIds: number[];
 }
+
 export interface FacilityReview {
   reviewId: number;
   content: string;
@@ -139,12 +140,13 @@ export interface Notice {
 
 export interface NoticeParams {
   title?: string;
-  valid?: "Y" | "N";
+  valid?: "Y" | "N" | null;
   startDate?: string;
   endDate?: string;
   page?: number | string;
   size?: number | string;
 }
+
 export interface ReportDetail {
   reportId: number;
   content: string;
@@ -202,5 +204,6 @@ export interface Review {
 
 export interface TableData<T = Record<string, any>> {
   id: string;
+
   [key: string]: any;
 }

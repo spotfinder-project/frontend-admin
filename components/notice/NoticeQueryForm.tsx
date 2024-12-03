@@ -1,18 +1,18 @@
 "use client";
-import React, { useState } from "react";
+import React, {useState} from "react";
 import DateRangePicker from "../ui/DateRangePicker";
-import { addMonths, format } from "date-fns";
-import { NoticeParams } from "@/types/types";
+import {addMonths, format} from "date-fns";
+import {NoticeParams} from "@/types/types";
 
-type NoticeType = "Y" | "N" | undefined;
+type NoticeType = "Y" | "N" | '';
 
 type Props = {
   handleQueryNotices: (params: NoticeParams) => void;
 };
 
-const NoticeQueryForm = ({ handleQueryNotices }: Props) => {
+const NoticeQueryForm = ({handleQueryNotices}: Props) => {
   const [title, setTitle] = useState("");
-  const [isActive, setIsActive] = useState<NoticeType>(undefined);
+  const [isActive, setIsActive] = useState<NoticeType>('');
   const today = new Date();
   const from = addMonths(today, -6);
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
@@ -22,11 +22,9 @@ const NoticeQueryForm = ({ handleQueryNotices }: Props) => {
   const [startDate, endDate] = dateRange;
 
   const handleSearch = () => {
-    // Implement search functionality here
-    console.log(title);
     handleQueryNotices({
       title,
-      valid: isActive,
+      valid: isActive || null,
       startDate: dateRange[0] ? format(dateRange[0], "yyyy-MM-dd") : undefined,
       endDate: dateRange[1] ? format(dateRange[1], "yyyy-MM-dd") : undefined,
     });
@@ -34,7 +32,7 @@ const NoticeQueryForm = ({ handleQueryNotices }: Props) => {
 
   const handleReset = () => {
     setTitle("");
-    setIsActive(undefined);
+    setIsActive('');
     setDateRange([from, today]);
   };
 
