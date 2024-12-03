@@ -1,14 +1,14 @@
 "use client";
-import { FacilityParams } from "@/types/types";
-import React, { useState } from "react";
+import {FacilityParams} from "@/types/types";
+import React, {useState} from "react";
 import DateRangePicker from "../ui/DateRangePicker";
-import { addMonths, format } from "date-fns";
+import {addMonths, format} from "date-fns";
 
 type Props = {
   clickQueryFacilities: (searchParams: FacilityParams) => Promise<void>;
 };
 
-const UserQueryForm = ({ clickQueryFacilities }: Props) => {
+const UserQueryForm = ({clickQueryFacilities}: Props) => {
   const [facilityId, setFacilityId] = useState("");
   const [facilityType, setFacilityType] = useState("");
   const [facilityName, setFacilityName] = useState("");
@@ -45,7 +45,7 @@ const UserQueryForm = ({ clickQueryFacilities }: Props) => {
     setFacilityId("");
     setFacilityType("");
     setFacilityName("");
-    setApproved("Y");
+    setApproved("");
     setLocation("");
     setDateRange([from, today]);
   };
@@ -95,9 +95,9 @@ const UserQueryForm = ({ clickQueryFacilities }: Props) => {
             <option value="" disabled>
               시설물 구분
             </option>
-            <option value="garbage">쓰레기통</option>
-            <option value="toilet">화장실</option>
-            <option value="smoking">흡연구역</option>
+            <option value="T">쓰레기통</option>
+            <option value="R">화장실</option>
+            <option value="S">흡연구역</option>
           </select>
         </div>
 
