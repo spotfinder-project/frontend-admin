@@ -1,18 +1,14 @@
 // components/CustomTable.tsx
 
 import React from "react";
+import { TableData } from '@/types/types'
 
 interface Column {
   id: string;
   label: string;
 }
 
-interface TableData {
-  id: string;
-  [key: string]: any;
-}
-
-interface CustomTableProps {
+interface CustomTableProps<T extends TableData> {
   columns: Column[];
   data: TableData[];
   selectedRows?: string[];
@@ -28,11 +24,11 @@ interface CustomTableProps {
     event: React.ChangeEvent<HTMLInputElement>,
     id: string
   ) => void;
-  onEdit?: (item: TableData) => void;
-  onDelete?: (item: TableData) => void;
+  onEdit?:(item: T) => void;
+  onDelete?:(item: T) => void;
 }
 
-const CustomTable: React.FC<CustomTableProps> = ({
+const CustomTable: React.FC<CustomTableProps<TableData>> = ({
   columns,
   data,
   selectedRows,
@@ -42,7 +38,6 @@ const CustomTable: React.FC<CustomTableProps> = ({
   onSelectAll,
   onSelectRow,
   onEdit,
-
   onDelete,
   handleChangeTableValue,
 }) => {
@@ -140,7 +135,14 @@ const CustomTable: React.FC<CustomTableProps> = ({
                     </td>
                   );
                 } else {
-                  return <td key={column.id}>{(item as any)[column.id]}</td>;
+                  return (
+                    <td
+                      key={column.id}
+                      className="max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
+                    >
+                      {(item as any)[column.id]}
+                    </td>
+                  );
                 }
               })}
             </tr>

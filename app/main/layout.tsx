@@ -1,11 +1,9 @@
 "use client";
 import Link from "next/link";
-import { ReactNode } from "react";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { logout } from "@/service/authService";
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import {ReactNode, useState} from "react";
+import {usePathname, useRouter} from "next/navigation";
+import {logout} from "@/service/authService";
+import {toast} from "react-toastify";
 import Loading from "@/components/ui/Loading";
 
 interface MainLayoutProps {
@@ -97,6 +95,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <li className={getActiveMenu("/main/facilities")}>
               <Link href="/main/facilities">시설물 관리</Link>
             </li>
+            <li className={getActiveMenu("/main/reviews")}>
+              <Link href="/main/reviews">리뷰 관리</Link>
+            </li>
             <li className={getActiveMenu("/main/notices")}>
               <Link href="/main/notices">공지사항 관리</Link>
             </li>
@@ -109,7 +110,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </ul>
         </div>
       </div>
-      <Loading loading={loading} />
+      <Loading loading={loading}/>
     </div>
   );
 };

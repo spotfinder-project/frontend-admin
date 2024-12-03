@@ -133,6 +133,8 @@ export interface Notice {
   content: string;
   valid: "Y" | "N";
   createdAt: string;
+
+
 }
 
 export interface NoticeParams {
@@ -173,4 +175,32 @@ export interface ReportParams {
   startDate?: string;
   endDate?: string;
   offset?: number;
+}
+
+export interface ReviewParams {
+  nickname?: string;
+  facilityName?: string;
+  content?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number | string;
+  size?: number | string;
+}
+
+export interface Review {
+  reviewId: number;
+  nickname: string;
+  content: string;
+  createdDate: string;
+  facility: {
+    facilityId: number
+    type: "R" | "S" | "T";
+    name: string;
+    location: string;
+  }
+}
+
+export interface TableData<T = Record<string, any>> {
+  id: string;
+  [key: string]: any;
 }
