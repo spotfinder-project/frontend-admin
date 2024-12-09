@@ -1,35 +1,35 @@
 "use client";
-import React, {ChangeEvent, useCallback, useEffect, useState,} from "react";
+import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import AddFacilityModal from "@/components/facilities/AddFacilityModal";
-import useSWR, {mutate} from "swr";
-import {Review, ReviewParams, TableData} from "@/types/types";
+import useSWR, { mutate } from "swr";
+import { Review, ReviewParams, TableData } from "@/types/types";
 import qs from "qs";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 import Loading from "@/components/ui/Loading";
 import ReviewQueryForm from "@/components/reviews/ReviewQueryForm";
 
 type ReviewItem = TableData & Review;
 
 const columns = [
-  {id: "nickname", label: "닉네임"},
-  {id: "content", label: "리뷰 내용"},
-  {id: "type", label: "시설물구분"},
-  {id: "facilityId", label: "시설물 ID"},
-  {id: "name", label: "시설물명"},
-  {id: "location", label: "주소"},
-  {id: "createdDate", label: "생성일"},
-  {id: "delete", label: "상태"},
+  { id: "nickname", label: "닉네임" },
+  { id: "content", label: "리뷰 내용" },
+  { id: "type", label: "시설물구분" },
+  { id: "facilityId", label: "시설물 ID" },
+  { id: "name", label: "시설물명" },
+  { id: "location", label: "주소" },
+  { id: "createdDate", label: "생성일" },
+  { id: "delete", label: "상태" },
 ];
 
 const rowsPerPageOptions = [
-  {value: 10, label: 10},
-  {value: 20, label: 20},
-  {value: 50, label: 50},
-  {value: 100, label: 100},
+  { value: 10, label: 10 },
+  { value: 20, label: 20 },
+  { value: 50, label: 50 },
+  { value: 100, label: 100 },
 ];
 
 const ReviewsPage: React.FC = () => {
@@ -50,25 +50,32 @@ const ReviewsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
   const queryString = qs.stringify(reviewParams);
-  const {data, isLoading} = useSWR(`/api/reviews?${queryString}`);
+  const { data, isLoading } = useSWR(`/api/reviews?${queryString}`);
 
-  const filterReviews = useCallback((reviews: ReviewItem[]) => {
-    return reviews?.filter(
-      (item) =>
-        item.reviewId.toString().includes(searchQuery) ||
-        item.createdDate?.includes(searchQuery) ||
-        item.nickname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.facility.facilityId.toString().includes(searchQuery) ||
-        item.facility.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.facility.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.facility.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery]);
+  const filterReviews = useCallback(
+    (reviews: ReviewItem[]) => {
+      return reviews?.filter(
+        (item) =>
+          item.reviewId.toString().includes(searchQuery) ||
+          item.createdDate?.includes(searchQuery) ||
+          item.nickname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.facility.facilityId.toString().includes(searchQuery) ||
+          item.facility.type
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          item.facility.location
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          item.facility.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    },
+    [searchQuery]
+  );
 
   useEffect(() => {
     if (data && data.list) {
-      console.log(data)
+      console.log(data);
       setReviews(
         data.list.map((review: ReviewItem) => {
           return {
@@ -78,7 +85,6 @@ const ReviewsPage: React.FC = () => {
             location: review.facility.location,
             facilityId: review.facility.facilityId,
             type: review.facility.type,
-
           };
         })
       );
@@ -170,7 +176,7 @@ const ReviewsPage: React.FC = () => {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({facilityIds: selectedReviews}),
+        body: JSON.stringify({ reviewIds: selectedReviews }),
       });
 
       if (!response.ok) {
@@ -197,7 +203,6 @@ const ReviewsPage: React.FC = () => {
   const handleClickDelete = (item: TableData) => {
     setSelectedReviews([item.id]);
     setIsDeleteModalOpen(true);
-
   };
 
   const handleAddFacility = async () => {
@@ -208,8 +213,8 @@ const ReviewsPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-4">
-      {isLoading && <Loading loading={isLoading}/>}
-      <ReviewQueryForm clickQueryReviews={handleQueryReviews}/>
+      {isLoading && <Loading loading={isLoading} />}
+      <ReviewQueryForm clickQueryReviews={handleQueryReviews} />
       <div className="mt-4 bg-base-100 shadow-lg rounded-lg">
         <div className="flex justify-between items-center p-4">
           <input
@@ -275,8 +280,8 @@ const ReviewsPage: React.FC = () => {
           isOpen={isDeleteModalOpen}
           onConfirm={handleDelete}
           onCancel={() => {
-            setIsDeleteModalOpen(false)
-            setSelectedReviews([])
+            setIsDeleteModalOpen(false);
+            setSelectedReviews([]);
           }}
           message="삭제하시겠습니까?"
         />
@@ -288,7 +293,7 @@ const ReviewsPage: React.FC = () => {
           onFinishAdd={handleAddFacility}
         />
       )}
-      <Loading loading={loading}/>
+      <Loading loading={loading} />
     </div>
   );
 };

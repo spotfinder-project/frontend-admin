@@ -118,7 +118,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
 
   const totalPages = useMemo(
     () => Math.ceil(facilityReviews.length / rowsPerPage),
-    facilityReviews
+    [facilityReviews.length, rowsPerPage]
   );
   const handleImageRemove = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
@@ -278,7 +278,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
     try {
       if (!selectedReviews.length) return;
       setLoading(true);
-      const response = await fetch(`/api/users/reviews`, {
+      const response = await fetch(`/api/reviews`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -301,7 +301,7 @@ export default function FacilityDetailPage({ params: { id } }: Props) {
       toast.error("리뷰 삭제를 할 수 없습니다. 다시 시도해 주세요.");
     } finally {
       setIsDeleteModalOpen(false);
-      setLoading(true);
+      setLoading(false);
     }
   }; //NOTE: test 필요
 
