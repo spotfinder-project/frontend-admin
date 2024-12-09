@@ -185,7 +185,7 @@ const ReviewsPage: React.FC = () => {
       const data = await response.json();
 
       if (data.code === "REQ000") {
-        toast.success("시설물을 삭제하였습니다.");
+        toast.success("리뷰를 삭제하였습니다.");
 
         const queryString = qs.stringify(reviewParams);
         await mutate(`/api/reviews?${queryString}`);
