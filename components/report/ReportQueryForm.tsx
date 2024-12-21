@@ -46,10 +46,10 @@ const ReportQueryForm = ({ clickQueryReports }: Props) => {
 
   const handleReset = () => {
     setReportId("");
-
-    setResolved("Y");
+    setUserId("");
+    setResolved("");
     setFacilityId("");
-    setCreatedDate("");
+    setDateRange([from, today]);
   };
 
   return (
@@ -91,8 +91,8 @@ const ReportQueryForm = ({ clickQueryReports }: Props) => {
         </div>
 
         <div className="form-control">
-          <label className="label" htmlFor="address">
-            <span className="label-text">주소</span>
+          <label className="label" htmlFor="userId">
+            <span className="label-text">신고자 ID</span>
           </label>
           <input
             type="text"

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ReportDetail } from "@/types/types";
+import { FacilityDetail, ReportDetail } from "@/types/types";
 import useSWR, { mutate } from "swr";
 import { toast } from "react-toastify";
 import Loading from "@/components/ui/Loading";
@@ -14,45 +14,29 @@ interface Props {
 
 const ReportDetailPage = ({ params: { id } }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
-
-  // const selectedReport: ReportDetail = {
-  //   reportId: 1,
-  //   content: "현재는 해당 시설물이 존재하지 않습니다.",
-  //   answer: "처리 완료했습니다!",
-  //   status: "Y",
-  //   createdDate: "2024-09-01",
-  //   memberId: 1,
-  //   nickname: "Kim",
-  //   facility: {
-  //     facilityId: 1,
-  //     type: "R",
-  //     name: "쌍문역 내 화장실",
-  //     location: "쌍문역",
-  //     detailLocation: "지하 1층",
-  //     information: "개찰구 내에 존재합니다.",
-  //     department: "서울시설공단",
-  //     departmentPhoneNumber: "02-2290-7111",
-  //     approvalStatus: "A",
-  //     createdDate: "2024-09-01",
-  //     images: [],
-  //   },
-  // };
-  const [selectedReport, setSelectedReport] = useState<ReportDetail>();
-  const [approvalStatus, setApprovalStatus] = useState<"Y" | "N">(
-    selectedReport?.status as "Y" | "N"
+  const [selectedReport, setSelectedReport] = useState<ReportDetail | null>(
+    null
   );
-  const [answer, setAnswer] = useState(selectedReport?.answer);
-  const [facility, setFacility] = useState(selectedReport?.facility);
+  const [approvalStatus, setApprovalStatus] = useState<"Y" | "N">("N");
+  const [answer, setAnswer] = useState("");
+  const [facility, setFacility] = useState<FacilityDetail | null>(null);
 
   const { data, error, isLoading } = useSWR(`/api/reports/${id}`);
 
   useEffect(() => {
     if (data && data.data) {
       const report = data.data;
+      console.log(report);
       setSelectedReport(report);
-      setFacility(report.faclity);
+      setApprovalStatus(report?.status ?? "N");
+      setAnswer(report.answer ?? "");
+      setFacility(report.facility);
     }
   }, [data]);
+
+  useEffect(() => {
+    console.log(facility);
+  }, [facility]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -60,8 +44,8 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
 
   const handleCancelClick = () => {
     setIsEditing(false);
-    setApprovalStatus("N"); // Resetting approval status
-    setAnswer(""); // Resetting processing content
+    setApprovalStatus("N");
+    setAnswer("");
   };
 
   const handleSaveClick = async () => {
@@ -114,7 +98,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
           <input
             type="text"
             className="input input-bordered"
-            value={selectedReport?.memberId}
+            value={selectedReport?.memberId ?? ""}
             disabled
           />
         </div>
@@ -124,7 +108,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
           <input
             type="text"
             className="input input-bordered"
-            value={selectedReport?.nickname}
+            value={selectedReport?.nickname ?? ""}
             disabled
           />
         </div>
@@ -145,7 +129,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
           <input
             type="text"
             className="input input-bordered"
-            value={selectedReport?.createdDate}
+            value={selectedReport?.createdDate ?? ""}
             disabled
           />
         </div>
@@ -154,7 +138,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
           <textarea
             className="textarea textarea-bordered w-full"
             disabled
-            value={selectedReport?.content}
+            value={selectedReport?.content ?? ""}
           ></textarea>
         </div>
 
@@ -177,7 +161,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
           <input
             type="text"
             className="input input-bordered w-full"
-            value={facility?.facilityId}
+            value={facility?.facilityId ?? ""}
             disabled
           />
         </div>
@@ -187,7 +171,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
           <input
             type="text"
             className="input input-bordered w-full"
-            value={facility?.name}
+            value={facility?.name ?? ""}
             disabled
           />
         </div>
@@ -197,7 +181,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
           <input
             type="text"
             className="input input-bordered w-full"
-            value={facility?.location}
+            value={facility?.location ?? ""}
             disabled
           />
         </div>
@@ -207,7 +191,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
           <input
             type="text"
             className="input input-bordered w-full"
-            value={facility?.detailLocation}
+            value={facility?.detailLocation ?? ""}
             disabled
           />
         </div>
@@ -217,7 +201,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
           <input
             type="text"
             className="input input-bordered w-full"
-            value={facility?.department}
+            value={facility?.department ?? ""}
             disabled
           />
         </div>
@@ -227,7 +211,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
           <input
             type="text"
             className="input input-bordered w-full"
-            value={facility?.departmentPhoneNumber}
+            value={facility?.departmentPhoneNumber ?? ""}
             disabled
           />
         </div>
@@ -237,7 +221,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
           <select
             className="select select-bordered w-full"
             disabled
-            value={facility?.approvalStatus}
+            value={facility?.approvalStatus ?? ""}
           >
             <option value="Y">Y</option>
             <option value="N">N</option>
@@ -249,7 +233,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
           <input
             type="text"
             className="input input-bordered"
-            value={facility?.createdDate}
+            value={facility?.createdDate ?? ""}
             disabled
           />
         </div>
@@ -259,7 +243,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
       <h3 className="text-xl font-bold mt-4">이미지</h3>
       <div className="flex flex-wrap mt-4 p-4">
         {facility?.images &&
-          facility?.images.length > 0 &&
+          facility?.images?.length > 0 &&
           facility.images.map((image, index) => (
             <div
               className={`relative ${index % 2 !== 0 ? "ml-4" : ""}`}
@@ -274,7 +258,7 @@ const ReportDetailPage = ({ params: { id } }: Props) => {
               />
             </div>
           ))}
-        {!facility?.images.length && <p>이미지가 없습니다.</p>}
+        {!facility?.images?.length && <p>이미지가 없습니다.</p>}
       </div>
 
       {/* Buttons */}

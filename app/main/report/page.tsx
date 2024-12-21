@@ -1,5 +1,12 @@
 "use client";
-import React, { useState, ChangeEvent, MouseEvent, useEffect } from "react";
+import React, {
+  useState,
+  ChangeEvent,
+  MouseEvent,
+  useEffect,
+  use,
+  useCallback,
+} from "react";
 import Pagination from "@/components/ui/Pagination";
 import CustomTable from "@/components/ui/CustomTable";
 import { useRouter } from "next/navigation";
@@ -62,6 +69,7 @@ const ReportPage: React.FC = () => {
     {}
   );
   useEffect(() => {
+    console.log(data);
     if (data && data.list) {
       setReports(
         data.list.map((report: Report) => {
@@ -78,14 +86,9 @@ const ReportPage: React.FC = () => {
   }, [data]);
 
   useEffect(() => {
-    setFilteredReports(filterReports(reports));
-  }, [reports, searchQuery]);
-
-  useEffect(() => {
-    setPage(0);
     setReportSearchParams((prev) => ({
       ...prev,
-      page: page + 1, // Convert to 1-based index for API call
+      page: page + 1,
       size: rowsPerPage,
     }));
   }, [page, rowsPerPage]);
@@ -93,7 +96,7 @@ const ReportPage: React.FC = () => {
   const handleQueryReports = async (searchParams: ReportParams) => {
     setReportSearchParams(() => ({
       ...searchParams,
-      page: page + 1, // Convert to 1-based index for API call
+      page: page + 1,
       size: rowsPerPage,
     }));
     const queryString = qs.stringify(reportSearchParams);
@@ -113,19 +116,28 @@ const ReportPage: React.FC = () => {
   };
 
   const handleClickEdit = (item: ReportItem) => {
-    console.log("click edit", item);
     router.push(`/main/report/${item.reportId}`);
   };
 
-  const filterReports = (reports: ReportItem[]) => {
-    return reports?.filter((item) => {
-      item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.facilityId.toString().includes(searchQuery) ||
-        item.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.memberId.toString().includes(searchQuery) ||
-        item.createdDate.includes(searchQuery);
-    });
-  };
+  const filterReports = useCallback(
+    (reports: ReportItem[]) => {
+      return reports?.filter(
+        (item) =>
+          item.reportId.toString().includes(searchQuery) ||
+          item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.status.toString().includes(searchQuery) ||
+          item.memberId.toString().includes(searchQuery) ||
+          item.facilityId.toString().includes(searchQuery) ||
+          item.createdDate.includes(searchQuery)
+      );
+    },
+    [searchQuery]
+  );
+
+  useEffect(() => {
+    const filtered = filterReports(reports);
+    setFilteredReports(filtered);
+  }, [reports, searchQuery, filterReports]);
 
   return (
     <div className="container mx-auto px-4 py-4">
